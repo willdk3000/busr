@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
-import ReactMapGL, { Popup } from 'react-map-gl';
+import MapGL, { Popup } from 'react-map-gl';
 
+import StatCards from '../components/StatCards.js'
 import { getNewData } from '../API.js'
 
 class Livemap extends Component {
 
   state = {
+    subscribed: 0,
     viewport: {
-      width: "100%",
-      height: "80vh",
+      // width: "100%",
+      // height: "80vh",
       latitude: 45.506827,
       longitude: -73.662362,
-      zoom: 12
+      zoom: 11
     }
   };
 
@@ -20,11 +22,14 @@ class Livemap extends Component {
 
     console.log('componentDidMount')
 
-    getNewData((err, positions) => {
-      this.setState({
-        vehicles: positions ? positions.data : ''
+    const getData = this.state.subscribed == 0 ?
+      getNewData((err, positions) => {
+        this.setState({
+          vehicles: positions ? positions.data : '',
+          subscribed: 1
+        })
       })
-    });
+      : '';
 
     const map = this.reactMap.getMap();
 
@@ -106,7 +111,7 @@ class Livemap extends Component {
     }
 
     if (vehicles !== prevState.vehicles) {
-      console.log('before', prevState.vehicles)
+      //console.log('before', prevState.vehicles)
       console.log('now', vehicles)
 
       this.map.getSource("vehicules").setData(vehicles);
@@ -119,15 +124,25 @@ class Livemap extends Component {
   }
 
 
+  _onViewportChange = viewport => this.setState({ viewport });
+
+
   render() {
+
+    const { viewport } = this.state;
 
     return <React.Fragment >
       <div className="container-fluid">
-        <ReactMapGL
+        <StatCards
+          onlineVehicles={this.state.vehicles ? this.state.vehicles.features.length : 0}
+        />
+        <MapGL
+          {...viewport}
           ref={(reactMap) => this.reactMap = reactMap}
-          {...this.state.viewport}
+          width="100%"
+          height="80vh"
           mapStyle="mapbox://styles/mapbox/navigation-preview-night-v4"
-          onViewportChange={(viewport) => this.setState({ viewport })}
+          onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}
         />
       </div>

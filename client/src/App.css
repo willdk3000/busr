@@ -9,3 +9,19 @@
   margin-right: 10px;
   margin-left: 10px;
 }
+
+#stat-card {
+  text-align: center;
+  background-color:#D3EAF0;
+  border-style: solid;
+  border-width: 1px;
+}
+
+#nom-stat {
+  font-size: 0.8em;
+}
+
+#stat {
+  font-size: 1.25em;
+  font-weight: bold;
+}
