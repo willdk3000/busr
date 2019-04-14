@@ -82,11 +82,16 @@ class Livemap extends Component {
       map.addLayer(
         {
           "id": "position-vehicules",
-          "type": "circle",
+          "type": "symbol",
           "source": "vehicules",
+          "layout": {
+            'text-field': String.fromCharCode("0xF207"),
+            'text-font': ['Font Awesome 5 Free Solid'],
+            'text-size': 12
+          },
           "paint": {
-            "circle-radius": 4,
-            "circle-color": "#009EE0"
+            //"circle-radius": 4,
+            "text-color": "#009EE0"
           }
         }
       );
@@ -141,7 +146,7 @@ class Livemap extends Component {
           ref={(reactMap) => this.reactMap = reactMap}
           width="100%"
           height="80vh"
-          mapStyle="mapbox://styles/mapbox/navigation-preview-night-v4"
+          mapStyle="mapbox://styles/wdoucetk/cjuc6i3960ggz1flfzzn3upav"
           onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}
         />
