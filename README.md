@@ -11,6 +11,7 @@ Le guide suivant permet d'installer une copie locale du projet et de l'exécuter
 ```
 Node
 PostgreSQL
+Un compte STM développeur avec un clé API
 ```
 
 ### Installation
