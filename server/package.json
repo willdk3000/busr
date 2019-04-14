@@ -1,0 +1,32 @@
+{
+  "name": "busr-stm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:dev": "concurrently \"nodemon src/index.js\" \"cd .. && cd client && npm start\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@turf/turf": "^5.1.6",
+    "bluebird": "^3.5.4",
+    "body-parser": "^1.18.3",
+    "concurrently": "^4.1.0",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "gtfs-realtime-bindings": "0.0.4",
+    "gulp": "^4.0.0",
+    "helmet": "^3.16.0",
+    "knex": "^0.15.2",
+    "knex-migrate": "^1.7.0",
+    "moment-timezone": "^0.5.23",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.7",
+    "pg": "^7.9.0",
+    "protobufjs": "^6.8.8",
+    "request": "^2.88.0",
+    "socket.io": "^2.2.0"
+  }
+}
