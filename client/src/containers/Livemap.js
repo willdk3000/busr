@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import MapGL, { Popup } from 'react-map-gl';
+import MapGL from 'react-map-gl';
 
 import StatCards from '../components/StatCards.js'
 import { getNewData } from '../API.js'
@@ -20,9 +20,7 @@ class Livemap extends Component {
 
   componentDidMount = async () => {
 
-    console.log('componentDidMount')
-
-    const getData = this.state.subscribed == 0 ?
+    const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
         this.setState({
           vehicles: positions ? positions.data : '',
@@ -91,7 +89,7 @@ class Livemap extends Component {
           },
           "paint": {
             //"circle-radius": 4,
-            "text-color": "#009EE0"
+            "text-color": "#FFFFFF"
           }
         }
       );
@@ -107,7 +105,6 @@ class Livemap extends Component {
   //rafraichir les donnees avec les nouvelles donnees recues de socketio
   //au moment du update du component
   componentDidUpdate(prevProps, prevState) {
-    console.log('componentDidUpdate')
     const { vehicles } = this.state;
     const { mapIsLoaded } = this.state;
 
@@ -116,9 +113,6 @@ class Livemap extends Component {
     }
 
     if (vehicles !== prevState.vehicles) {
-      //console.log('before', prevState.vehicles)
-      console.log('now', vehicles)
-
       this.map.getSource("vehicules").setData(vehicles);
     }
   }
@@ -130,6 +124,25 @@ class Livemap extends Component {
 
 
   _onViewportChange = viewport => this.setState({ viewport });
+
+
+  _onHover = event => {
+    const { features, srcEvent: { offsetX, offsetY } } = event;
+    const hoveredFeature = features && features.find(f => f.layer.id === 'position-vehicules');
+    this.setState({ hoveredFeature, x: offsetX, y: offsetY });
+  };
+
+
+  _renderTooltip() {
+    const { hoveredFeature, x, y } = this.state;
+
+    return hoveredFeature && (
+      <div className="mapToolTip" style={{ left: x, top: y }}>
+        <div>NO de véhicule: {hoveredFeature.properties.vehicle_id}</div>
+        <div>Ligne: {hoveredFeature.properties.route_id}</div>
+      </div>
+    );
+  }
 
 
   render() {
@@ -149,7 +162,10 @@ class Livemap extends Component {
           mapStyle="mapbox://styles/wdoucetk/cjuc6i3960ggz1flfzzn3upav"
           onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}
-        />
+          onHover={this._onHover}
+        >
+          {this._renderTooltip()}
+        </MapGL>
       </div>
     </React.Fragment >
   }
