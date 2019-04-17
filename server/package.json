@@ -11,7 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@turf/turf": "^5.1.6",
-    "bluebird": "^3.5.4",
     "body-parser": "^1.18.3",
     "concurrently": "^4.1.0",
     "dotenv": "^6.1.0",

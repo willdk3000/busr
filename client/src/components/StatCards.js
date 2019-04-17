@@ -11,7 +11,8 @@ class StatCards extends Component {
               <div id='stat'>{this.props.onlineVehicles}</div>
             </div>
             <div className="col-sm" id="stat-card">
-              2 of 4 columns
+              <div id='nom-stat'>Rafraîchit à :</div>
+              <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
               3 of 4 columns

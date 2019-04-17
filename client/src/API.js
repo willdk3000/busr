@@ -10,9 +10,12 @@ export async function getNewData(cb) {
 
   socket.on('refresh data', positions => cb(null, positions))
 
-  socket.emit('subscribeToTimer', 20000);
+  socket.emit('subscribeToTimer', 30000);
 
 }
 
-
+export async function getTraces() {
+  const response = await fetch('/api/traces')
+  return response.json();
+};
 

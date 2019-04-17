@@ -17,6 +17,7 @@
 const request = require('request');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 
+
 const turf = require('@turf/turf');
 
 const controllers = require('./controllers')
@@ -26,7 +27,7 @@ const API_URL = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
 const requestSettings = {
   method: 'POST',
   headers: {
-    'apikey': 'l7xxdf9fc4d9e1734698ba426cd60fb2d069'
+    'apikey': process.env.API_KEY
   },
   url: `${API_URL}/vehiclePositions`,
   encoding: null
@@ -52,7 +53,9 @@ module.exports = {
         request(requestSettings, function (error, response, body) {
           if (!error && response.statusCode == 200) {
             resolve(body);
-          };
+          } else {
+            console.log(response.statusCode, error)
+          }
         });
       })
     }
@@ -69,6 +72,7 @@ module.exports = {
         let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
           vehicle_id: e.id,
           route_id: e.vehicle.trip.route_id,
+          trip_id: e.vehicle.trip.trip_id,
           start_time: e.vehicle.trip.start_time,
           start_date: e.vehicle.trip.start_date,
           current_stop_sequence: e.vehicle.current_stop_sequence,
@@ -93,6 +97,6 @@ module.exports = {
       return 'done'
     }
 
-    setInterval(main, 20000);
+    setInterval(main, 30000);
   }
 }

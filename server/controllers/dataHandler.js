@@ -6,7 +6,7 @@ module.exports = {
         return knex.raw(
             `
             WITH data_array AS (
-                SELECT now() AS timestamp,
+                SELECT LOCALTIME AS timestamp,
                 jsonb_array_elements('${req}'::jsonb) AS data
             )
             INSERT INTO vehicles (timestamp, data)

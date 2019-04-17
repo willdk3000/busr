@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
 
 import StatCards from '../components/StatCards.js'
-import { getNewData } from '../API.js'
+import { getNewData, getTraces } from '../API.js'
 
 class Livemap extends Component {
 
@@ -20,11 +20,15 @@ class Livemap extends Component {
 
   componentDidMount = async () => {
 
+    const traces = await getTraces();
+
     const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
         this.setState({
           vehicles: positions ? positions.data : '',
-          subscribed: 1
+          timestamp: positions ? positions.timestamp : '',
+          subscribed: 1,
+          traces: traces.rows[0].jsonb_build_object
         })
       })
       : '';
@@ -63,12 +67,6 @@ class Livemap extends Component {
                 },
                 "properties": {
                   "route_id": "191",
-                  "timestamp": 1555218650,
-                  "start_date": "20190414",
-                  "start_time": "00:31:00",
-                  "vehicle_id": "25204",
-                  "server_request": "2019-04-14T05:11:26.489Z",
-                  "current_stop_sequence": 71
                 }
               }]
           }
@@ -76,7 +74,10 @@ class Livemap extends Component {
       );
 
       //ajout de la couche de vehicules (basee sur la source vehicules)
-      //a faire : trouver comment mettre un icone de bus
+      //pour les icones de bus, s'assurer de mettre le type symbol
+      //le code 0xF207 s'explique comme suit :
+      //0x caracteres a ajouter pour tous les icones
+      //F207 identifiant de l'icone bus de fontawesome
       map.addLayer(
         {
           "id": "position-vehicules",
@@ -115,6 +116,9 @@ class Livemap extends Component {
     if (vehicles !== prevState.vehicles) {
       this.map.getSource("vehicules").setData(vehicles);
     }
+
+    console.log(this.state)
+
   }
 
 
@@ -137,9 +141,12 @@ class Livemap extends Component {
     const { hoveredFeature, x, y } = this.state;
 
     return hoveredFeature && (
+      //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
+      //avec un autre tooltip...
       <div className="mapToolTip" style={{ left: x, top: y }}>
         <div>NO de véhicule: {hoveredFeature.properties.vehicle_id}</div>
         <div>Ligne: {hoveredFeature.properties.route_id}</div>
+        <div>Trip: {hoveredFeature.properties.trip_id}</div>
       </div>
     );
   }
@@ -153,12 +160,13 @@ class Livemap extends Component {
       <div className="container-fluid">
         <StatCards
           onlineVehicles={this.state.vehicles ? this.state.vehicles.features.length : 0}
+          lastRefresh={this.state.timestamp ? this.state.timestamp : ''}
         />
         <MapGL
           {...viewport}
           ref={(reactMap) => this.reactMap = reactMap}
           width="100%"
-          height="80vh"
+          height="78vh"
           mapStyle="mapbox://styles/wdoucetk/cjuc6i3960ggz1flfzzn3upav"
           onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}
