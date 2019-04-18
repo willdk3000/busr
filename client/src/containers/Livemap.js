@@ -9,8 +9,6 @@ class Livemap extends Component {
   state = {
     subscribed: 0,
     viewport: {
-      // width: "100%",
-      // height: "80vh",
       latitude: 45.506827,
       longitude: -73.662362,
       zoom: 11
@@ -20,15 +18,13 @@ class Livemap extends Component {
 
   componentDidMount = async () => {
 
-    const traces = await getTraces();
-
     const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
         this.setState({
           vehicles: positions ? positions.data : '',
           timestamp: positions ? positions.timestamp : '',
-          subscribed: 1,
-          traces: traces.rows[0].jsonb_build_object
+          subscribed: 1
+          //traces: traces.rows[0].jsonb_build_object
         })
       })
       : '';
@@ -37,6 +33,11 @@ class Livemap extends Component {
 
     //initialisation de la carte
     this.handleOnLoad(map)
+
+    const traces = await getTraces();
+    this.setState({
+      traces: traces.rows[0].jsonb_build_object
+    })
 
   }
 
@@ -73,6 +74,32 @@ class Livemap extends Component {
         }
       );
 
+      map.addSource(
+        "traces", {
+          "type": "geojson",
+          "data": {
+            "type": "FeatureCollection",
+            "features": [
+              {
+                "type": "Feature",
+                "geometry": {
+                  "type": "LineString",
+                  "coordinates": [[
+                    -73.603118,
+                    45.446466
+                  ], [
+                    -73.593242,
+                    45.451158
+                  ]]
+                },
+                "properties": {
+                  "ID": "10014",
+                }
+              }]
+          }
+        }
+      );
+
       //ajout de la couche de vehicules (basee sur la source vehicules)
       //pour les icones de bus, s'assurer de mettre le type symbol
       //le code 0xF207 s'explique comme suit :
@@ -89,11 +116,25 @@ class Livemap extends Component {
             'text-size': 12
           },
           "paint": {
-            //"circle-radius": 4,
             "text-color": "#FFFFFF"
           }
         }
       );
+
+      map.addLayer({
+        "id": "traces",
+        "type": "line",
+        "source": "traces",
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round",
+          "visibility": "visible"
+        },
+        "paint": {
+          "line-width": 2,
+          "line-color": "#ff0000"
+        }
+      });
 
       this.setState({ mapIsLoaded: true });
 
@@ -139,6 +180,15 @@ class Livemap extends Component {
 
   _renderTooltip() {
     const { hoveredFeature, x, y } = this.state;
+
+    const trip = hoveredFeature ? hoveredFeature.properties.trip_id : '';
+
+    //pourquoi ce filter ne marche pas??
+    //les trip id de this.state.traces.features.properties.trip_id 
+    // ne sont pas comme ceux de hoveredFeature.properties.trip_id
+
+    const trace = this.state.traces ? this.state.traces.features.filter(e => e.properties.trip_id === '194115824') : ''
+    console.log(trace)
 
     return hoveredFeature && (
       //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
