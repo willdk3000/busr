@@ -116,7 +116,7 @@ class Livemap extends Component {
             'text-size': 12
           },
           "paint": {
-            "text-color": "#FFFFFF"
+            "text-color": "#009DE0"
           }
         }
       );
@@ -158,7 +158,7 @@ class Livemap extends Component {
       this.map.getSource("vehicules").setData(vehicles);
     }
 
-    console.log(this.state)
+    //console.log(this.state)
 
   }
 
@@ -179,16 +179,22 @@ class Livemap extends Component {
 
 
   _renderTooltip() {
-    const { hoveredFeature, x, y } = this.state;
+    const { hoveredFeature, x, y, mapIsLoaded } = this.state;
 
     const trip = hoveredFeature ? hoveredFeature.properties.trip_id : '';
 
-    //pourquoi ce filter ne marche pas??
-    //les trip id de this.state.traces.features.properties.trip_id 
-    // ne sont pas comme ceux de hoveredFeature.properties.trip_id
+    //il semble que certains numero de trips ont plusieurs shapes
 
-    const trace = this.state.traces ? this.state.traces.features.filter(e => e.properties.trip_id === '194115824') : ''
+    const trace = this.state.traces ? this.state.traces.features.filter((e) => {
+      return e.properties.trips.some((f) => {
+        return f == trip
+      })
+    }) : ''
+
     console.log(trace)
+
+    const hoverTrace = mapIsLoaded == true ? this.map.getSource("traces").setData(trace[0]) : '';
+
 
     return hoveredFeature && (
       //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
@@ -217,7 +223,7 @@ class Livemap extends Component {
           ref={(reactMap) => this.reactMap = reactMap}
           width="100%"
           height="78vh"
-          mapStyle="mapbox://styles/wdoucetk/cjuc6i3960ggz1flfzzn3upav"
+          mapStyle="mapbox://styles/wdoucetk/cjun8whio1ha21fmzxt8knp7k"
           onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}
           onHover={this._onHover}
@@ -230,3 +236,6 @@ class Livemap extends Component {
 }
 
 export default Livemap;
+
+//mapbox://styles/wdoucetk/cjun8whio1ha21fmzxt8knp7k light
+//mapbox://styles/wdoucetk/cjuc6i3960ggz1flfzzn3upav navigation

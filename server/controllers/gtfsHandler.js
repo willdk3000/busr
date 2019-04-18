@@ -18,7 +18,7 @@ module.exports = {
                                 'ID', shape_id,
                                 'ligne', route_id,
                                 'direction', direction_id,
-                                'trip_id', trip_id)        
+                                'trips', trips)        
                   ) AS feature
                  
                   FROM (SELECT * FROM traces) inputs) features;`,
