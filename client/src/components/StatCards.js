@@ -7,15 +7,16 @@ class StatCards extends Component {
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm" id="stat-card">
-              <div id='nom-stat'>Véhicules en ligne :</div>
-              <div id='stat'>{this.props.onlineVehicles}</div>
-            </div>
-            <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
               <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
-              3 of 4 columns
+              <div id='nom-stat'>Véhicules actifs :</div>
+              <div id='stat'>{this.props.onlineVehicles}</div>
+            </div>
+            <div className="col-sm" id="stat-card">
+              <div id='nom-stat'>Lignes en service :</div>
+              <div id='stat'>{this.props.routes}</div>
             </div>
             <div className="col-sm" id="stat-card">
               4 of 4 columns

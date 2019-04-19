@@ -18,6 +18,7 @@ module.exports = {
                                 'ID', shape_id,
                                 'ligne', route_id,
                                 'direction', direction_id,
+                                'route_name', route_long_name,
                                 'trips', trips)        
                   ) AS feature
                  

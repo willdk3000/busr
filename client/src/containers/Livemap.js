@@ -24,7 +24,6 @@ class Livemap extends Component {
           vehicles: positions ? positions.data : '',
           timestamp: positions ? positions.timestamp : '',
           subscribed: 1
-          //traces: traces.rows[0].jsonb_build_object
         })
       })
       : '';
@@ -43,6 +42,7 @@ class Livemap extends Component {
 
 
   handleOnLoad = async (map) => {
+    let emptyGeoJSON = { "type": "FeatureCollection", "features": [] }
 
     map.on('load', () => {
 
@@ -54,49 +54,14 @@ class Livemap extends Component {
       map.addSource(
         "vehicules", {
           "type": "geojson",
-          "data": {
-            "type": "FeatureCollection",
-            "features": [
-              {
-                "type": "Feature",
-                "geometry": {
-                  "type": "Point",
-                  "coordinates": [
-                    -73.58889770507812,
-                    45.476383209228516
-                  ]
-                },
-                "properties": {
-                  "route_id": "191",
-                }
-              }]
-          }
+          "data": emptyGeoJSON
         }
       );
 
       map.addSource(
         "traces", {
           "type": "geojson",
-          "data": {
-            "type": "FeatureCollection",
-            "features": [
-              {
-                "type": "Feature",
-                "geometry": {
-                  "type": "LineString",
-                  "coordinates": [[
-                    -73.603118,
-                    45.446466
-                  ], [
-                    -73.593242,
-                    45.451158
-                  ]]
-                },
-                "properties": {
-                  "ID": "10014",
-                }
-              }]
-          }
+          "data": emptyGeoJSON
         }
       );
 
@@ -156,9 +121,15 @@ class Livemap extends Component {
 
     if (vehicles !== prevState.vehicles) {
       this.map.getSource("vehicules").setData(vehicles);
-    }
 
-    //console.log(this.state)
+      const vehRoutes = this.state.vehicles ? this.state.vehicles.features.map((e) => {
+        return e.properties.route_id
+      }) : ''
+
+      const uniqueRoutes = [...new Set(vehRoutes)]
+
+      this.setState({ routes: uniqueRoutes })
+    }
 
   }
 
@@ -178,30 +149,50 @@ class Livemap extends Component {
   };
 
 
+  _onClick = event => {
+    const { features, srcEvent: { offsetX, offsetY } } = event;
+    const clickedFeature = features && features.find(f => f.layer.id === 'position-vehicules');
+    this.setState({ clickedFeature, x: offsetX, y: offsetY });
+  };
+
+
   _renderTooltip() {
-    const { hoveredFeature, x, y, mapIsLoaded } = this.state;
 
-    const trip = hoveredFeature ? hoveredFeature.properties.trip_id : '';
+    let emptyGeoJSON = { "type": "FeatureCollection", "features": [] }
 
-    //il semble que certains numero de trips ont plusieurs shapes
+    const { clickedFeature, hoveredFeature, x, y, mapIsLoaded } = this.state;
+
+    const tripClick = clickedFeature ? clickedFeature.properties.trip_id : '';
+    const tripHover = hoveredFeature ? hoveredFeature.properties.trip_id : '';
+
+    //un shape contient plusieurs trips,
+    //donc il faut filtrer chaque shape afin de voir s'il contient le trip selectionne
 
     const trace = this.state.traces ? this.state.traces.features.filter((e) => {
       return e.properties.trips.some((f) => {
-        return f == trip
+        return f === tripClick
       })
     }) : ''
 
-    console.log(trace)
+    //le nom de la ligne n'est pas dans l'objet vehicle-location donc il doit etre 
+    //ajoute du gtfs
+    const nomLigne = this.state.traces ? this.state.traces.features.filter((e) => {
+      return e.properties.trips.some((f) => {
+        return f === tripHover
+      })
+    }) : ''
 
-    const hoverTrace = mapIsLoaded == true ? this.map.getSource("traces").setData(trace[0]) : '';
-
+    const clickTrace = mapIsLoaded === true ? (tripClick !== '' ? this.map.getSource("traces").setData(trace[0])
+      : this.map.getSource("traces").setData(emptyGeoJSON))
+      : '';
 
     return hoveredFeature && (
       //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
       //avec un autre tooltip...
       <div className="mapToolTip" style={{ left: x, top: y }}>
-        <div>NO de véhicule: {hoveredFeature.properties.vehicle_id}</div>
+        <div>No de véhicule: {hoveredFeature.properties.vehicle_id}</div>
         <div>Ligne: {hoveredFeature.properties.route_id}</div>
+        <div>Axe: {nomLigne[0].properties.route_name}</div>
         <div>Trip: {hoveredFeature.properties.trip_id}</div>
       </div>
     );
@@ -215,8 +206,9 @@ class Livemap extends Component {
     return <React.Fragment >
       <div className="container-fluid">
         <StatCards
+          lastRefresh={this.state.timestamp ? this.state.timestamp : '-'}
           onlineVehicles={this.state.vehicles ? this.state.vehicles.features.length : 0}
-          lastRefresh={this.state.timestamp ? this.state.timestamp : ''}
+          routes={this.state.routes ? this.state.routes.length : 0}
         />
         <MapGL
           {...viewport}
@@ -227,6 +219,7 @@ class Livemap extends Component {
           onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}
           onHover={this._onHover}
+          onClick={this._onClick}
         >
           {this._renderTooltip()}
         </MapGL>
