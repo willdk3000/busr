@@ -4,8 +4,8 @@ const NotFound = () => (
     <div className="container-fluid">
         <div className="jumbotron">
             <div className="container">
-                <h1 className="display-4">Not Found!</h1>
-                <p className="lead">The page you are looking for is unavailable.</p>
+                <h1 className="display-4">Page introuvable...</h1>
+                <p className="lead">La page recherchée n'est pas disponible.</p>
             </div>
         </div>
     </div>

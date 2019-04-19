@@ -19,7 +19,8 @@ class StatCards extends Component {
               <div id='stat'>{this.props.routes}</div>
             </div>
             <div className="col-sm" id="stat-card">
-              4 of 4 columns
+              <div id='nom-stat'>Réseau :</div>
+              <div id='stat'>STM</div>
             </div>
           </div>
         </div>
