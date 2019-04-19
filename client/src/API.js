@@ -1,7 +1,7 @@
 import io from "socket.io-client";
-// const API_URL = process.env.NODE_ENV ? window.location.hostname : 'http://localhost:5000'
+const API_URL = process.env.NODE_ENV ? window.location.hostname : 'http://192.168.0.146:5000'
 //Pour mobile, l'adresse ci-dessous doit etre le IP et non localhost
-const socket = io.connect('http://192.168.0.146:5000', { transports: ['websocket'] });
+const socket = io.connect(API_URL, { transports: ['websocket'] });
 
 export async function getNewData(cb) {
 

@@ -46,10 +46,10 @@ class Livemap extends Component {
 
     map.on('load', () => {
 
-      //mettre au moins un point valide sur la carte a l'initialisation pour eviter que mapbox 
+      //mettre un geojson valide (mais vide) sur la carte a l'initialisation pour eviter que mapbox 
       //genere une erreur. comment c'est monte ici, la source 'vehicules' est chargee au moment
       //ou la carte finit de charger. pour que la source soit valide, elle doit contenir au 
-      //moins un point valide sur la carte.
+      //un geojson valide.
 
       map.addSource(
         "vehicules", {
@@ -70,6 +70,8 @@ class Livemap extends Component {
       //le code 0xF207 s'explique comme suit :
       //0x caracteres a ajouter pour tous les icones
       //F207 identifiant de l'icone bus de fontawesome
+      //la police FontAwesome doit avoir ete chargee dans une des couches du style de carte utilise
+      //voir mapboxstudio
       map.addLayer(
         {
           "id": "position-vehicules",
