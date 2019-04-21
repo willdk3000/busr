@@ -61,7 +61,6 @@ module.exports = {
     }
 
     async function main() {
-      //let deleted = await deleteAll();
       featureArray = [];
 
       var newData = await requestData();
@@ -84,13 +83,13 @@ module.exports = {
 
       console.log('Nombre de bus en ligne :', vehicles.length);
 
-      const insert = await insertData();
+      const insert = await insertData(vehicles.length);
       console.log('Mise a jour completee')
       return 'done'
 
     }
 
-    async function insertData() {
+    async function insertData(vehLength) {
       let featureCollection = turf.featureCollection(featureArray);
       const setPositions = await controllers.dataHandler.insert(JSON.stringify([featureCollection]));
       console.log('Nouvelles donnees inserees');

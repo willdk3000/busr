@@ -15,9 +15,9 @@ export async function getNewData(cb) {
 
 }
 
-export function closeSocket() {
-  socket.disconnect()
-}
+// export function closeSocket() {
+//   socket.disconnect()
+// }
 
 export async function getTraces() {
   const response = await fetch('/api/traces')

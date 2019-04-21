@@ -22,7 +22,7 @@ class Livemap extends Component {
       getNewData((err, positions) => {
         this.setState({
           vehicles: positions ? positions.data : '',
-          timestamp: positions ? positions.timestamp : '',
+          timestamp: positions ? positions.time : '',
           subscribed: 1
         })
       })
@@ -139,7 +139,6 @@ class Livemap extends Component {
 
   componentWillUnmount = async () => {
     this.map.remove();
-    const disc = await closeSocket();
   }
 
 

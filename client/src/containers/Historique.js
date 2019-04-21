@@ -11,21 +11,9 @@ class Historique extends Component {
   componentDidMount = async () => {
 
     const allVehicles = await getHistory()
-    console.log(allVehicles)
-
-    const vehArray = [];
-
-    allVehicles.forEach((e) => {
-      vehArray.push({
-        'timestamp': e.timestamp,
-        'vehicles': e.data.features.length
-      })
-    })
-
-    console.log(vehArray)
 
     this.setState({
-      history: vehArray
+      history: allVehicles
     })
   }
 
@@ -41,7 +29,7 @@ class Historique extends Component {
               <XAxis dataKey="timestamp" name='timestamp' />
               <YAxis name='véhicules' />
               <Tooltip />
-              <Scatter dataKey="vehicles" fill="#009DE0" />
+              <Scatter dataKey="vehlen" fill="#009DE0" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
