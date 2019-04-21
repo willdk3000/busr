@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
 
 import StatCards from '../components/StatCards.js'
-import { getNewData, getTraces } from '../API.js'
+import { getNewData, getTraces, closeSocket } from '../API.js'
 
 class Livemap extends Component {
 
@@ -65,6 +65,7 @@ class Livemap extends Component {
         }
       );
 
+
       //ajout de la couche de vehicules (basee sur la source vehicules)
       //pour les icones de bus, s'assurer de mettre le type symbol
       //le code 0xF207 s'explique comme suit :
@@ -99,7 +100,7 @@ class Livemap extends Component {
         },
         "paint": {
           "line-width": 2,
-          "line-color": "#ff0000"
+          "line-color": "#009500"
         }
       });
 
@@ -136,8 +137,9 @@ class Livemap extends Component {
   }
 
 
-  componentWillUnmount() {
+  componentWillUnmount = async () => {
     this.map.remove();
+    const disc = await closeSocket();
   }
 
 
@@ -194,7 +196,7 @@ class Livemap extends Component {
       <div className="mapToolTip" style={{ left: x, top: y }}>
         <div>No de véhicule: {hoveredFeature.properties.vehicle_id}</div>
         <div>Ligne: {hoveredFeature.properties.route_id}</div>
-        <div>Axe: {nomLigne[0].properties.route_name}</div>
+        <div>Axe: {nomLigne ? nomLigne[0].properties.route_name : ''}</div>
         <div>Trip: {hoveredFeature.properties.trip_id}</div>
       </div>
     );

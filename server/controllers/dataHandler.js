@@ -34,13 +34,21 @@ module.exports = {
             })
     },
 
-    list(req, res) {
+    latest(req, res) {
         return knex('vehicles')
             .where({})
             .orderBy('timestamp', 'desc')
             .limit(1)
             .then(result => {
                 return result
+            })
+    },
+
+    allvehicles(req, res) {
+        return knex('vehicles')
+            .where({})
+            .then(result => {
+                res.json(result)
             })
     }
 

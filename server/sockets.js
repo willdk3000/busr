@@ -6,7 +6,7 @@ const api = require('./API.js')
 
 let socketCount = 0
 
-const removeData = controllers.dataHandler.delete();
+//const removeData = controllers.dataHandler.delete();
 
 function init(server) {
     const io = socketIO(server, { transports: ['websocket'] });
@@ -28,7 +28,7 @@ function init(server) {
 
             setInterval(async () => {
                 console.log('emitting...')
-                let newData = await controllers.dataHandler.list();
+                let newData = await controllers.dataHandler.latest();
                 //console.log(newData[0]);
                 io.emit('refresh data', newData[0])
                 console.log('emitted!')
