@@ -1,6 +1,6 @@
 # busr
 
-Application qui permet de localiser les bus de la STM en temps réel.
+Application qui permet de localiser les bus de la STM et de la STL en temps réel.
 
 ## Avant de débuter
 
@@ -11,7 +11,8 @@ Le guide suivant permet d'installer une copie locale du projet et de l'exécuter
 ```
 Node
 PostgreSQL
-Un compte STM développeur avec un clé API
+Un compte STM développeur avec une clé API
+Un compte Mapbox avec une clé API
 ```
 
 ### Installation
@@ -26,26 +27,32 @@ Copier le repo sur la machine locale
 ```
 cd server
 npm install // installation des dépendances du serveur
+cd ..
 cd client
 npm install // installation des dépendances du client
 ```
 
 ```
-Configurer la BD et le fichier .env
-Créer une table "vehicles" avec un champ "timestamp" (timestamp with timezone) et un champ "data" (jsonb)
+Configurer la BD et le fichier .env du côté serveur (Accès BD+CLÉ STM) et du côté client (CLÉ MAPBOX)
+Créer une table "vehicles" avec les champs:
+  * "timestamp" (timestamp without timezone) 
+  * "time" (time without timezone)
+  * "data" (jsonb)
+  * "vehlen" (integer)
+  * "weekday" (text)
+  * "reseau" (text)
 ```
 
 ```
-cd ..
 cd server
 npm run start:dev // démarrage de l'app, devrait rouler sur localhost:3000
 ```
 
-Le serveur fait une requête POST vers les serveurs de la STM à toutes les 20 secondes.
+Le serveur fait une requête POST vers les serveurs de la STM et de la STL à toutes les 30 secondes.
 Les données reçues sont stockées dans la base de données.
 
 Quand un client se connecte au serveur, il démarre une boucle qui envoie les données
-de la BD vers le client aux 20 secondes.
+de la BD vers le client aux 15 secondes.
 
 ## Tech-Stack
 
