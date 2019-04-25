@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
 
 import StatCards from '../components/StatCards.js'
-import { getNewData, getTraces, closeSocket } from '../API.js'
+import { getNewData, getTraces } from '../API.js'
 
 class Livemap extends Component {
 
@@ -15,16 +15,29 @@ class Livemap extends Component {
     }
   };
 
-
   componentDidMount = async () => {
 
     const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
+
+        const vehSTM = positions ? positions.filter((e) => {
+          return e.reseau === 'STM'
+        }) : ''
+
+        const vehSTL = positions ? positions.filter((e) => {
+          return e.reseau === 'STL'
+        }) : ''
+
         this.setState({
-          vehicles: positions ? positions.data : '',
-          timestamp: positions ? positions.time : '',
+          vehiclesSTM: vehSTM ? vehSTM[0].data : '',
+          vehiclesSTL: vehSTL ? vehSTL[0].data : '',
+          timestamp: vehSTM ? vehSTM[0].time : '',
           subscribed: 1
         })
+
+        console.log(this.state);
+
+
       })
       : '';
 
@@ -52,7 +65,14 @@ class Livemap extends Component {
       //un geojson valide.
 
       map.addSource(
-        "vehicules", {
+        "vehiculesSTM", {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        }
+      );
+
+      map.addSource(
+        "vehiculesSTL", {
           "type": "geojson",
           "data": emptyGeoJSON
         }
@@ -75,9 +95,9 @@ class Livemap extends Component {
       //voir mapboxstudio
       map.addLayer(
         {
-          "id": "position-vehicules",
+          "id": "position-vehicules-stm",
           "type": "symbol",
-          "source": "vehicules",
+          "source": "vehiculesSTM",
           "layout": {
             'text-field': String.fromCharCode("0xF207"),
             'text-font': ['Font Awesome 5 Free Solid'],
@@ -85,6 +105,22 @@ class Livemap extends Component {
           },
           "paint": {
             "text-color": "#009DE0"
+          }
+        }
+      );
+
+      map.addLayer(
+        {
+          "id": "position-vehicules-stl",
+          "type": "symbol",
+          "source": "vehiculesSTL",
+          "layout": {
+            'text-field': String.fromCharCode("0xF207"),
+            'text-font': ['Font Awesome 5 Free Solid'],
+            'text-size': 12
+          },
+          "paint": {
+            "text-color": "#82C341"
           }
         }
       );
@@ -115,23 +151,37 @@ class Livemap extends Component {
   //rafraichir les donnees avec les nouvelles donnees recues de socketio
   //au moment du update du component
   componentDidUpdate(prevProps, prevState) {
-    const { vehicles } = this.state;
+    const { vehiclesSTM, vehiclesSTL } = this.state;
     const { mapIsLoaded } = this.state;
 
     if (!mapIsLoaded) {
       return;
     }
 
-    if (vehicles !== prevState.vehicles) {
-      this.map.getSource("vehicules").setData(vehicles);
+    // Gestion vehicules STM
+    if (vehiclesSTM !== prevState.vehiclesSTM) {
+      this.map.getSource("vehiculesSTM").setData(vehiclesSTM);
 
-      const vehRoutes = this.state.vehicles ? this.state.vehicles.features.map((e) => {
+      const vehRoutesSTM = this.state.vehiclesSTM ? this.state.vehiclesSTM.features.map((e) => {
         return e.properties.route_id
       }) : ''
 
-      const uniqueRoutes = [...new Set(vehRoutes)]
+      const uniqueRoutesSTM = [...new Set(vehRoutesSTM)]
 
-      this.setState({ routes: uniqueRoutes })
+      this.setState({ routesSTM: uniqueRoutesSTM })
+    }
+
+    // Gestion vehicules STL
+    if (vehiclesSTL !== prevState.vehiclesSTL) {
+      this.map.getSource("vehiculesSTL").setData(vehiclesSTL);
+
+      const vehRoutesSTL = this.state.vehiclesSTL ? this.state.vehiclesSTL.features.map((e) => {
+        return e.properties.route_id
+      }) : ''
+
+      const uniqueRoutesSTL = [...new Set(vehRoutesSTL)]
+
+      this.setState({ routesSTL: uniqueRoutesSTL })
     }
 
   }
@@ -147,14 +197,14 @@ class Livemap extends Component {
 
   _onHover = event => {
     const { features, srcEvent: { offsetX, offsetY } } = event;
-    const hoveredFeature = features && features.find(f => f.layer.id === 'position-vehicules');
+    const hoveredFeature = features && features.find(f => f.layer.id === 'position-vehicules-stm');
     this.setState({ hoveredFeature, x: offsetX, y: offsetY });
   };
 
 
   _onClick = event => {
     const { features, srcEvent: { offsetX, offsetY } } = event;
-    const clickedFeature = features && features.find(f => f.layer.id === 'position-vehicules');
+    const clickedFeature = features && features.find(f => f.layer.id === 'position-vehicules-stm');
     this.setState({ clickedFeature, x: offsetX, y: offsetY });
   };
 
@@ -210,8 +260,10 @@ class Livemap extends Component {
       <div className="container-fluid">
         <StatCards
           lastRefresh={this.state.timestamp ? this.state.timestamp : '-'}
-          onlineVehicles={this.state.vehicles ? this.state.vehicles.features.length : 0}
-          routes={this.state.routes ? this.state.routes.length : 0}
+          onlineVehiclesSTM={this.state.vehiclesSTM ? this.state.vehiclesSTM.features.length : 0}
+          routesSTM={this.state.routesSTM ? this.state.routesSTM.length : 0}
+          onlineVehiclesSTL={this.state.vehiclesSTL ? this.state.vehiclesSTL.features.length : 0}
+          routesSTL={this.state.routesSTL ? this.state.routesSTL.length : 0}
         />
         <MapGL
           {...viewport}

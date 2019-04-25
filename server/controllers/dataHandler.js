@@ -2,7 +2,7 @@ const knex = require('../config/knex')
 
 module.exports = {
 
-    insert(req, res) {
+    insertSTM(req, res) {
         const veh_len = JSON.parse(req)[0].features.length
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
@@ -14,19 +14,40 @@ module.exports = {
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(now(), 'D') as weekday 
+                to_char(now(), 'D') as weekday,
+                'STM' AS reseau                
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau)
             SELECT * FROM data_array
             `
         )
             .then((result) => {
-                //console.log('Positions rafraichies');
                 return 'done'
             })
-        // .finally(function () {
-        //     knex.destroy();
-        // });
+    },
+
+    insertSTL(req, res) {
+        const veh_len = JSON.parse(req)[0].features.length;
+        //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
+        //pour les weekday, 1 = dimanche, 2 = lundi, ...
+        return knex.raw(
+            `
+            WITH data_array AS (
+                SELECT 
+                NOW() AS timestamp,
+                LOCALTIME AS time,
+                jsonb_array_elements('${req}'::jsonb) AS data,
+                ${veh_len} AS vehlen,
+                to_char(now(), 'D') as weekday ,
+                'STL' AS reseau
+            )
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau)
+            SELECT * FROM data_array
+            `
+        )
+            .then((result) => {
+                return 'done'
+            })
     },
 
     delete(req, res) {
@@ -42,18 +63,28 @@ module.exports = {
     },
 
     latest(req, res) {
-        return knex('vehicles')
-            .where({})
-            .orderBy('timestamp', 'desc')
-            .limit(1)
-            .then(result => {
-                return result
-            })
+        return knex.raw(
+            `
+            SELECT
+                *
+            FROM (
+                SELECT
+                    ROW_NUMBER() OVER (PARTITION BY reseau ORDER BY timestamp DESC) AS r,
+                    t.*
+                FROM
+                    vehicles t) x
+            WHERE
+                x.r <= 1;
+            `
+        ).then((result) => {
+            //console.log(result.rows)
+            return result.rows
+        })
     },
 
     allvehicles(req, res) {
         return knex('vehicles')
-            .select('timestamp', 'vehlen')
+            .select('time', 'vehlen', 'weekday')
             .where({})
             .then(result => {
                 res.json(result)

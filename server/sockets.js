@@ -30,7 +30,7 @@ function init(server) {
                 console.log('emitting...')
                 let newData = await controllers.dataHandler.latest();
                 //console.log(newData[0]);
-                io.emit('refresh data', newData[0])
+                io.emit('refresh data', newData)
                 console.log('emitted!')
             }, interval);
 

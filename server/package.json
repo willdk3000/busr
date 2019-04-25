@@ -22,6 +22,7 @@
     "knex-migrate": "^1.7.0",
     "moment-timezone": "^0.5.23",
     "morgan": "^1.9.1",
+    "node-fetch": "^2.3.0",
     "nodemon": "^1.18.7",
     "pg": "^7.9.0",
     "protobufjs": "^6.8.8",
