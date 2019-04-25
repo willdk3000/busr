@@ -35,12 +35,12 @@ npm install // installation des dépendances du client
 ```
 Configurer la BD et le fichier .env du côté serveur (Accès BD+CLÉ STM) et du côté client (CLÉ MAPBOX)
 Créer une table "vehicles" avec les champs:
-  * "timestamp" (timestamp without timezone) 
-  * "time" (time without timezone)
-  * "data" (jsonb)
-  * "vehlen" (integer)
-  * "weekday" (text)
-  * "reseau" (text)
+⋅⋅* "timestamp" (timestamp without timezone) 
+⋅⋅* "time" (time without timezone)
+⋅⋅* "data" (jsonb)
+⋅⋅* "vehlen" (integer)
+⋅⋅* "weekday" (text)
+⋅⋅* "reseau" (text)
 ```
 
 ```
