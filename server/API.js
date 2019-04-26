@@ -41,10 +41,8 @@ const requestSettings = {
 //À valider : pourquoi avec node-fetch je n'arrive pas à passer le body de la response dans
 //GtfsRealtimeBindings.FeedMessage...mais avec request ça marche?
 
-let featureArraySTM = [];
+let vehArraySTM = [];
 let vehArraySTL = [];
-let vehArraySTL_unique = [];
-let dataSTL = [];
 
 module.exports = {
 
@@ -52,10 +50,12 @@ module.exports = {
 
     async function deleteAll() {
       const removeData = await controllers.dataHandler.delete();
-      console.log('Donnees supprimees!')
+      console.log('Donnees supprimées!')
       return 'done'
     }
 
+
+    // Requete vers le serveur de la STM
     function requestDataSTM() {
       return new Promise(function (resolve, reject) {
         request(requestSettings, function (error, response, body) {
@@ -68,6 +68,7 @@ module.exports = {
       })
     }
 
+    // Requete vers le serveur de nextbus (STL)
     async function requestDataSTL(epochTime) {
       const response = await fetch(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=stl&t=${epochTime}`)
       return response.json()
@@ -76,7 +77,7 @@ module.exports = {
     async function main() {
 
       // GESTION VEHICULES STM
-      featureArraySTM = [];
+      vehArraySTM = [];
 
       let newData = await requestDataSTM();
 
@@ -94,19 +95,17 @@ module.exports = {
           timestamp: e.vehicle.timestamp.low,
           server_request: new Date()
         });
-        featureArraySTM.push(vehPos);
+        vehArraySTM.push(vehPos);
       })
 
-      console.log('Nombre de bus en ligne STM :', vehicles.length);
-
-      const insertSTM = await insertData(vehicles.length);
-      console.log('Mise a jour completee STM');
-
+      console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
 
 
       // GESTION VEHICULES STL
+      // L'API nextbus ne donne pas les mêmes infos que gtfs-r
       let epochTime = (new Date).getTime() / 1000;
       let dataSTL = await requestDataSTL(epochTime);
+      vehArraySTL = [];
 
       dataSTL.vehicle.forEach((e) => {
         vehArraySTL.push(turf.point([parseFloat(e.lon), parseFloat(e.lat)], {
@@ -118,30 +117,24 @@ module.exports = {
 
       console.log('Nombre de bus en ligne STL :', vehArraySTL.length);
 
-      //L'API nextbus semble dedoubler les donnees, donc rendre unique
-      //let vehArraySTL_unique = [...new Set(vehArraySTL)]
 
-      //console.log(vehArraySTL_unique)
-
-      let vehIDs = dataSTL.vehicle.map((e) => e.id)
-      // console.log(vehIDs)
-      // console.log(vehIDs.length)
-
-      const insertSTL = await insertData(vehIDs);
-      console.log('Mise a jour completee STL');
+      // Insérer les données dans la BD
+      const insertALL = await insertData();
+      console.log('Mise a jour complétée');
 
       return 'done'
 
     }
 
-    async function insertData(vehLength) {
-      let featureCollection = turf.featureCollection(featureArraySTM);
+    // Insertion des données dans la BD
+    async function insertData() {
+      let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
 
-      const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([featureCollection]));
+      const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
       const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
 
-      console.log('Nouvelles donnees inserees');
+      console.log('Nouvelles données inserées');
       return 'done'
     }
 

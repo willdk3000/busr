@@ -29,9 +29,9 @@ class Livemap extends Component {
         }) : ''
 
         this.setState({
-          vehiclesSTM: vehSTM ? vehSTM[0].data : '',
-          vehiclesSTL: vehSTL ? vehSTL[0].data : '',
-          timestamp: vehSTM ? vehSTM[0].time : '',
+          vehiclesSTM: positions ? vehSTM[0].data : '',
+          vehiclesSTL: positions ? vehSTL[0].data : '',
+          timestamp: positions ? vehSTM[0].time : '',
           subscribed: 1
         })
 

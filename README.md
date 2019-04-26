@@ -13,6 +13,7 @@ Node
 PostgreSQL
 Un compte STM développeur avec une clé API
 Un compte Mapbox avec une clé API
+Télécharger et dézipper les gtfs de la STM et de la STL dans les dossiers server/gtfs/stm et server/gtfs/stl
 ```
 
 ### Installation
@@ -25,11 +26,12 @@ Copier le repo sur la machine locale
 ```
 
 ```
-cd server
-npm install // installation des dépendances du serveur
-cd ..
-cd client
-npm install // installation des dépendances du client
+>npm install // installation des dépendances du serveur
+>knex-migrate up
+>import_tables
+>cd ..
+>cd client
+>npm install // installation des dépendances du client
 ```
 
 ```
