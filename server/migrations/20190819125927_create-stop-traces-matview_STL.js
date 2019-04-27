@@ -1,7 +1,7 @@
 exports.up = function (knex, Promise) {
 
     return knex.raw(
-        `CREATE MATERIALIZED VIEW public.stop_traces
+        `CREATE MATERIALIZED VIEW "STL".stop_traces
         TABLESPACE pg_default
         AS
         WITH tableshapearrets AS (
@@ -11,9 +11,8 @@ exports.up = function (knex, Promise) {
                stop_times.hresecondes,
                trips.shape_id,
                trips.trip_id,
-               trips.service_id,
-               trips.direction_id
-            FROM trips
+               trips.service_id
+            FROM "STL".trips
             LEFT JOIN stop_times ON stop_times.trip_id = trips.trip_id
         )
         SELECT tableshapearrets.stop_id,
@@ -23,14 +22,13 @@ exports.up = function (knex, Promise) {
             tableshapearrets.departure_time,
             tableshapearrets.hresecondes,
             tableshapearrets.service_id,
-            tableshapearrets.direction_id,
             stops.stop_name,
             stops.stop_code,
             stops.stop_lat,
             stops.stop_lon,
             stops.point_geog
         FROM tableshapearrets
-        LEFT JOIN stops ON stops.stop_id = tableshapearrets.stop_id
+        LEFT JOIN "STL".stops ON "STL".stops.stop_id = tableshapearrets.stop_id
         ORDER BY tableshapearrets.trip_id, tableshapearrets.shape_id, tableshapearrets.stop_sequence
         WITH NO DATA;`
     );
@@ -38,5 +36,5 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
     return knex.raw(
-        `DROP materialized view "public".stop_traces CASCADE;`);
+        `DROP materialized view "STL".stop_traces;`);
 };

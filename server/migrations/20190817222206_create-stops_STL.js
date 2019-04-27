@@ -1,18 +1,30 @@
 
 exports.up = function (knex, Promise) {
-  return knex.STL.createTable('stops', (table) => {
-    table.text('stop_id');
-    table.integer('stop_code');
-    table.text('stop_name');
-    table.double('stop_lon');
-    table.double('stop_lat');
-    table.integer('location_type');
-    table.integer('stop_display');
-    table.integer('stop_abribus')
-  });
+  return knex.raw(
+    `CREATE TABLE "STL".stops
+    (
+        stop_id text COLLATE pg_catalog."default",
+        stop_code integer,
+        stop_name text COLLATE pg_catalog."default",
+        stop_lon double precision,
+        stop_lat double precision,
+        location_type integer,
+        stop_display integer,
+        stop_abribus integer
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+    
+    ALTER TABLE "STL".stops
+        OWNER to postgres;`
+  )
 };
 
 exports.down = function (knex, Promise) {
-  return knex.STL.dropTable('stops');
+  return knex.raw(
+    `DROP TABLE "STL".stops`
+  )
 };
 

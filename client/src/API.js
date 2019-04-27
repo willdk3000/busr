@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 //const API_URL = process.env.NODE_ENV ? window.location.hostname : 'http://192.168.0.146:5000'
 //Pour mobile, l'adresse ci-dessous doit etre le IP et non localhost
-const socket = io.connect('http://192.168.0.146:5000', { transports: ['websocket'] });
+const socket = io.connect('http://localhost:5000', { transports: ['websocket'] });
 
 export async function getNewData(cb) {
 
@@ -19,20 +19,15 @@ export async function getNewData(cb) {
 //   socket.disconnect()
 // }
 
-export async function getTraces() {
-  const response = await fetch('/api/traces')
+export async function getTracesSTM() {
+  const response = await fetch('/api/traces_stm')
   return response.json();
 };
 
-export async function getHistory() {
-  const response = await fetch('/api/allvehicles')
-  return response.json()
-};
 
+export async function getStopsSTM(trip_id) {
 
-export async function getStops(trip_id) {
-
-  const response = await fetch('/api/stops', {
+  const response = await fetch('/api/stops_stm', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -43,3 +38,15 @@ export async function getStops(trip_id) {
   return response
 
 }
+
+
+export async function getTracesSTL() {
+  const response = await fetch('/api/traces_stl');
+  return response.json();
+};
+
+
+export async function getHistory() {
+  const response = await fetch('/api/allvehicles')
+  return response.json()
+};

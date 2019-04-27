@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
 
 import StatCards from '../components/StatCards.js'
-import { getNewData, getTraces } from '../API.js'
+import { getNewData, getTracesSTM, getTracesSTL } from '../API.js'
 
 class Livemap extends Component {
 
@@ -35,9 +35,6 @@ class Livemap extends Component {
           subscribed: 1
         })
 
-        console.log(this.state);
-
-
       })
       : '';
 
@@ -46,9 +43,14 @@ class Livemap extends Component {
     //initialisation de la carte
     this.handleOnLoad(map)
 
-    const traces = await getTraces();
+    const tracesSTM = await getTracesSTM();
     this.setState({
-      traces: traces.rows[0].jsonb_build_object
+      tracesSTM: tracesSTM.rows[0].jsonb_build_object
+    })
+
+    const tracesSTL = await getTracesSTL();
+    this.setState({
+      tracesSTL: tracesSTL.rows[0].jsonb_build_object
     })
 
   }
@@ -79,7 +81,14 @@ class Livemap extends Component {
       );
 
       map.addSource(
-        "traces", {
+        "tracesSTM", {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        }
+      );
+
+      map.addSource(
+        "tracesSTL", {
           "type": "geojson",
           "data": emptyGeoJSON
         }
@@ -126,9 +135,9 @@ class Livemap extends Component {
       );
 
       map.addLayer({
-        "id": "traces",
+        "id": "tracesSTM",
         "type": "line",
-        "source": "traces",
+        "source": "tracesSTM",
         "layout": {
           "line-join": "round",
           "line-cap": "round",
@@ -137,6 +146,21 @@ class Livemap extends Component {
         "paint": {
           "line-width": 2,
           "line-color": "#009500"
+        }
+      });
+
+      map.addLayer({
+        "id": "tracesSTL",
+        "type": "line",
+        "source": "tracesSTL",
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round",
+          "visibility": "visible"
+        },
+        "paint": {
+          "line-width": 2,
+          "line-color": "#0153A6"
         }
       });
 
@@ -207,8 +231,10 @@ class Livemap extends Component {
 
   _onClick = event => {
     const { features, srcEvent: { offsetX, offsetY } } = event;
-    const clickedFeature = features && features.find(f => f.layer.id === 'position-vehicules-stm');
-    this.setState({ clickedFeature, x: offsetX, y: offsetY });
+    const clickedFeatureSTM = features && features.find(f => f.layer.id === 'position-vehicules-stm');
+    const clickedFeatureSTL = features && features.find(f => f.layer.id === 'position-vehicules-stl');
+
+    this.setState({ clickedFeatureSTM, clickedFeatureSTL, x: offsetX, y: offsetY });
   };
 
 
@@ -216,35 +242,49 @@ class Livemap extends Component {
 
     let emptyGeoJSON = { "type": "FeatureCollection", "features": [] }
 
-    const { clickedFeature, hoveredFeatureSTM, hoveredFeatureSTL, x, y, mapIsLoaded } = this.state;
+    const { clickedFeatureSTM, clickedFeatureSTL, hoveredFeatureSTM, hoveredFeatureSTL, x, y, mapIsLoaded } = this.state;
 
-    const tripClick = clickedFeature ? clickedFeature.properties.trip_id : '';
+    // Identification du trip (stm) ou de la ligne (stl) cliqué
+    const tripClickSTM = clickedFeatureSTM ? clickedFeatureSTM.properties.trip_id : '';
+    const routeClickSTL = clickedFeatureSTL ? clickedFeatureSTL.properties.route_id : '';
 
+    // Identification du trip (stm) ou de la ligne (stl) hovered
     const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
+    const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
 
-    //APPARITION DES SHAPES ON CLICK
-    //un shape contient plusieurs trips,
-    //donc il faut filtrer chaque shape afin de voir s'il contient le trip selectionne
+    // Détermination du shape à faire apparaître en fonction du trip ou de la ligne cliqué.
 
-    const trace = this.state.traces ? this.state.traces.features.filter((e) => {
+    const traceSTM = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
       return e.properties.trips.some((f) => {
-        return f === tripClick
+        return f === tripClickSTM
       })
     }) : ''
 
-    //le nom de la ligne n'est pas dans l'objet vehicle-location donc il doit etre 
-    //ajoute du gtfs
-    const nomLigne = this.state.traces ? this.state.traces.features.filter((e) => {
+    const traceSTL = this.state.tracesSTL ? this.state.tracesSTL.features.filter((e) => {
+      return e.properties.route_short_name === routeClickSTL
+    }) : ''
+
+    //Affectation du nom de la ligne à une variable 
+    const nomLigne = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
       return e.properties.trips.some((f) => {
         return f === tripHoverSTM
       })
     }) : ''
 
-    const clickTrace = mapIsLoaded === true ? (tripClick !== '' ? this.map.getSource("traces").setData(trace[0])
-      : this.map.getSource("traces").setData(emptyGeoJSON))
+    const nomLigneSTL = this.state.tracesSTL ? this.state.tracesSTL.features.filter((e) => {
+      return e.properties === routeHoverSTL
+    }) : ''
+
+    // Affichage de la trace
+    const clickTraceSTM = mapIsLoaded === true ? (tripClickSTM !== '' ? this.map.getSource("tracesSTM").setData(traceSTM[0])
+      : this.map.getSource("tracesSTM").setData(emptyGeoJSON))
       : '';
 
-    //APPARITION DES TOOLTIP ON HOVER
+    const clickTraceSTL = mapIsLoaded === true ? (routeClickSTL !== '' ? this.map.getSource("tracesSTL").setData(traceSTL[0])
+      : this.map.getSource("tracesSTL").setData(emptyGeoJSON))
+      : '';
+
+    //AFFICHAGE DES TOOLTIP ON HOVER
 
     return hoveredFeatureSTM ?
       hoveredFeatureSTM && (
