@@ -2,7 +2,9 @@
 
 const gulp = require('gulp'),
     knex = require('./config/knex'),
-    path = __dirname + '/gtfs/' + 'gtfs_mars2019'
+    path_stm = __dirname + '/gtfs/' + 'stm_mars2019',
+    path_stl = __dirname + '/gtfs/' + 'stl_mars2019'
+
 
 //Initialisation
 //gulp.task('default', function() {
@@ -13,15 +15,15 @@ const gulp = require('gulp'),
 gulp.task('import_tables', function (done) {
     return knex.raw(
         `\COPY routes 
-        FROM '${path}/routes.txt' DELIMITER ',' CSV HEADER;
+        FROM '${path_stm}/routes.txt' DELIMITER ',' CSV HEADER;
          \COPY shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) 
-         FROM '${path}/shapes.txt' DELIMITER ',' CSV HEADER;
+         FROM '${path_stm}/shapes.txt' DELIMITER ',' CSV HEADER;
          \COPY stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence) 
-         FROM '${path}/stop_times.txt' DELIMITER ',' CSV HEADER;
+         FROM '${path_stm}/stop_times.txt' DELIMITER ',' CSV HEADER;
          \COPY trips 
-         FROM '${path}/trips.txt' DELIMITER ',' CSV HEADER;
+         FROM '${path_stm}/trips.txt' DELIMITER ',' CSV HEADER;
         \COPY stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,stop_url,location_type,parent_station,wheelchair_boarding) 
-        FROM '${path}/stops.txt' DELIMITER ',' CSV HEADER;
+        FROM '${path_stm}/stops.txt' DELIMITER ',' CSV HEADER;
         UPDATE "stops" SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
         UPDATE shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
         UPDATE shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);

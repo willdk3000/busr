@@ -197,8 +197,11 @@ class Livemap extends Component {
 
   _onHover = event => {
     const { features, srcEvent: { offsetX, offsetY } } = event;
-    const hoveredFeature = features && features.find(f => f.layer.id === 'position-vehicules-stm');
-    this.setState({ hoveredFeature, x: offsetX, y: offsetY });
+
+    const hoveredFeatureSTM = features && features.find(f => f.layer.id === 'position-vehicules-stm');
+    const hoveredFeatureSTL = features && features.find(f => f.layer.id === 'position-vehicules-stl');
+
+    this.setState({ hoveredFeatureSTM, hoveredFeatureSTL, x: offsetX, y: offsetY });
   };
 
 
@@ -213,11 +216,13 @@ class Livemap extends Component {
 
     let emptyGeoJSON = { "type": "FeatureCollection", "features": [] }
 
-    const { clickedFeature, hoveredFeature, x, y, mapIsLoaded } = this.state;
+    const { clickedFeature, hoveredFeatureSTM, hoveredFeatureSTL, x, y, mapIsLoaded } = this.state;
 
     const tripClick = clickedFeature ? clickedFeature.properties.trip_id : '';
-    const tripHover = hoveredFeature ? hoveredFeature.properties.trip_id : '';
 
+    const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
+
+    //APPARITION DES SHAPES ON CLICK
     //un shape contient plusieurs trips,
     //donc il faut filtrer chaque shape afin de voir s'il contient le trip selectionne
 
@@ -231,7 +236,7 @@ class Livemap extends Component {
     //ajoute du gtfs
     const nomLigne = this.state.traces ? this.state.traces.features.filter((e) => {
       return e.properties.trips.some((f) => {
-        return f === tripHover
+        return f === tripHoverSTM
       })
     }) : ''
 
@@ -239,16 +244,27 @@ class Livemap extends Component {
       : this.map.getSource("traces").setData(emptyGeoJSON))
       : '';
 
-    return hoveredFeature && (
-      //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
-      //avec un autre tooltip...
-      <div className="mapToolTip" style={{ left: x, top: y }}>
-        <div>No de véhicule: {hoveredFeature.properties.vehicle_id}</div>
-        <div>Ligne: {hoveredFeature.properties.route_id}</div>
-        <div>Axe: {nomLigne ? nomLigne[0].properties.route_name : ''}</div>
-        <div>Trip: {hoveredFeature.properties.trip_id}</div>
-      </div>
-    );
+    //APPARITION DES TOOLTIP ON HOVER
+
+    return hoveredFeatureSTM ?
+      hoveredFeatureSTM && (
+        //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
+        //avec un autre tooltip...
+        <div className="mapToolTip" style={{ left: x, top: y }}>
+          <div>No de véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
+          <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
+          <div>Axe: {nomLigne ? nomLigne[0].properties.route_name : ''}</div>
+          <div>Trip: {hoveredFeatureSTM.properties.trip_id}</div>
+        </div>
+      ) :
+      hoveredFeatureSTL ?
+        hoveredFeatureSTL && (
+          <div className="mapToolTip" style={{ left: x, top: y }}>
+            <div>No de véhicule: {hoveredFeatureSTL.properties.vehicle_id}</div>
+            <div>Ligne: {hoveredFeatureSTL.properties.route_id}</div>
+          </div>
+        ) : ''
+
   }
 
 

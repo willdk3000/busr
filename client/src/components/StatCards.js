@@ -7,6 +7,10 @@ class StatCards extends Component {
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm" id="stat-card">
+              <div id='nom-stat'>Réseau :</div>
+              <div id='stat'>STM</div>
+            </div>
+            <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
               <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
             </div>
@@ -18,12 +22,12 @@ class StatCards extends Component {
               <div id='nom-stat'>Lignes en service :</div>
               <div id='stat'>{this.props.routesSTM}</div>
             </div>
-            <div className="col-sm" id="stat-card">
-              <div id='nom-stat'>Réseau :</div>
-              <div id='stat'>STM</div>
-            </div>
           </div>
           <div className="row">
+            <div className="col-sm" id="stat-card">
+              <div id='nom-stat'>Réseau :</div>
+              <div id='stat'>STL</div>
+            </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
               <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
@@ -35,10 +39,6 @@ class StatCards extends Component {
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Lignes en service :</div>
               <div id='stat'>{this.props.routesSTL}</div>
-            </div>
-            <div className="col-sm" id="stat-card">
-              <div id='nom-stat'>Réseau :</div>
-              <div id='stat'>STL</div>
             </div>
           </div>
         </div>
