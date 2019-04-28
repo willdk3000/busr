@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
 
 import StatCards from '../components/StatCards.js'
-import { getNewData, getTracesSTM, getTracesSTL, getTracesRTL } from '../API.js'
+
+import {
+  getNewData,
+  getTracesSTM, getTracesSTL, getTracesRTL,
+  getStopsSTM, getStopsRTL
+} from '../API.js'
 
 class Livemap extends Component {
 
@@ -76,6 +81,7 @@ class Livemap extends Component {
       //ou la carte finit de charger. pour que la source soit valide, elle doit contenir au 
       //un geojson valide.
 
+      // Sources Vehicules
       map.addSource(
         "vehiculesSTM", {
           "type": "geojson",
@@ -97,6 +103,7 @@ class Livemap extends Component {
         }
       );
 
+      // Sources Traces
       map.addSource(
         "tracesSTM", {
           "type": "geojson",
@@ -118,6 +125,21 @@ class Livemap extends Component {
         }
       );
 
+      // Sources Stops
+      map.addSource(
+        "stopsSTM", {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        }
+      );
+
+      map.addSource(
+        "stopsRTL", {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        }
+      );
+
       //ajout de la couche de vehicules (basee sur la source vehicules)
       //pour les icones de bus, s'assurer de mettre le type symbol
       //le code 0xF207 s'explique comme suit :
@@ -125,6 +147,8 @@ class Livemap extends Component {
       //F207 identifiant de l'icone bus de fontawesome
       //la police FontAwesome doit avoir ete chargee dans une des couches du style de carte utilise
       //voir mapboxstudio
+
+      // Couches vehicules
       map.addLayer(
         {
           "id": "position-vehicules-stm",
@@ -173,6 +197,7 @@ class Livemap extends Component {
         }
       );
 
+      // Couches traces
       map.addLayer({
         "id": "tracesSTM",
         "type": "line",
@@ -217,6 +242,31 @@ class Livemap extends Component {
           "line-color": "#C47B85"
         }
       });
+
+      // Couches Stops
+      map.addLayer(
+        {
+          "id": "stopsSTM",
+          "type": "circle",
+          "source": "stopsSTM",
+          "paint": {
+            "circle-radius": 3,
+            "circle-color": "#009DE0"
+          }
+        }
+      );
+
+      map.addLayer(
+        {
+          "id": "stopsRTL",
+          "type": "circle",
+          "source": "stopsRTL",
+          "paint": {
+            "circle-radius": 3,
+            "circle-color": "#A93332"
+          }
+        }
+      );
 
       this.setState({ mapIsLoaded: true });
 
@@ -304,7 +354,25 @@ class Livemap extends Component {
   };
 
 
-  _onClick = event => {
+  stopRequestSTM = async (trace) => {
+    const stopsResponseSTM = await getStopsSTM(trace);
+    const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
+    return parseStopsSTM
+  }
+
+  stopRequestRTL = async (trace) => {
+    const stopsResponseRTL = await getStopsRTL(trace);
+    const parseStopsRTL = stopsResponseRTL.rows[0].jsonb_build_object
+    return parseStopsRTL
+  }
+
+
+  _onClick = async (event) => {
+
+    const { mapIsLoaded } = this.state;
+
+    let emptyGeoJSON = { "type": "FeatureCollection", "features": [] }
+
     const { features, srcEvent: { offsetX, offsetY } } = event;
     const clickedFeatureSTM = features && features.find(f => f.layer.id === 'position-vehicules-stm');
     const clickedFeatureSTL = features && features.find(f => f.layer.id === 'position-vehicules-stl');
@@ -318,31 +386,10 @@ class Livemap extends Component {
       y: offsetY
     });
 
-  };
-
-
-  _renderTooltip() {
-
-    let emptyGeoJSON = { "type": "FeatureCollection", "features": [] }
-
-    const {
-      clickedFeatureSTM,
-      clickedFeatureSTL,
-      clickedFeatureRTL,
-      hoveredFeatureSTM,
-      hoveredFeatureSTL,
-      hoveredFeatureRTL,
-      x, y, mapIsLoaded } = this.state;
-
     // Identification du trip (stm, rtl) ou de la ligne (stl) cliqué
     const tripClickSTM = clickedFeatureSTM ? clickedFeatureSTM.properties.trip_id : '';
     const routeClickSTL = clickedFeatureSTL ? clickedFeatureSTL.properties.route_id : '';
     const tripClickRTL = clickedFeatureRTL ? clickedFeatureRTL.properties.trip_id : '';
-
-    // Identification du trip (stm, rtl) ou de la ligne (stl) hovered
-    const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
-    const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
-    const tripHoverRTL = hoveredFeatureRTL ? hoveredFeatureRTL.properties.trip_id : '';
 
     // Détermination du shape à faire apparaître en fonction du trip ou de la ligne cliqué.
     const traceSTM = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
@@ -361,7 +408,59 @@ class Livemap extends Component {
       })
     }) : ''
 
-    //Affectation du nom de la ligne à une variable 
+    // Affichage de la trace
+    const clickTraceSTM = mapIsLoaded === true ? (tripClickSTM !== '' ? this.map.getSource("tracesSTM").setData(traceSTM[0])
+      : this.map.getSource("tracesSTM").setData(emptyGeoJSON))
+      : '';
+
+    const clickTraceSTL = mapIsLoaded === true ? (routeClickSTL !== '' ? this.map.getSource("tracesSTL").setData(traceSTL[0])
+      : this.map.getSource("tracesSTL").setData(emptyGeoJSON))
+      : '';
+
+    const clickTraceRTL = mapIsLoaded === true ? (tripClickRTL !== '' ? this.map.getSource("tracesRTL").setData(traceRTL[0])
+      : this.map.getSource("tracesRTL").setData(emptyGeoJSON))
+      : '';
+
+    //Requete pour obtenir les arrets a afficher selon le trip (ou la route)
+    const stopsSTM = tripClickSTM !== '' ? await this.stopRequestSTM(traceSTM[0].properties.ID) : '';
+    this.setState({ stopsSTM: stopsSTM })
+
+
+    const clickStopsSTM = mapIsLoaded === true ? (this.state.stopsSTM !== '' ? this.map.getSource("stopsSTM").setData(this.state.stopsSTM)
+      : this.map.getSource("stopsSTM").setData(emptyGeoJSON))
+      : '';
+
+    const stopsRTL = tripClickRTL !== '' ? await this.stopRequestRTL(traceRTL[0].properties.ID) : '';
+    this.setState({ stopsRTL: stopsRTL })
+
+
+    const clickStopsRTL = mapIsLoaded === true ? (this.state.stopsRTL !== '' ? this.map.getSource("stopsRTL").setData(this.state.stopsRTL)
+      : this.map.getSource("stopsRTL").setData(emptyGeoJSON))
+      : '';
+
+
+  };
+
+
+  _renderTooltip() {
+
+    const {
+      clickedFeatureSTM,
+      clickedFeatureSTL,
+      clickedFeatureRTL,
+      hoveredFeatureSTM,
+      hoveredFeatureSTL,
+      hoveredFeatureRTL,
+      x, y, mapIsLoaded } = this.state;
+
+
+    // Identification du trip (stm, rtl) ou de la ligne (stl) hovered
+    const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
+    const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
+    const tripHoverRTL = hoveredFeatureRTL ? hoveredFeatureRTL.properties.trip_id : '';
+
+
+    //Affectation du nom du trip ou de la ligne à une variable 
     const nomLigneSTM = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
       return e.properties.trips.some((f) => {
         return f === tripHoverSTM
@@ -378,18 +477,7 @@ class Livemap extends Component {
       })
     }) : ''
 
-    // Affichage de la trace
-    const clickTraceSTM = mapIsLoaded === true ? (tripClickSTM !== '' ? this.map.getSource("tracesSTM").setData(traceSTM[0])
-      : this.map.getSource("tracesSTM").setData(emptyGeoJSON))
-      : '';
 
-    const clickTraceSTL = mapIsLoaded === true ? (routeClickSTL !== '' ? this.map.getSource("tracesSTL").setData(traceSTL[0])
-      : this.map.getSource("tracesSTL").setData(emptyGeoJSON))
-      : '';
-
-    const clickTraceRTL = mapIsLoaded === true ? (tripClickRTL !== '' ? this.map.getSource("tracesRTL").setData(traceRTL[0])
-      : this.map.getSource("tracesRTL").setData(emptyGeoJSON))
-      : '';
 
     //AFFICHAGE DES TOOLTIP ON HOVER
 

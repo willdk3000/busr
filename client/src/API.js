@@ -25,18 +25,15 @@ export async function getTracesSTM() {
 };
 
 
-export async function getStopsSTM(trip_id) {
-
+export async function getStopsSTM(trace) {
   const response = await fetch('/api/stops_stm', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ trip_id: trip_id })
+    body: JSON.stringify({ "trace": trace })
   });
-
-  return response
-
+  return response.json()
 }
 
 
@@ -51,6 +48,17 @@ export async function getTracesRTL() {
   return response.json();
 };
 
+
+export async function getStopsRTL(trace) {
+  const response = await fetch('/api/stops_rtl', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ "trace": trace })
+  });
+  return response.json()
+}
 
 export async function getHistory() {
   const response = await fetch('/api/allvehicles')

@@ -30,8 +30,8 @@ module.exports = {
   getStopsSTM(req, res) {
     return knex.raw(
       `SELECT jsonb_build_object(
-          'type', 'FeatureCollection',
-          'features', jsonb_agg(features.feature)
+        'type', 'FeatureCollection',
+        'features', jsonb_agg(features.feature)
       )
       FROM (
           SELECT jsonb_build_object(
@@ -40,9 +40,10 @@ module.exports = {
               'geometry', ST_AsGeoJSON(point_geog)::jsonb,
               'properties', jsonb_build_object(
               'code', stop_code,
-              'name', stop_name)
+              'name', stop_name,
+              'departs', departs)
           ) AS feature 
-      FROM (SELECT * FROM stop_traces WHERE shape_id ='${req.body.trip_id}') inputs) features;`)
+      FROM (SELECT * FROM stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
       .then(result => {
         res.json(result)
       })
@@ -94,6 +95,29 @@ module.exports = {
     ).then(result => {
       res.json(result)
     });
+  },
+
+  getStopsRTL(req, res) {
+
+    return knex.raw(
+      `SELECT jsonb_build_object(
+        'type', 'FeatureCollection',
+        'features', jsonb_agg(features.feature)
+      )
+      FROM (
+          SELECT jsonb_build_object(
+              'type', 'Feature',
+              'id', stop_id,
+              'geometry', ST_AsGeoJSON(point_geog)::jsonb,
+              'properties', jsonb_build_object(
+              'code', stop_code,
+              'name', stop_name,
+              'departs', departs)
+          ) AS feature 
+      FROM (SELECT * FROM "RTL".stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
+      .then(result => {
+        res.json(result)
+      })
   }
 
 }

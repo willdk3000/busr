@@ -27,6 +27,8 @@ gulp.task('import_tables_STM', function (done) {
         ((SUBSTRING(departure_time FROM 4 FOR 2)::int)*60)+
         ((SUBSTRING(departure_time FROM 7 FOR 2)::int));
         REFRESH MATERIALIZED VIEW "public".traces WITH DATA;
+        REFRESH MATERIALIZED VIEW "public".stop_traces WITH DATA;
+        REFRESH MATERIALIZED VIEW "public".stop_triptimes WITH DATA;
         `
     ).then(done());
 })
@@ -90,8 +92,7 @@ gulp.task('import_tables_RTL', function (done) {
 
 
 
-// REFRESH MATERIALIZED VIEW "public".stop_traces WITH DATA;
-// REFRESH MATERIALIZED VIEW "public".stop_triptimes WITH DATA;
+
 
 
 
