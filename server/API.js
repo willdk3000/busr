@@ -27,14 +27,23 @@ const turf = require('@turf/turf');
 
 const controllers = require('./controllers')
 
-const API_URL = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
+const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
+const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
 
-const requestSettings = {
+
+const requestSettingsSTM = {
   method: 'POST',
   headers: {
-    'apikey': process.env.API_KEY
+    'apikey': process.env.API_KEY_STM
   },
-  url: `${API_URL}/vehiclePositions`,
+  url: `${API_URL_STM}/vehiclePositions`,
+  encoding: null
+};
+
+
+var requestSettingsRTL = {
+  method: 'GET',
+  url: API_URL_RTL,
   encoding: null
 };
 
@@ -43,6 +52,7 @@ const requestSettings = {
 
 let vehArraySTM = [];
 let vehArraySTL = [];
+let vehArrayRTL = [];
 
 module.exports = {
 
@@ -58,7 +68,7 @@ module.exports = {
     // Requete vers le serveur de la STM
     function requestDataSTM() {
       return new Promise(function (resolve, reject) {
-        request(requestSettings, function (error, response, body) {
+        request(requestSettingsSTM, function (error, response, body) {
           if (!error && response.statusCode == 200) {
             resolve(body);
           } else {
@@ -72,6 +82,20 @@ module.exports = {
     async function requestDataSTL(epochTime) {
       const response = await fetch(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=stl&t=${epochTime}`)
       return response.json()
+    }
+
+    // Requete vers le serveur d'exo (RTL)
+    function requestDataRTL() {
+      return new Promise(function (resolve, reject) {
+        request(requestSettingsRTL, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            resolve(body);
+          }
+          else {
+            console.log(response.statusCode, error)
+          }
+        })
+      });
     }
 
     async function main() {
@@ -118,9 +142,36 @@ module.exports = {
       console.log('Nombre de bus en ligne STL :', vehArraySTL.length);
 
 
+      // GESTION VEHICULES RTL
+      vehArrayRTL = [];
+
+      let dataRTL = await requestDataRTL();
+      let feedRTL = GtfsRealtimeBindings.FeedMessage.decode(dataRTL);
+
+      const vehiclesRTL = Object.values(feedRTL.entity);
+
+      vehiclesRTL.forEach((e) => {
+        let vehPosRTL = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+          vehicle_id: e.id,
+          route_id: e.vehicle.trip.route_id,
+          trip_id: e.vehicle.trip.trip_id,
+          start_time: e.vehicle.trip.start_time,
+          start_date: e.vehicle.trip.start_date,
+          current_stop_sequence: e.vehicle.current_stop_sequence,
+          timestamp: e.vehicle.timestamp.low,
+          server_request: new Date()
+        });
+        vehArrayRTL.push(vehPosRTL);
+      })
+
+      console.log('Nombre de bus en ligne RTL :', vehArrayRTL.length);
+
+
+
       // Insérer les données dans la BD
       const insertALL = await insertData();
       console.log('Mise a jour complétée');
+
 
       return 'done'
 
@@ -130,9 +181,11 @@ module.exports = {
     async function insertData() {
       let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
+      let vehFeatRTL = turf.featureCollection(vehArrayRTL);
 
       const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
       const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
+      const setPositionsRTL = await controllers.dataHandler.insertRTL(JSON.stringify([vehFeatRTL]));
 
       console.log('Nouvelles données inserées');
       return 'done'

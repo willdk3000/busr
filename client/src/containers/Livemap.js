@@ -9,9 +9,9 @@ class Livemap extends Component {
   state = {
     subscribed: 0,
     viewport: {
-      latitude: 45.506827,
+      latitude: 45.556827,
       longitude: -73.662362,
-      zoom: 11
+      zoom: 10
     }
   };
 
@@ -28,9 +28,14 @@ class Livemap extends Component {
           return e.reseau === 'STL'
         }) : ''
 
+        const vehRTL = positions ? positions.filter((e) => {
+          return e.reseau === 'RTL'
+        }) : ''
+
         this.setState({
           vehiclesSTM: positions ? vehSTM[0].data : '',
           vehiclesSTL: positions ? vehSTL[0].data : '',
+          vehiclesRTL: positions ? vehRTL[0].data : '',
           timestamp: positions ? vehSTM[0].time : '',
           subscribed: 1
         })
@@ -51,6 +56,11 @@ class Livemap extends Component {
     const tracesSTL = await getTracesSTL();
     this.setState({
       tracesSTL: tracesSTL.rows[0].jsonb_build_object
+    })
+
+    const tracesRTL = await getTracesSTL();
+    this.setState({
+      tracesRTL: tracesRTL.rows[0].jsonb_build_object
     })
 
   }
@@ -75,6 +85,13 @@ class Livemap extends Component {
 
       map.addSource(
         "vehiculesSTL", {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        }
+      );
+
+      map.addSource(
+        "vehiculesRTL", {
           "type": "geojson",
           "data": emptyGeoJSON
         }
@@ -134,6 +151,22 @@ class Livemap extends Component {
         }
       );
 
+      map.addLayer(
+        {
+          "id": "position-vehicules-rtl",
+          "type": "symbol",
+          "source": "vehiculesRTL",
+          "layout": {
+            'text-field': String.fromCharCode("0xF207"),
+            'text-font': ['Font Awesome 5 Free Solid'],
+            'text-size': 12
+          },
+          "paint": {
+            "text-color": "#A93332"
+          }
+        }
+      );
+
       map.addLayer({
         "id": "tracesSTM",
         "type": "line",
@@ -175,7 +208,7 @@ class Livemap extends Component {
   //rafraichir les donnees avec les nouvelles donnees recues de socketio
   //au moment du update du component
   componentDidUpdate(prevProps, prevState) {
-    const { vehiclesSTM, vehiclesSTL } = this.state;
+    const { vehiclesSTM, vehiclesSTL, vehiclesRTL } = this.state;
     const { mapIsLoaded } = this.state;
 
     if (!mapIsLoaded) {
@@ -206,6 +239,19 @@ class Livemap extends Component {
       const uniqueRoutesSTL = [...new Set(vehRoutesSTL)]
 
       this.setState({ routesSTL: uniqueRoutesSTL })
+    }
+
+    // Gestion vehicules RTL
+    if (vehiclesRTL !== prevState.vehiclesRTL) {
+      this.map.getSource("vehiculesRTL").setData(vehiclesRTL);
+
+      const vehRoutesRTL = this.state.vehiclesRTL ? this.state.vehiclesRTL.features.map((e) => {
+        return e.properties.route_id
+      }) : ''
+
+      const uniqueRoutesRTL = [...new Set(vehRoutesRTL)]
+
+      this.setState({ routesRTL: uniqueRoutesRTL })
     }
 
   }
@@ -320,12 +366,14 @@ class Livemap extends Component {
           routesSTM={this.state.routesSTM ? this.state.routesSTM.length : 0}
           onlineVehiclesSTL={this.state.vehiclesSTL ? this.state.vehiclesSTL.features.length : 0}
           routesSTL={this.state.routesSTL ? this.state.routesSTL.length : 0}
+          onlineVehiclesRTL={this.state.vehiclesRTL ? this.state.vehiclesRTL.features.length : 0}
+          routesRTL={this.state.routesRTL ? this.state.routesRTL.length : 0}
         />
         <MapGL
           {...viewport}
           ref={(reactMap) => this.reactMap = reactMap}
           width="100%"
-          height="78vh"
+          height="85vh"
           mapStyle="mapbox://styles/wdoucetk/cjun8whio1ha21fmzxt8knp7k"
           onViewportChange={this._onViewportChange}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY}

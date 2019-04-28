@@ -3,7 +3,8 @@
 const gulp = require('gulp'),
     knex = require('./config/knex'),
     path_stm = __dirname + '/gtfs/' + 'stm_mars2019',
-    path_stl = __dirname + '/gtfs/' + 'stl_mars2019'
+    path_stl = __dirname + '/gtfs/' + 'stl_mars2019',
+    path_rtl = __dirname + '/gtfs/' + 'rtl_avril2019'
 
 //Initialisation
 //gulp.task('default', function() {
@@ -25,7 +26,7 @@ gulp.task('import_tables_STM', function (done) {
         ((SUBSTRING(departure_time FROM 1 FOR 2)::int)*60*60)+
         ((SUBSTRING(departure_time FROM 4 FOR 2)::int)*60)+
         ((SUBSTRING(departure_time FROM 7 FOR 2)::int));
-        REFRESH MATERIALIZED VIEW traces WITH DATA;
+        REFRESH MATERIALIZED VIEW "public".traces WITH DATA;
         `
     ).then(done());
 })
@@ -52,6 +53,27 @@ gulp.task('import_tables_STL', function (done) {
     ).then(done());
 })
 
+//Importer tables RTL
+gulp.task('import_tables_RTL', function (done) {
+    return knex.raw(
+        `\COPY "RTL".routes FROM '${path_rtl}/routes.txt' DELIMITER ',' CSV HEADER;
+        \COPY "RTL".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled) FROM '${path_rtl}/shapes.txt' DELIMITER ',' CSV HEADER;
+        \COPY "RTL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint) FROM '${path_rtl}/stop_times.txt' DELIMITER ',' CSV HEADER;
+        \COPY "RTL".stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,wheelchair_boarding) FROM '${path_rtl}/stops.txt' DELIMITER ',' CSV HEADER;
+        \COPY "RTL".trips FROM '${path_rtl}/trips.txt' DELIMITER ',' CSV HEADER;
+        UPDATE "RTL".stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
+        UPDATE "RTL".shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
+        UPDATE "RTL".shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
+        UPDATE "RTL".stop_times SET hresecondes = 
+        ((SUBSTRING(departure_time FROM 1 FOR 2)::int)*60*60)+
+        ((SUBSTRING(departure_time FROM 4 FOR 2)::int)*60)+
+        ((SUBSTRING(departure_time FROM 7 FOR 2)::int));
+        REFRESH MATERIALIZED VIEW "RTL".traces WITH DATA;
+        REFRESH MATERIALIZED VIEW "RTL".stop_traces WITH DATA;
+        REFRESH MATERIALIZED VIEW "RTL".stop_triptimes WITH DATA;`
+    ).then(done());
+})
+
 
 //gulp.task('build-css', function() {
 //    return gulp.src('./public/assets/stylesheets/scss/**/*.scss')
@@ -70,5 +92,9 @@ gulp.task('import_tables_STL', function (done) {
 
 // REFRESH MATERIALIZED VIEW "public".stop_traces WITH DATA;
 // REFRESH MATERIALIZED VIEW "public".stop_triptimes WITH DATA;
+
+
+
+
 
 
