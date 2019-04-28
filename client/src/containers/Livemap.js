@@ -6,7 +6,7 @@ import StatCards from '../components/StatCards.js'
 import {
   getNewData,
   getTracesSTM, getTracesSTL, getTracesRTL,
-  getStopsSTM, getStopsRTL
+  getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js'
 
 class Livemap extends Component {
@@ -67,6 +67,8 @@ class Livemap extends Component {
     this.setState({
       tracesRTL: tracesRTL.rows[0].jsonb_build_object
     })
+
+    console.log(this.state)
 
   }
 
@@ -135,6 +137,13 @@ class Livemap extends Component {
 
       map.addSource(
         "stopsRTL", {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        }
+      );
+
+      map.addSource(
+        "stopsSTL", {
           "type": "geojson",
           "data": emptyGeoJSON
         }
@@ -268,6 +277,18 @@ class Livemap extends Component {
         }
       );
 
+      map.addLayer(
+        {
+          "id": "stopsSTL",
+          "type": "circle",
+          "source": "stopsSTL",
+          "paint": {
+            "circle-radius": 3,
+            "circle-color": "#82C341"
+          }
+        }
+      );
+
       this.setState({ mapIsLoaded: true });
 
     })
@@ -366,6 +387,12 @@ class Livemap extends Component {
     return parseStopsRTL
   }
 
+  stopRequestSTL = async (trace) => {
+    const stopsResponseSTL = await getStopsSTL(trace);
+    const parseStopsSTL = stopsResponseSTL.rows[0].jsonb_build_object
+    return parseStopsSTL
+  }
+
 
   _onClick = async (event) => {
 
@@ -436,6 +463,14 @@ class Livemap extends Component {
 
     const clickStopsRTL = mapIsLoaded === true ? (this.state.stopsRTL !== '' ? this.map.getSource("stopsRTL").setData(this.state.stopsRTL)
       : this.map.getSource("stopsRTL").setData(emptyGeoJSON))
+      : '';
+
+    const stopsSTL = routeClickSTL !== '' ? await this.stopRequestSTL(traceSTL[0].properties.ID) : '';
+    this.setState({ stopsSTL: stopsSTL })
+
+
+    const clickStopsSTL = mapIsLoaded === true ? (this.state.stopsSTL !== '' ? this.map.getSource("stopsSTL").setData(this.state.stopsSTL)
+      : this.map.getSource("stopsSTL").setData(emptyGeoJSON))
       : '';
 
 

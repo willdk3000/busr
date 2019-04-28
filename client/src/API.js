@@ -42,6 +42,17 @@ export async function getTracesSTL() {
   return response.json();
 };
 
+export async function getStopsSTL(trace) {
+  const response = await fetch('/api/stops_stl', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ "trace": trace })
+  });
+  return response.json()
+}
+
 
 export async function getTracesRTL() {
   const response = await fetch('/api/traces_rtl');

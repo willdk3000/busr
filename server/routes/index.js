@@ -10,6 +10,7 @@ module.exports = (app) => {
   app.post('/api/stops_stm', gtfsHandlerController.getStopsSTM);
 
   app.get('/api/traces_stl', gtfsHandlerController.getTracesSTL);
+  app.post('/api/stops_stl', gtfsHandlerController.getStopsSTL);
 
   app.get('/api/traces_rtl', gtfsHandlerController.getTracesRTL);
   app.post('/api/stops_rtl', gtfsHandlerController.getStopsRTL);

@@ -13,7 +13,6 @@ exports.up = function (knex, Promise) {
             point_geog,
             (array_agg(departure_time ORDER BY departure_time)) AS departs
         FROM "RTL".stop_traces
-        WHERE stop_traces.service_id = 'SE'::text
         GROUP BY shape_id, stop_id, service_id, stop_name, stop_code, point_geog
         WITH NO DATA;`
     )

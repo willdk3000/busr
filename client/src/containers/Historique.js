@@ -76,6 +76,8 @@ class Historique extends Component {
               <ZAxis dataKey="z" range={[25]} />
               <Tooltip />
               <Scatter dataKey="vehlen" fill="#009DE0" />
+              {/*<Scatter name="A school" data={data01} fill="#8884d8" shape="star" />*/}
+              {/*<Scatter name="B school" data={data02} fill="#82ca9d" shape="triangle" />*/}
             </ScatterChart>
           </ResponsiveContainer>
         </div >
