@@ -16,7 +16,10 @@
 // API 'nextbus' realtime de la STL
 // https://gist.github.com/grantland/7cf4097dd9cdf0dfed14
 
-// Max requete = 1 requete / 10sec
+// Max requete = 1 requête / 10sec
+
+// API gtfs realtime d'exo (RTL)
+// Max requête = 1 requête / 30 sec
 
 //********************************************* */
 

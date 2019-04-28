@@ -46,6 +46,12 @@ export async function getTracesSTL() {
 };
 
 
+export async function getTracesRTL() {
+  const response = await fetch('/api/traces_rtl');
+  return response.json();
+};
+
+
 export async function getHistory() {
   const response = await fetch('/api/allvehicles')
   return response.json()
