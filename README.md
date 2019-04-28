@@ -1,6 +1,6 @@
 # busr
 
-Application qui permet de localiser les bus de la STM et de la STL en temps réel.
+Application qui permet de localiser les bus de la STM de la STL et du RTL en temps réel.
 
 ## Avant de débuter
 
@@ -12,9 +12,14 @@ Le guide suivant permet d'installer une copie locale du projet et de l'exécuter
 Node
 PostgreSQL
 Un compte STM développeur avec une clé API
+Une clé API pour les données ouvertes EXO
 Un compte Mapbox avec une clé API
-Télécharger et dézipper les gtfs de la STM et de la STL dans les dossiers server/gtfs/stm et server/gtfs/stl
+Télécharger et dézipper les gtfs de la STM et de la STL et du RTL dans les dossiers:
 ```
+* server/gtfs/stm
+* server/gtfs/stl
+* server/gtfs/rtl
+
 
 ### Installation
 
@@ -28,7 +33,9 @@ Copier le repo sur la machine locale
 ```
 >npm install // installation des dépendances du serveur
 >knex-migrate up
->import_tables
+>import_tables_STM
+>import_tables_STL
+>import_tables_RTL
 >cd ..
 >cd client
 >npm install // installation des dépendances du client
@@ -37,20 +44,22 @@ Copier le repo sur la machine locale
 ```
 Configurer la BD et le fichier .env du côté serveur (Accès BD+CLÉ STM) et du côté client (CLÉ MAPBOX)
 Créer une table "vehicles" avec les champs:
+```
 * "timestamp" (timestamp without timezone) 
 * "time" (time without timezone)
 * "data" (jsonb)
 * "vehlen" (integer)
 * "weekday" (text)
 * "reseau" (text)
-```
+
 
 ```
 cd server
 npm run start:dev // démarrage de l'app, devrait rouler sur localhost:3000
 ```
 
-Le serveur fait une requête POST vers les serveurs de la STM et de la STL à toutes les 30 secondes.
+Le serveur fait une requête POST vers les serveurs de la STM, de la STL et de EXO, à toutes les 30 secondes.
+
 Les données reçues sont stockées dans la base de données.
 
 Quand un client se connecte au serveur, il démarre une boucle qui envoie les données
