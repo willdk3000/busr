@@ -15,10 +15,10 @@ Un compte STM développeur avec une clé API
 Une clé API pour les données ouvertes EXO
 Un compte Mapbox avec une clé API
 Télécharger et dézipper les gtfs de la STM et de la STL et du RTL dans les dossiers:
-```
 * server/gtfs/stm
 * server/gtfs/stl
 * server/gtfs/rtl
+```
 
 
 ### Installation
@@ -31,11 +31,12 @@ Copier le repo sur la machine locale
 ```
 
 ```
+>cd server
 >npm install // installation des dépendances du serveur
 >knex-migrate up
->import_tables_STM
->import_tables_STL
->import_tables_RTL
+>gulp import_tables_STM
+>gulp import_tables_STL
+>gulp import_tables_RTL
 >cd ..
 >cd client
 >npm install // installation des dépendances du client
@@ -43,14 +44,14 @@ Copier le repo sur la machine locale
 
 ```
 Configurer la BD et le fichier .env du côté serveur (Accès BD+CLÉ STM) et du côté client (CLÉ MAPBOX)
-Créer une table "vehicles" avec les champs:
-```
+Créer une table "vehicles" qui stockera les données temps réel avec les champs:
 * "timestamp" (timestamp without timezone) 
 * "time" (time without timezone)
 * "data" (jsonb)
 * "vehlen" (integer)
 * "weekday" (text)
 * "reseau" (text)
+```
 
 
 ```
@@ -71,6 +72,7 @@ de la BD vers le client aux 15 secondes.
 * [SocketIO](https://socket.io/) - Communication bidirectionnelle
 * [React](https://reactjs.org/) - Frontend
 * [ReactMapGL](https://uber.github.io/react-map-gl/#/) - Cartographie
+* [Recharts](http://recharts.org/en-US/) - Graphiques
 * [Bootstrap](https://getbootstrap.com/) - Styles
 * [Fontawesome](https://fontawesome.com/?from=io) - Icones
 * [PostgreSQL](https://www.postgresql.org/) - Base de données
