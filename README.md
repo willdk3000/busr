@@ -88,4 +88,6 @@ Ce projet est assujetti à la licence MIT - voir [LICENSE.md](LICENSE.md)
 ## Autres librairies
 
 * create-react-app
+* momentjs
 * knex
+* gulp
