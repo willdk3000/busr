@@ -9,7 +9,7 @@ export async function getNewData(cb) {
   //   console.log(message)
   // })
 
-  socket.on('refresh data', positions => cb(null, positions))
+  socket.on('refresh data', data => cb(null, data))
 
   socket.emit('subscribeToTimer', 15000);
 
@@ -19,6 +19,8 @@ export async function getNewData(cb) {
 //   socket.disconnect()
 // }
 
+
+// Donnees pour cartographie
 export async function getTracesSTM() {
   const response = await fetch('/api/traces_stm')
   return response.json();
@@ -71,7 +73,12 @@ export async function getStopsRTL(trace) {
   return response.json()
 }
 
+
+// Donnees pour graphiques
+
 export async function getHistory() {
   const response = await fetch('/api/allvehicles')
   return response.json()
 };
+
+

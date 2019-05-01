@@ -14,6 +14,7 @@ module.exports = (app) => {
 
   app.get('/api/traces_rtl', gtfsHandlerController.getTracesRTL);
   app.post('/api/stops_rtl', gtfsHandlerController.getStopsRTL);
+  // app.get('api/getplannedtrips_rtl', gtfsHandlerController.getPlannedTripsRTL);
 
 
 };

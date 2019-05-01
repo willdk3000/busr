@@ -1,16 +1,11 @@
-const fetch = require('node-fetch');
+const moment = require('moment');
 
-async function requestDataSTL(epochTime) {
-  const response = await fetch(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=stl&t=${epochTime}`)
-  return response.json()
-}
+let timeNow = new Date();
+let timeParse = moment(timeNow).format("HH:mm:ss")
+let split = timeParse.split(':'); // split it at the colons
 
-async function main() {
-  let epochTime = (new Date).getTime();
-
-  let dataSTL = await requestDataSTL(epochTime);
-  console.log(dataSTL)
-}
-
-main();
-1556151168
+// minutes are worth 60 seconds. Hours are worth 60 minutes.
+var seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+console.log(seconds)
+let yearNow = timeNow.getFullYear().toString().slice(2);
+console.log(yearNow)

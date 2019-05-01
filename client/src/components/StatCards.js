@@ -33,8 +33,8 @@ class StatCards extends Component {
               <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
-              <div id='nom-stat'>Véhicules actifs :</div>
-              <div id='stat'>{this.props.onlineVehiclesSTL}</div>
+              <div id='nom-stat'>Véhicules actifs / planifiés :</div>
+              <div id='stat'>{this.props.onlineVehiclesSTL} / {this.props.plannedVehiclesSTL}</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Lignes en service :</div>
@@ -51,8 +51,8 @@ class StatCards extends Component {
               <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
-              <div id='nom-stat'>Véhicules actifs :</div>
-              <div id='stat'>{this.props.onlineVehiclesRTL}</div>
+              <div id='nom-stat'>Véhicules actifs / planifiés :</div>
+              <div id='stat'>{this.props.onlineVehiclesRTL} / {this.props.plannedVehiclesRTL}</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Lignes en service :</div>

@@ -29,8 +29,9 @@ function init(server) {
             setInterval(async () => {
                 console.log('emitting...')
                 let newData = await controllers.dataHandler.latest();
-                //console.log(newData[0]);
-                io.emit('refresh data', newData)
+                let plannedTripsRTL = await controllers.gtfsHandler.getPlannedTripsRTL();
+                let plannedTripsSTL = await controllers.gtfsHandler.getPlannedTripsSTL();
+                io.emit('refresh data', [newData, plannedTripsRTL, plannedTripsSTL]);
                 console.log('emitted!')
             }, interval);
 

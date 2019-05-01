@@ -19,6 +19,7 @@ gulp.task('import_tables_STM', function (done) {
         \COPY "public".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence) FROM '${path_stm}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".trips FROM '${path_stm}/trips.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,stop_url,location_type,parent_station,wheelchair_boarding) FROM '${path_stm}/stops.txt' DELIMITER ',' CSV HEADER;
+        \COPY "public".calendar FROM '${path_stm}/calendar.txt' DELIMITER ',' CSV HEADER;
         UPDATE "public"."stops" SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
         UPDATE "public".shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
         UPDATE "public".shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
@@ -29,6 +30,23 @@ gulp.task('import_tables_STM', function (done) {
         REFRESH MATERIALIZED VIEW "public".traces WITH DATA;
         REFRESH MATERIALIZED VIEW "public".stop_traces WITH DATA;
         REFRESH MATERIALIZED VIEW "public".stop_triptimes WITH DATA;
+        ALTER TABLE "public".trips ADD COLUMN firstlast TEXT [];
+        WITH minmaxtrip AS (
+            SELECT trip_id,
+            MIN(hresecondes) AS mindep,
+            MAX(hresecondes) AS maxdep
+            FROM "public".stop_times
+            GROUP BY trip_id
+        ),
+        minmaxarray AS (
+            SELECT trip_id,
+            ARRAY_AGG(array[mindep,maxdep] ORDER BY trip_id) AS minmax
+            FROM minmaxtrip
+            GROUP BY trip_id
+        )
+        UPDATE "public".trips set firstlast = minmaxarray.minmax
+        FROM minmaxarray
+        WHERE "public".trips.trip_id = minmaxarray.trip_id;        
         `
     ).then(done());
 })
@@ -41,6 +59,7 @@ gulp.task('import_tables_STL', function (done) {
         \COPY "STL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) FROM '${path_stl}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY "STL".trips FROM '${path_stl}/trips.txt' DELIMITER ',' CSV HEADER;
         \COPY "STL".stops (stop_id,stop_code,stop_name,stop_lon,stop_lat,location_type,stop_display,stop_abribus) FROM '${path_stl}/stops.txt' DELIMITER ',' CSV HEADER;
+        \COPY "STL".calendar FROM '${path_stl}/calendar.txt' DELIMITER ',' CSV HEADER;
         UPDATE "STL".stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
         UPDATE "STL".shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
         UPDATE "STL".shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
@@ -51,7 +70,24 @@ gulp.task('import_tables_STL', function (done) {
         ((SUBSTRING("STL".stop_times.departure_time FROM 7 FOR 2)::int));
         REFRESH MATERIALIZED VIEW "STL".traces WITH DATA;
         REFRESH MATERIALIZED VIEW "STL".stop_traces WITH DATA;
-        REFRESH MATERIALIZED VIEW "STL".stop_triptimes WITH DATA;`
+        REFRESH MATERIALIZED VIEW "STL".stop_triptimes WITH DATA;
+        ALTER TABLE "STL".trips ADD COLUMN firstlast TEXT [];
+        WITH minmaxtrip AS (
+            SELECT trip_id,
+            MIN(hresecondes) AS mindep,
+            MAX(hresecondes) AS maxdep
+            FROM "STL".stop_times
+            GROUP BY trip_id
+        ),
+        minmaxarray AS (
+            SELECT trip_id,
+            ARRAY_AGG(array[mindep,maxdep] ORDER BY trip_id) AS minmax
+            FROM minmaxtrip
+            GROUP BY trip_id
+        )
+        UPDATE "STL".trips set firstlast = minmaxarray.minmax
+        FROM minmaxarray
+        WHERE "STL".trips.trip_id = minmaxarray.trip_id;`
     ).then(done());
 })
 
@@ -63,6 +99,7 @@ gulp.task('import_tables_RTL', function (done) {
         \COPY "RTL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint) FROM '${path_rtl}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY "RTL".stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,wheelchair_boarding) FROM '${path_rtl}/stops.txt' DELIMITER ',' CSV HEADER;
         \COPY "RTL".trips FROM '${path_rtl}/trips.txt' DELIMITER ',' CSV HEADER;
+        \COPY "RTL".calendar FROM '${path_rtl}/calendar.txt' DELIMITER ',' CSV HEADER;
         UPDATE "RTL".stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
         UPDATE "RTL".shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
         UPDATE "RTL".shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
@@ -72,7 +109,24 @@ gulp.task('import_tables_RTL', function (done) {
         ((SUBSTRING(departure_time FROM 7 FOR 2)::int));
         REFRESH MATERIALIZED VIEW "RTL".traces WITH DATA;
         REFRESH MATERIALIZED VIEW "RTL".stop_traces WITH DATA;
-        REFRESH MATERIALIZED VIEW "RTL".stop_triptimes WITH DATA;`
+        REFRESH MATERIALIZED VIEW "RTL".stop_triptimes WITH DATA;
+        ALTER TABLE "RTL".trips ADD COLUMN firstlast TEXT [];
+        WITH minmaxtrip AS (
+            SELECT trip_id,
+            MIN(hresecondes) AS mindep,
+            MAX(hresecondes) AS maxdep
+            FROM "RTL".stop_times
+            GROUP BY trip_id
+        ),
+        minmaxarray AS (
+            SELECT trip_id,
+            ARRAY_AGG(array[mindep,maxdep] ORDER BY trip_id) AS minmax
+            FROM minmaxtrip
+            GROUP BY trip_id
+        )
+        UPDATE "RTL".trips set firstlast = minmaxarray.minmax
+        FROM minmaxarray
+        WHERE "RTL".trips.trip_id = minmaxarray.trip_id;  `
     ).then(done());
 })
 

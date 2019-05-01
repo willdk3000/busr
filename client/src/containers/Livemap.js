@@ -25,15 +25,16 @@ class Livemap extends Component {
     const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
 
-        const vehSTM = positions ? positions.filter((e) => {
+        console.log(positions)
+        const vehSTM = positions ? positions[0].filter((e) => {
           return e.reseau === 'STM'
         }) : ''
 
-        const vehSTL = positions ? positions.filter((e) => {
+        const vehSTL = positions ? positions[0].filter((e) => {
           return e.reseau === 'STL'
         }) : ''
 
-        const vehRTL = positions ? positions.filter((e) => {
+        const vehRTL = positions ? positions[0].filter((e) => {
           return e.reseau === 'RTL'
         }) : ''
 
@@ -42,7 +43,9 @@ class Livemap extends Component {
           vehiclesSTL: positions ? vehSTL[0].data : '',
           vehiclesRTL: positions ? vehRTL[0].data : '',
           timestamp: positions ? vehSTM[0].time : '',
-          subscribed: 1
+          subscribed: 1,
+          plannedTripsRTL: positions[1].length,
+          plannedTripsSTL: positions[2].length
         })
 
       })
@@ -523,7 +526,7 @@ class Livemap extends Component {
         <div className="mapToolTip" style={{ left: x, top: y }}>
           <div>No de véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
           <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
-          <div>Axe: {nomLigneSTM ? nomLigneSTM[0].properties.route_name : ''}</div>
+          {/*<div>Axe: {nomLigneSTM ? nomLigneSTM[0].properties.route_name : ''}</div>*/}
           <div>Trip: {hoveredFeatureSTM.properties.trip_id}</div>
         </div>
       ) :
@@ -558,8 +561,10 @@ class Livemap extends Component {
           onlineVehiclesSTM={this.state.vehiclesSTM ? this.state.vehiclesSTM.features.length : 0}
           routesSTM={this.state.routesSTM ? this.state.routesSTM.length : 0}
           onlineVehiclesSTL={this.state.vehiclesSTL ? this.state.vehiclesSTL.features.length : 0}
+          plannedVehiclesSTL={this.state.plannedTripsSTL ? this.state.plannedTripsSTL : 0}
           routesSTL={this.state.routesSTL ? this.state.routesSTL.length : 0}
           onlineVehiclesRTL={this.state.vehiclesRTL ? this.state.vehiclesRTL.features.length : 0}
+          plannedVehiclesRTL={this.state.plannedTripsRTL ? this.state.plannedTripsRTL : 0}
           routesRTL={this.state.routesRTL ? this.state.routesRTL.length : 0}
         />
         <MapGL
