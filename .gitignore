@@ -1,5 +1,4 @@
 node_modules
-gtfs
 .env
 
 /client/node_modules
