@@ -30,7 +30,7 @@ gulp.task('import_tables_STM', function (done) {
         REFRESH MATERIALIZED VIEW "public".traces WITH DATA;
         REFRESH MATERIALIZED VIEW "public".stop_traces WITH DATA;
         REFRESH MATERIALIZED VIEW "public".stop_triptimes WITH DATA;
-        ALTER TABLE "public".trips ADD COLUMN firstlast TEXT [];
+        --ajout de l'heure de depart et de l'heure d'arrivee du trip
         WITH minmaxtrip AS (
             SELECT trip_id,
             MIN(hresecondes) AS mindep,
@@ -46,7 +46,17 @@ gulp.task('import_tables_STM', function (done) {
         )
         UPDATE "public".trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
-        WHERE "public".trips.trip_id = minmaxarray.trip_id;        
+        WHERE "public".trips.trip_id = minmaxarray.trip_id;
+        --ajout des jours de service dans une seule colonne
+        WITH tripdays AS (
+            SELECT service_id,
+            ARRAY_AGG(array[monday, tuesday, wednesday, thursday, friday, saturday, sunday] ORDER BY service_id) AS rundays
+            FROM calendar
+            GROUP BY service_id
+        )
+        UPDATE "public".calendar set rundays = tripdays.rundays
+        FROM tripdays
+        WHERE calendar.service_id = tripdays.service_id
         `
     ).then(done());
 })
@@ -71,7 +81,7 @@ gulp.task('import_tables_STL', function (done) {
         REFRESH MATERIALIZED VIEW "STL".traces WITH DATA;
         REFRESH MATERIALIZED VIEW "STL".stop_traces WITH DATA;
         REFRESH MATERIALIZED VIEW "STL".stop_triptimes WITH DATA;
-        ALTER TABLE "STL".trips ADD COLUMN firstlast TEXT [];
+        --ajout de l'heure de depart et de l'heure d'arrivee du trip
         WITH minmaxtrip AS (
             SELECT trip_id,
             MIN(hresecondes) AS mindep,
@@ -87,7 +97,17 @@ gulp.task('import_tables_STL', function (done) {
         )
         UPDATE "STL".trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
-        WHERE "STL".trips.trip_id = minmaxarray.trip_id;`
+        WHERE "STL".trips.trip_id = minmaxarray.trip_id;
+        --ajout des jours de service dans une seule colonne
+        WITH tripdays AS (
+            SELECT service_id,
+            ARRAY_AGG(array[monday, tuesday, wednesday, thursday, friday, saturday, sunday] ORDER BY service_id) AS rundays
+            FROM "STL".calendar
+            GROUP BY service_id
+        )
+        UPDATE "STL".calendar set rundays = tripdays.rundays
+        FROM tripdays
+        WHERE "STL".calendar.service_id = tripdays.service_id`
     ).then(done());
 })
 
@@ -110,7 +130,7 @@ gulp.task('import_tables_RTL', function (done) {
         REFRESH MATERIALIZED VIEW "RTL".traces WITH DATA;
         REFRESH MATERIALIZED VIEW "RTL".stop_traces WITH DATA;
         REFRESH MATERIALIZED VIEW "RTL".stop_triptimes WITH DATA;
-        ALTER TABLE "RTL".trips ADD COLUMN firstlast TEXT [];
+        --ajout de l'heure de depart et de l'heure d'arrivee du trip
         WITH minmaxtrip AS (
             SELECT trip_id,
             MIN(hresecondes) AS mindep,
@@ -126,7 +146,17 @@ gulp.task('import_tables_RTL', function (done) {
         )
         UPDATE "RTL".trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
-        WHERE "RTL".trips.trip_id = minmaxarray.trip_id;  `
+        WHERE "RTL".trips.trip_id = minmaxarray.trip_id;
+        --ajout des jours de service dans une seule colonne
+        WITH tripdays AS (
+            SELECT service_id,
+            ARRAY_AGG(array[monday, tuesday, wednesday, thursday, friday, saturday, sunday] ORDER BY service_id) AS rundays
+            FROM "RTL".calendar
+            GROUP BY service_id
+        )
+        UPDATE "RTL".calendar set rundays = tripdays.rundays
+        FROM tripdays
+        WHERE "RTL".calendar.service_id = tripdays.service_id  `
     ).then(done());
 })
 

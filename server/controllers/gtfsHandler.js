@@ -66,34 +66,19 @@ module.exports = {
 
     let dayNow = timeNow.getDay();
 
-    let service = '';
+    let service = 0;
 
-    switch (service) {
-      case dayNow == 0:
-        return 'sunday'
-      case dayNow == 6:
-        return 'saturday'
-      case dayNow == 1:
-        return 'monday'
-      case dayNow == 2:
-        return 'tuesday'
-      case dayNow == 3:
-        return 'wednesday'
-      case dayNow == 4:
-        return 'thursday'
-      case dayNow == 5:
-        return 'friday'
+    if (dayNow == 0) {
+      service = 7
+    } else {
+      service = dayNow
     }
 
-    console.log(service)
-
     return knex.raw(`
-    With unnested AS (
-      --separer le min et le max dans deux rows differentes pour chaque trip
+    WITH unnested AS (
       SELECT trip_id, service_id, a.time, a.minmax
-      FROM trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
+      FROM "public".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       ),
-      --prendre tous les min inferieurs a l'heure actuelle
       unnestmin AS (
         SELECT 
           service_id,
@@ -103,7 +88,6 @@ module.exports = {
         FROM unnested
         WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
       ),
-      --prendre tous les max superieurs a l'heure actuelle
       unnestmax AS (
         SELECT 
           trip_id AS tripmax,
@@ -112,7 +96,6 @@ module.exports = {
         FROM unnested
         WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
       ),
-      --conserver seulement les trips pour lesquels le min et le max ont le meme trip_id
       plantrips AS (
         SELECT
               unnestmin.service_id,  
@@ -121,19 +104,37 @@ module.exports = {
               unnestmax.timemax
           FROM unnestmin
           INNER JOIN unnestmax ON unnestmin.tripmin = unnestmax.tripmax
-      )
-      --ajouter la contrainte de la date pour s'assurer de conserver seulement les trips du service en cours
+      ),
+      rundates AS (
       SELECT 
         plantrips.service_id,
         plantrips.tripmin,
         plantrips.timemin,
         plantrips.timemax,
-        calendar.saturday,
         calendar.start_date,
         calendar.end_date
       FROM plantrips
-      INNER JOIN calendar ON plantrips.service_id = calendar.service_id
-      WHERE calendar.start_date::integer <= ${dateParse} AND calendar.end_date::integer >= ${dateParse} AND calendar.saturday = 1
+      INNER JOIN "public".calendar ON plantrips.service_id = "public".calendar.service_id),
+      weekdayrun AS (
+      SELECT 
+        service_id, 
+        a.runday::integer, 
+        a.daynum::integer,
+        SUM(runday::integer * daynum::integer) as active
+        FROM "public".calendar, unnest(rundays) WITH ORDINALITY a(runday, daynum)
+        GROUP BY service_id, runday, daynum
+        ORDER BY service_id, daynum
+      )
+      SELECT 
+      distinct(plantrips.tripmin),
+	    plantrips.service_id,
+      weekdayrun.active,
+	    rundates.start_date,
+	    rundates.end_date
+      FROM weekdayrun
+      INNER JOIN plantrips ON plantrips.service_id = weekdayrun.service_id
+	    INNER JOIN rundates ON rundates.service_id = weekdayrun.service_id
+      WHERE active = ${service} AND start_date::integer <= ${dateParse} AND end_date::integer >= ${dateParse}
     `).then(result => {
       return result.rows
     })
@@ -190,6 +191,8 @@ module.exports = {
 
     let timeNow = new Date();
     let timeParse = moment(timeNow).format("HH:mm:ss")
+    let dateParse = moment(timeNow).format('YYYYMMDD');
+
     let split = timeParse.split(':');
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
@@ -199,30 +202,31 @@ module.exports = {
     }
 
     let dayNow = timeNow.getDay();
+    let service = 0
 
-    let service = '';
     if (dayNow == 0) {
-      service = 'MARS19DIM'
-    } else if (dayNow == 6) {
-      service = 'MARS19SAM'
+      service = 7
     } else {
-      service = 'MARS19SEM'
+      service = dayNow
     }
 
     return knex.raw(`
+    --une rangée pour l'heure de début du voyage et une autre pour l'heure de fin pour chaque voyage
     WITH unnested AS (
       SELECT trip_id, service_id, a.time, a.minmax
       FROM "STL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
-      WHERE service_id='${service}'
       ),
+      --condition pour heure départ
       unnestmin AS (
         SELECT 
+          service_id,
           trip_id AS tripmin,
           time AS timemin,
           minmax
         FROM unnested
         WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
       ),
+      --condition pour heure d'arrivée
       unnestmax AS (
         SELECT 
           trip_id AS tripmax,
@@ -230,13 +234,50 @@ module.exports = {
           minmax
         FROM unnested
         WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
+      ),
+      --conserver seulement les trips qui respectent les deux conditions précédentes
+      plantrips AS (
+        SELECT
+              unnestmin.service_id,  
+              unnestmin.tripmin,
+              unnestmin.timemin,
+              unnestmax.timemax
+          FROM unnestmin
+          INNER JOIN unnestmax ON unnestmin.tripmin = unnestmax.tripmax
+      ),
+      --ajouter les dates de début et date de fin d'opération du service_id
+      rundates AS (
+      SELECT 
+        plantrips.service_id,
+        plantrips.tripmin,
+        plantrips.timemin,
+        plantrips.timemax,
+        calendar.start_date,
+        calendar.end_date
+      FROM plantrips
+      INNER JOIN "STL".calendar ON plantrips.service_id = "STL".calendar.service_id),
+      --créer une rangée par jour de la semaine opéré
+      weekdayrun AS (
+      SELECT 
+        service_id, 
+        a.runday::integer, 
+        a.daynum::integer,
+        SUM(runday::integer * daynum::integer) as active
+        FROM "STL".calendar, unnest(rundays) WITH ORDINALITY a(runday, daynum)
+        GROUP BY service_id, runday, daynum
+        ORDER BY service_id, daynum
       )
-      SELECT
-        unnestmin.tripmin,
-        unnestmin.timemin,
-        unnestmax.timemax
-      FROM unnestmin
-      INNER JOIN unnestmax ON unnestmin.tripmin = unnestmax.tripmax
+      --filtrer le jour de la semaine et les dates d'opération
+      SELECT 
+      distinct(plantrips.tripmin),
+	    plantrips.service_id,
+      weekdayrun.active,
+	    rundates.start_date,
+	    rundates.end_date
+      FROM weekdayrun
+      INNER JOIN plantrips ON plantrips.service_id = weekdayrun.service_id
+	    INNER JOIN rundates ON rundates.service_id = weekdayrun.service_id
+      WHERE active = ${service} AND start_date::integer <= ${dateParse} AND end_date::integer >= ${dateParse}
     `).then(result => {
       return result.rows
     })

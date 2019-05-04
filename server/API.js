@@ -120,14 +120,13 @@ module.exports = {
           start_time: e.vehicle.trip.start_time,
           start_date: e.vehicle.trip.start_date,
           current_stop_sequence: e.vehicle.current_stop_sequence,
-          timestamp: moment.unix(e.vehicle.timestamp.low).format('HH:mm:ss'),
+          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
           server_request: new Date()
         });
         vehArraySTM.push(vehPos);
       })
 
       console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
-
 
       // GESTION VEHICULES STL
       // L'API nextbus ne donne pas les mêmes infos que gtfs-r
@@ -170,7 +169,7 @@ module.exports = {
           start_time: e.vehicle.trip.start_time,
           start_date: e.vehicle.trip.start_date,
           current_stop_sequence: e.vehicle.current_stop_sequence,
-          timestamp: moment.unix(e.vehicle.timestamp.low).format('HH:mm:ss'),
+          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
           server_request: new Date()
         });
         vehArrayRTL.push(vehPosRTL);

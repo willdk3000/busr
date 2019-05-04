@@ -15,7 +15,7 @@ class StatCards extends Component {
               <div id='stat'>{this.props.lastRefreshSTM.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
-              <div id='nom-stat'>Véhicules actifs :</div>
+              <div id='nom-stat'>Véhicules actifs / planifiés :</div>
               <div id='stat'>{this.props.onlineVehiclesSTM} / {this.props.plannedVehiclesSTM}</div>
             </div>
             <div className="col-sm" id="stat-card">

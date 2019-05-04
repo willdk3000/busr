@@ -350,6 +350,7 @@ class Livemap extends Component {
       this.setState({ routesRTL: uniqueRoutesRTL })
     }
 
+    //    console.log(this.state)
 
   }
 
@@ -366,11 +367,15 @@ class Livemap extends Component {
     const { features, srcEvent: { offsetX, offsetY } } = event;
 
     const hoveredFeatureSTM = features && features.find(f => f.layer.id === 'position-vehicules-stm');
+    const hoveredStopSTM = features && features.find(f => f.layer.id === 'stopsSTM');
+
     const hoveredFeatureSTL = features && features.find(f => f.layer.id === 'position-vehicules-stl');
+
     const hoveredFeatureRTL = features && features.find(f => f.layer.id === 'position-vehicules-rtl');
 
     this.setState({
       hoveredFeatureSTM,
+      hoveredStopSTM,
       hoveredFeatureSTL,
       hoveredFeatureRTL,
       x: offsetX,
@@ -383,6 +388,9 @@ class Livemap extends Component {
   stopRequestSTM = async (trace) => {
     const stopsResponseSTM = await getStopsSTM(trace);
     const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
+    const timeArray = [];
+    //const splitTimes = parseStopsSTM.replace(/[\[\]]/, "").split(',');
+    //parseStopsSTM.
     return parseStopsSTM
   }
 
@@ -479,16 +487,15 @@ class Livemap extends Component {
       : '';
 
 
+
   };
 
 
   _renderTooltip() {
 
     const {
-      clickedFeatureSTM,
-      clickedFeatureSTL,
-      clickedFeatureRTL,
       hoveredFeatureSTM,
+      hoveredStopSTM,
       hoveredFeatureSTL,
       hoveredFeatureRTL,
       x, y, mapIsLoaded } = this.state;
@@ -528,9 +535,9 @@ class Livemap extends Component {
         <div className="mapToolTip" style={{ left: x, top: y }}>
           <div>No de véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
           <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
-          <div>Axe: {nomLigneSTM[0].properties.route_name ? nomLigneSTM[0].properties.route_name : ''}</div>
+          {/*<div>Axe: {nomLigneSTM[0].properties.route_name ? nomLigneSTM[0].properties.route_name : ''}</div>*/}
           <div>Trip: {hoveredFeatureSTM.properties.trip_id}</div>
-          <div>MAJ: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''}</div>
+          <div>MAJ: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''} s</div>
         </div>
       ) :
       hoveredFeatureSTL ?
@@ -548,9 +555,15 @@ class Livemap extends Component {
               <div>Ligne: {hoveredFeatureRTL.properties.route_id}</div>
               <div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>
               <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
-              <div>MAJ: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''}</div>
+              <div>MAJ: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
-          ) : ''
+          ) :
+          hoveredStopSTM ?
+            hoveredStopSTM && (
+              <div className="mapToolTip" style={{ left: x, top: y }}>
+                <div>Passages  :{this.hoveredStopSTM ? this.hoveredStopSTM.properties.departs : ''}</div>
+              </div>
+            ) : ''
 
   }
 
