@@ -1,6 +1,6 @@
-/server/node_modules
-/server/gtfs
-/server/.env
+node_modules
+gtfs
+.env
 
 /client/node_modules
 /client/.env
