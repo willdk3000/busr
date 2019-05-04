@@ -12,11 +12,11 @@ class StatCards extends Component {
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
-              <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
+              <div id='stat'>{this.props.lastRefreshSTM.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Véhicules actifs :</div>
-              <div id='stat'>{this.props.onlineVehiclesSTM}</div>
+              <div id='stat'>{this.props.onlineVehiclesSTM} / {this.props.plannedVehiclesSTM}</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Lignes en service :</div>
@@ -30,7 +30,7 @@ class StatCards extends Component {
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
-              <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
+              <div id='stat'>{this.props.lastRefreshSTL.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Véhicules actifs / planifiés :</div>
@@ -48,7 +48,7 @@ class StatCards extends Component {
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
-              <div id='stat'>{this.props.lastRefresh.substr(0, 8)}</div>
+              <div id='stat'>{this.props.lastRefreshRTL.substr(0, 8)}</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Véhicules actifs / planifiés :</div>

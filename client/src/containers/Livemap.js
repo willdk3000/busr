@@ -25,7 +25,6 @@ class Livemap extends Component {
     const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
 
-        console.log(positions)
         const vehSTM = positions ? positions[0].filter((e) => {
           return e.reseau === 'STM'
         }) : ''
@@ -42,10 +41,13 @@ class Livemap extends Component {
           vehiclesSTM: positions ? vehSTM[0].data : '',
           vehiclesSTL: positions ? vehSTL[0].data : '',
           vehiclesRTL: positions ? vehRTL[0].data : '',
-          timestamp: positions ? vehSTM[0].time : '',
+          timestampSTM: positions ? vehSTM[0].time : '',
+          timestampSTL: positions ? vehSTL[0].time : '',
+          timestampRTL: positions ? vehSTL[0].time : '',
           subscribed: 1,
-          plannedTripsRTL: positions[1].length,
-          plannedTripsSTL: positions[2].length
+          plannedTripsRTL: positions ? positions[1].length : '',
+          plannedTripsSTL: positions ? positions[2].length : '',
+          plannedTripsSTM: positions ? positions[3].length : ''
         })
 
       })
@@ -71,7 +73,6 @@ class Livemap extends Component {
       tracesRTL: tracesRTL.rows[0].jsonb_build_object
     })
 
-    console.log(this.state)
 
   }
 
@@ -349,6 +350,7 @@ class Livemap extends Component {
       this.setState({ routesRTL: uniqueRoutesRTL })
     }
 
+
   }
 
 
@@ -526,8 +528,9 @@ class Livemap extends Component {
         <div className="mapToolTip" style={{ left: x, top: y }}>
           <div>No de véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
           <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
-          {/*<div>Axe: {nomLigneSTM ? nomLigneSTM[0].properties.route_name : ''}</div>*/}
+          <div>Axe: {nomLigneSTM[0].properties.route_name ? nomLigneSTM[0].properties.route_name : ''}</div>
           <div>Trip: {hoveredFeatureSTM.properties.trip_id}</div>
+          <div>MAJ: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''}</div>
         </div>
       ) :
       hoveredFeatureSTL ?
@@ -535,6 +538,7 @@ class Livemap extends Component {
           <div className="mapToolTip" style={{ left: x, top: y }}>
             <div>No de véhicule: {hoveredFeatureSTL.properties.vehicle_id}</div>
             <div>Ligne: {hoveredFeatureSTL.properties.route_id}</div>
+            <div>MAJ : {hoveredFeatureSTL.properties.last_connection} s</div>
           </div>
         ) :
         hoveredFeatureRTL ?
@@ -544,6 +548,7 @@ class Livemap extends Component {
               <div>Ligne: {hoveredFeatureRTL.properties.route_id}</div>
               <div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>
               <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
+              <div>MAJ: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''}</div>
             </div>
           ) : ''
 
@@ -557,12 +562,15 @@ class Livemap extends Component {
     return <React.Fragment >
       <div className="container-fluid">
         <StatCards
-          lastRefresh={this.state.timestamp ? this.state.timestamp : '-'}
+          lastRefreshSTM={this.state.timestampSTM ? this.state.timestampSTM : '-'}
           onlineVehiclesSTM={this.state.vehiclesSTM ? this.state.vehiclesSTM.features.length : 0}
+          plannedVehiclesSTM={this.state.plannedTripsSTM ? this.state.plannedTripsSTM : 0}
           routesSTM={this.state.routesSTM ? this.state.routesSTM.length : 0}
+          lastRefreshSTL={this.state.timestampSTL ? this.state.timestampSTL : '-'}
           onlineVehiclesSTL={this.state.vehiclesSTL ? this.state.vehiclesSTL.features.length : 0}
           plannedVehiclesSTL={this.state.plannedTripsSTL ? this.state.plannedTripsSTL : 0}
           routesSTL={this.state.routesSTL ? this.state.routesSTL.length : 0}
+          lastRefreshRTL={this.state.timestampRTL ? this.state.timestampRTL : '-'}
           onlineVehiclesRTL={this.state.vehiclesRTL ? this.state.vehiclesRTL.features.length : 0}
           plannedVehiclesRTL={this.state.plannedTripsRTL ? this.state.plannedTripsRTL : 0}
           routesRTL={this.state.routesRTL ? this.state.routesRTL.length : 0}

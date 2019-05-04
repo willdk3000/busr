@@ -50,7 +50,95 @@ module.exports = {
       })
   },
 
+  getPlannedTripsSTM(req, res) {
 
+    let timeNow = new Date();
+    let timeParse = moment(timeNow).format("HH:mm:ss");
+    let dateParse = moment(timeNow).format('YYYYMMDD');
+
+    let split = timeParse.split(':');
+    // Hours are worth 60 minutes, minutes are worth 60 seconds. 
+    let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+    //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
+    if (seconds <= 14340) {
+      seconds += 86400
+    }
+
+    let dayNow = timeNow.getDay();
+
+    let service = '';
+
+    switch (service) {
+      case dayNow == 0:
+        return 'sunday'
+      case dayNow == 6:
+        return 'saturday'
+      case dayNow == 1:
+        return 'monday'
+      case dayNow == 2:
+        return 'tuesday'
+      case dayNow == 3:
+        return 'wednesday'
+      case dayNow == 4:
+        return 'thursday'
+      case dayNow == 5:
+        return 'friday'
+    }
+
+    console.log(service)
+
+    return knex.raw(`
+    With unnested AS (
+      --separer le min et le max dans deux rows differentes pour chaque trip
+      SELECT trip_id, service_id, a.time, a.minmax
+      FROM trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
+      ),
+      --prendre tous les min inferieurs a l'heure actuelle
+      unnestmin AS (
+        SELECT 
+          service_id,
+          trip_id AS tripmin,
+          time AS timemin,
+          minmax
+        FROM unnested
+        WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
+      ),
+      --prendre tous les max superieurs a l'heure actuelle
+      unnestmax AS (
+        SELECT 
+          trip_id AS tripmax,
+          time AS timemax,
+          minmax
+        FROM unnested
+        WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
+      ),
+      --conserver seulement les trips pour lesquels le min et le max ont le meme trip_id
+      plantrips AS (
+        SELECT
+              unnestmin.service_id,  
+              unnestmin.tripmin,
+              unnestmin.timemin,
+              unnestmax.timemax
+          FROM unnestmin
+          INNER JOIN unnestmax ON unnestmin.tripmin = unnestmax.tripmax
+      )
+      --ajouter la contrainte de la date pour s'assurer de conserver seulement les trips du service en cours
+      SELECT 
+        plantrips.service_id,
+        plantrips.tripmin,
+        plantrips.timemin,
+        plantrips.timemax,
+        calendar.saturday,
+        calendar.start_date,
+        calendar.end_date
+      FROM plantrips
+      INNER JOIN calendar ON plantrips.service_id = calendar.service_id
+      WHERE calendar.start_date::integer <= ${dateParse} AND calendar.end_date::integer >= ${dateParse} AND calendar.saturday = 1
+    `).then(result => {
+      return result.rows
+    })
+
+  },
 
   getTracesSTL(req, res) {
 
@@ -103,27 +191,29 @@ module.exports = {
     let timeNow = new Date();
     let timeParse = moment(timeNow).format("HH:mm:ss")
     let split = timeParse.split(':');
-    // minutes are worth 60 seconds. Hours are worth 60 minutes.
+    // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+    //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
+    if (seconds <= 14340) {
+      seconds += 86400
+    }
 
-    let yearNow = timeNow.getFullYear().toString().slice(2);
-
-    // Sunday - Saturday : 0 - 6
     let dayNow = timeNow.getDay();
+
     let service = '';
     if (dayNow == 0) {
-      service = 'MARS' + yearNow + 'DIM'
+      service = 'MARS19DIM'
     } else if (dayNow == 6) {
-      service = 'MARS' + yearNow + 'SAM'
+      service = 'MARS19SAM'
     } else {
-      service = 'MARS' + yearNow + 'SEM'
+      service = 'MARS19SEM'
     }
 
     return knex.raw(`
     WITH unnested AS (
       SELECT trip_id, service_id, a.time, a.minmax
       FROM "STL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
-      WHERE service_id = '${service}'
+      WHERE service_id='${service}'
       ),
       unnestmin AS (
         SELECT 
@@ -206,8 +296,12 @@ module.exports = {
     let timeNow = new Date();
     let timeParse = moment(timeNow).format("HH:mm:ss")
     let split = timeParse.split(':');
-    // minutes are worth 60 seconds. Hours are worth 60 minutes.
+    // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+    //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
+    if (seconds <= 14340) {
+      seconds += 86400
+    }
 
     // Sunday - Saturday : 0 - 6
     let dayNow = timeNow.getDay();

@@ -27,6 +27,7 @@ const request = require('request');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const fetch = require('node-fetch');
 const turf = require('@turf/turf');
+const moment = require('moment')
 
 const controllers = require('./controllers')
 
@@ -119,7 +120,7 @@ module.exports = {
           start_time: e.vehicle.trip.start_time,
           start_date: e.vehicle.trip.start_date,
           current_stop_sequence: e.vehicle.current_stop_sequence,
-          timestamp: e.vehicle.timestamp.low,
+          timestamp: moment.unix(e.vehicle.timestamp.low).format('HH:mm:ss'),
           server_request: new Date()
         });
         vehArraySTM.push(vehPos);
@@ -134,12 +135,20 @@ module.exports = {
       let dataSTL = await requestDataSTL(epochTime);
       vehArraySTL = [];
 
+      //Les donnnées sont reçues même si la dernière coordonnée GPS a été
+      //transmise par le véhicule il y a plus de 5 minutes... il faut donc
+      //appliquer un seuil pour éviter d'avoir des données en trop. Mon choix,
+      //conserver les vehicules qui ont fait une mise a jour il y a moins de 90s.
+
       dataSTL.vehicle.forEach((e) => {
-        vehArraySTL.push(turf.point([parseFloat(e.lon), parseFloat(e.lat)], {
-          route_id: e.routeTag,
-          vehicle_id: e.id,
-          last_connection: e.secsSinceReport
-        }));
+        if (e.secsSinceReport <= 90) {
+          vehArraySTL.push(turf.point([parseFloat(e.lon), parseFloat(e.lat)], {
+            route_id: e.routeTag,
+            vehicle_id: e.id,
+            speedKmHr: e.speedKmHr,
+            last_connection: e.secsSinceReport
+          }));
+        }
       })
 
       console.log('Nombre de bus en ligne STL :', vehArraySTL.length);
@@ -161,7 +170,7 @@ module.exports = {
           start_time: e.vehicle.trip.start_time,
           start_date: e.vehicle.trip.start_date,
           current_stop_sequence: e.vehicle.current_stop_sequence,
-          timestamp: e.vehicle.timestamp.low,
+          timestamp: moment.unix(e.vehicle.timestamp.low).format('HH:mm:ss'),
           server_request: new Date()
         });
         vehArrayRTL.push(vehPosRTL);
