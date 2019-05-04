@@ -14,10 +14,6 @@ PostgreSQL
 Un compte STM développeur avec une clé API
 Une clé API pour les données ouvertes EXO
 Un compte Mapbox avec une clé API
-Télécharger et dézipper les gtfs de la STM et de la STL et du RTL dans les dossiers:
-* server/gtfs/stm
-* server/gtfs/stl
-* server/gtfs/rtl
 ```
 
 
@@ -31,13 +27,11 @@ Copier le repo sur la machine locale
 ```
 
 ```
->cd server
 >npm install // installation des dépendances du serveur
 >knex-migrate up
 >gulp import_tables_STM
 >gulp import_tables_STL
 >gulp import_tables_RTL
->cd ..
 >cd client
 >npm install // installation des dépendances du client
 ```
@@ -55,7 +49,7 @@ Créer une table "vehicles" qui stockera les données temps réel avec les champ
 
 
 ```
-cd server
+cd ..
 npm run start:dev // démarrage de l'app, devrait rouler sur localhost:3000
 ```
 
