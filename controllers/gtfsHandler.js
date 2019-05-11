@@ -59,19 +59,22 @@ module.exports = {
     let split = timeParse.split(':');
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+    let seconds28 = 0
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
-      seconds += 86400
+      seconds28 = seconds + 86400
     }
 
     let dayNow = timeNow.getDay();
 
     let service = 0;
 
-    if (dayNow == 0) {
+    if (dayNow == 0 && seconds > 14340) {
       service = 7
+    } else if (dayNow == 6 && seconds > 14340) {
+      service = 6
     } else {
-      service = dayNow
+      service = 1
     }
 
     return knex.raw(`
@@ -87,7 +90,7 @@ module.exports = {
           route_id,
           minmax
         FROM unnested
-        WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
+        WHERE minmax = 1 AND unnested.time::integer <= ${seconds28}
       ),
       unnestmax AS (
         SELECT 
@@ -95,7 +98,7 @@ module.exports = {
           time AS timemax,
           minmax
         FROM unnested
-        WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
+        WHERE minmax = 2 AND unnested.time::integer >= ${seconds28}
       ),
       plantrips AS (
         SELECT
@@ -132,6 +135,8 @@ module.exports = {
       distinct(plantrips.tripmin),
       plantrips.service_id,
       plantrips.route_id,
+      plantrips.timemin,
+      plantrips.timemax,
       weekdayrun.active,
 	    rundates.start_date,
 	    rundates.end_date
@@ -202,16 +207,19 @@ module.exports = {
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
-      seconds += 86400
+      seconds28 = seconds + 86400
     }
 
     let dayNow = timeNow.getDay();
-    let service = 0
 
-    if (dayNow == 0) {
+    let service = 0;
+
+    if (dayNow == 0 && seconds > 14340) {
       service = 7
+    } else if (dayNow == 6 && seconds > 14340) {
+      service = 6
     } else {
-      service = dayNow
+      service = 1
     }
 
     return knex.raw(`
@@ -229,7 +237,7 @@ module.exports = {
           time AS timemin,
           minmax
         FROM unnested
-        WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
+        WHERE minmax = 1 AND unnested.time::integer <= ${seconds28}
       ),
       --condition pour heure d'arrivée
       unnestmax AS (
@@ -238,7 +246,7 @@ module.exports = {
           time AS timemax,
           minmax
         FROM unnested
-        WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
+        WHERE minmax = 2 AND unnested.time::integer >= ${seconds28}
       ),
       --conserver seulement les trips qui respectent les deux conditions précédentes
       plantrips AS (
@@ -347,17 +355,18 @@ module.exports = {
     let split = timeParse.split(':');
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+    let seconds28 = 0
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
-      seconds += 86400
+      seconds28 = seconds + 86400
     }
 
     // Sunday - Saturday : 0 - 6
     let dayNow = timeNow.getDay();
     let service = '';
-    if (dayNow == 0) {
+    if (dayNow == 0 && seconds > 14340) {
       service = 'DI'
-    } else if (dayNow == 6) {
+    } else if (dayNow == 6 && seconds > 14340) {
       service = 'SA'
     } else {
       service = 'SE'
@@ -376,7 +385,7 @@ module.exports = {
           time AS timemin,
           minmax
         FROM unnested
-        WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
+        WHERE minmax = 1 AND unnested.time::integer <= ${seconds28}
       ),
       unnestmax AS (
         SELECT 
@@ -384,7 +393,7 @@ module.exports = {
           time AS timemax,
           minmax
         FROM unnested
-        WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
+        WHERE minmax = 2 AND unnested.time::integer >= ${seconds28}
       )
       SELECT
         unnestmin.route_id,

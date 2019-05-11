@@ -191,7 +191,7 @@ class Historique extends Component {
 
         <br />
       </div>
-    ) : 'Chargement en cours...';
+    ) : 'Chargement...';
   }
 }
 

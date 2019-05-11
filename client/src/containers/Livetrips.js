@@ -10,6 +10,9 @@ class Livetrips extends Component {
 
   state = {
     subscribed: 0,
+    selectSTM: 0,
+    selectSTL: 0,
+    selectRTL: 0
   };
 
   componentDidMount = async () => {
@@ -84,10 +87,45 @@ class Livetrips extends Component {
   }
 
 
+  handleClickSTM = async (e) => {
+    this.setState({
+      selectSTM: 1,
+      selectSTL: 0,
+      selectRTL: 0
+    })
+  }
+
+  handleClickRTL = async (e) => {
+    this.setState({
+      selectSTM: 0,
+      selectSTL: 0,
+      selectRTL: 1
+    })
+  }
+
+
   render() {
     return (
       this.state.plannedTripsRTL ?
         <div className="container">
+          <div className="row">
+            <div
+              id="stat-card"
+              style={this.state.selectSTM === 1 ? { backgroundColor: "#38B2A3", color: "#FFFFFF" } : { backgroundColor: "#E9F1F3", color: "#000000" }}
+              className="col"
+              onClick={(e) => this.handleClickSTM(e)}>
+              STM
+            </div>
+            <div id="stat-card" className="col">
+              STL
+            </div>
+            <div
+              id="stat-card"
+              style={this.state.selectRTL === 1 ? { backgroundColor: "#38B2A3", color: "#FFFFFF" } : { backgroundColor: "#E9F1F3", color: "#000000" }}
+              className="col" onClick={(e) => this.handleClickRTL(e)}>
+              RTL
+            </div>
+          </div>
           <div className="row">
             <table id="tableOnline" className="table">
               <thead>
@@ -96,18 +134,18 @@ class Livetrips extends Component {
                     Ligne
                   </th>
                   <th>
-                    Heure de départ planifiée du voyage
+                    Heure de départ
                   </th>
                   <th>
-                    Heure de fin planifiée du voyage
+                    Heure de fin
                     </th>
                   <th>
-                    Départ
+                    Trip ID
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {this.state.plannedTripsRTL.sort((a, b) => (a.timemin > b.timemin) ? 1 : -1)
+                {this.state.selectRTL == 1 ? this.state.plannedTripsRTL.sort((a, b) => (a.timemin > b.timemin) ? 1 : -1)
                   .map((e) => (
                     <tr key={e.tripmin}>
                       <td>{e.route_id}</td>
@@ -115,11 +153,23 @@ class Livetrips extends Component {
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                       <td style={{ backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB" }}>{e.tripmin}</td>
                     </tr>
-                  ))}
+                  )) :
+                  this.state.selectSTM == 1 ? this.state.plannedTripsSTM.sort((a, b) => (a.timemin > b.timemin) ? 1 : -1)
+                    .map((e) => (
+                      <tr key={e.tripmin}>
+                        <td>{e.route_id}</td>
+                        <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
+                        <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
+                        <td style={{ backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB" }}>{e.tripmin}</td>
+                      </tr>
+                    )) :
+                    <tr>
+                      <td>Sélectionner une agence</td>
+                    </tr>}
               </tbody>
             </table>
           </div>
-        </div>
+        </div >
         : 'Chargement...'
     );
   }
