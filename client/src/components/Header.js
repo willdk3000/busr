@@ -19,9 +19,12 @@ const Header = () => (
             <Link className="nav-item nav-link text-white" to="/historique" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Historique
             </Link>
-            <Link className="nav-item nav-link text-white" to="/reseaux" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-              Réseaux
+            <Link className="nav-item nav-link text-white" to="/livetrips" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+              Départs
             </Link>
+            {/*<Link className="nav-item nav-link text-white" to="/reseaux" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+              Réseaux
+            </Link>*/}
           </div>
         </div>
       </nav>

@@ -49,7 +49,8 @@ function init(server) {
 
         socket.on('disconnect', () => {
             socketCount--
-            console.log('user disconnected : ' + socketCount + ' connections left')
+            console.log('user disconnected : ' + socketCount + ' connections left');
+
         })
 
     });

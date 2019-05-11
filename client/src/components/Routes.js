@@ -3,12 +3,16 @@ import { Switch, Route } from 'react-router-dom';
 import NotFound from './NotFound';
 
 import Livemap from '../containers/Livemap';
+import Livetrips from '../containers/Livetrips';
 import Historique from '../containers/Historique';
+//import Reseaux from '../containers/Reseaux';
 
 const Routes = () => (
   <Switch>
     <Route exact path="/" component={Livemap} />
     <Route exact path="/historique" component={Historique} />
+    <Route exact path="/livetrips" component={Livetrips} />
+    {/*<Route exact path="/reseaux" component={Reseaux} />*/}
     <Route path="*" component={NotFound} />
   </Switch>
 );

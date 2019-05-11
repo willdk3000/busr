@@ -25,6 +25,9 @@ class Historique extends Component {
 
     const parseAll = [];
 
+    // Modifier le format de hh:mm:ss à unix milliseconds
+    // C'est le format privilégié par Recharts pour les unités de temps
+
     const parsing = allVehicles ?
       allVehicles.forEach((e) => {
         parseAll.push({
@@ -34,6 +37,8 @@ class Historique extends Component {
           weekday: e.weekday
         })
       }) : ''
+
+    // Séparation des données de semaine, samedi, dimanche
 
     const week = parseAll.filter((e) => {
       return parseInt(e.weekday) > 1 && parseInt(e.weekday) < 7
@@ -55,10 +60,28 @@ class Historique extends Component {
 
     console.log(this.state)
 
+
+
+
+
   }
 
 
   render() {
+
+    const CustomTooltip = ({ active, payload }) => {
+      if (active) {
+        return (
+          <div className="custom-tooltip">
+            <p className="label">Réseau : {payload[0].payload.reseau}<br />
+              Heure : {moment(payload[0].payload.time).format('HH:mm:ss')}<br />
+              Véhicules : {payload[0].payload.vehlen}</p>
+          </div>
+        );
+      }
+
+      return null;
+    };
 
     return this.state.sunday ? (
       <div className="container-fluid" >
@@ -73,11 +96,23 @@ class Historique extends Component {
                 type="number"
                 dataKey="time"
                 name='time'
-                domain={['auto', 'auto']}
-                tickFormatter={(unixTime) => moment(unixTime).format('HH:mm:ss')} />
+                domain={[1556420760000, 1556495999000]}
+                tickFormatter={(unixTime) => moment(unixTime).format('HH:mm:ss')}
+                ticks={[
+                  1556424000100,
+                  1556427600000, 1556431200000, 1556434800000, 1556438400000,
+                  1556442000000, 1556445600000, 1556449200000, 1556452800000,
+                  1556456400000, 1556460000000, 1556463600000, 1556467200000,
+                  1556470800000, 1556474400000, 1556478000000, 1556481600000,
+                  1556485200000, 1556488800000, 1556492400000, 1556496000000,
+                  1556499600000, 1556503200000, 1556506800000, 1556510399900
+                ]}
+              />
               <YAxis dataKey="vehlen" name='véhicules' />
-              <ZAxis dataKey="z" range={[25]} />
-              <Tooltip />
+              <ZAxis dataKey="z" range={[20]} />
+              <Tooltip
+                content={<CustomTooltip />}
+              />
               <Legend />
               <Scatter name="STM" data={this.state.week.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
               <Scatter name="STL" data={this.state.week.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
@@ -85,6 +120,7 @@ class Historique extends Component {
             </ScatterChart>
           </ResponsiveContainer>
         </div >
+
 
         <div id="chartCard">
           <h1 style={{ color: '#000000', textAlign: 'center' }}>Samedi</h1>
@@ -95,11 +131,22 @@ class Historique extends Component {
                 type="number"
                 dataKey="time"
                 name='time'
-                domain={['auto', 'auto']}
-                tickFormatter={(unixTime) => moment(unixTime).format('HH:mm:ss')} />
+                domain={[1556420760000, 1556495999000]}
+                tickFormatter={(unixTime) => moment(unixTime).format('HH:mm:ss')}
+                ticks={[
+                  1556424000100,
+                  1556427600000, 1556431200000, 1556434800000, 1556438400000,
+                  1556442000000, 1556445600000, 1556449200000, 1556452800000,
+                  1556456400000, 1556460000000, 1556463600000, 1556467200000,
+                  1556470800000, 1556474400000, 1556478000000, 1556481600000,
+                  1556485200000, 1556488800000, 1556492400000, 1556496000000,
+                  1556499600000, 1556503200000, 1556506800000, 1556510399900
+                ]} />
               <YAxis dataKey="vehlen" name='véhicules' />
-              <ZAxis dataKey="z" range={[25]} />
-              <Tooltip />
+              <ZAxis dataKey="z" range={[20]} />
+              <Tooltip
+                content={<CustomTooltip />}
+              />
               <Legend />
               <Scatter name="STM" data={this.state.saturday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
               <Scatter name="STL" data={this.state.saturday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
@@ -117,11 +164,22 @@ class Historique extends Component {
                 type="number"
                 dataKey="time"
                 name='time'
-                domain={['auto', 'auto']}
-                tickFormatter={(unixTime) => moment(unixTime).format('HH:mm:ss')} />
+                domain={[1556420760000, 1556495999000]}
+                tickFormatter={(unixTime) => moment(unixTime).format('HH:mm:ss')}
+                ticks={[
+                  1556424000100,
+                  1556427600000, 1556431200000, 1556434800000, 1556438400000,
+                  1556442000000, 1556445600000, 1556449200000, 1556452800000,
+                  1556456400000, 1556460000000, 1556463600000, 1556467200000,
+                  1556470800000, 1556474400000, 1556478000000, 1556481600000,
+                  1556485200000, 1556488800000, 1556492400000, 1556496000000,
+                  1556499600000, 1556503200000, 1556506800000, 1556510399900
+                ]} />
               <YAxis dataKey="vehlen" name='véhicules' />
-              <ZAxis dataKey="z" range={[25]} />
-              <Tooltip />
+              <ZAxis dataKey="z" range={[20]} />
+              <Tooltip
+                content={<CustomTooltip />}
+              />
               <Legend />
               <Scatter name="STM" data={this.state.sunday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
               <Scatter name="STL" data={this.state.sunday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
@@ -139,8 +197,3 @@ class Historique extends Component {
 
 export default Historique;
 
-//domain={['dataMin', 'dataMax']} (dans XAxis)
-//tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
-// domain = { [this.state.minSunday, this.state.maxSunday]}
-
-// tickFormatter = {(timeStr) => moment(timeStr).format('HH:mm')}

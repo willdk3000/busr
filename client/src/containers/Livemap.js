@@ -4,7 +4,7 @@ import MapGL from 'react-map-gl';
 import StatCards from '../components/StatCards.js'
 
 import {
-  getNewData,
+  getNewData, closeSocket,
   getTracesSTM, getTracesSTL, getTracesRTL,
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js'
@@ -45,9 +45,9 @@ class Livemap extends Component {
           timestampSTL: positions ? vehSTL[0].time : '',
           timestampRTL: positions ? vehSTL[0].time : '',
           subscribed: 1,
-          plannedTripsRTL: positions ? positions[1].length : '',
-          plannedTripsSTL: positions ? positions[2].length : '',
-          plannedTripsSTM: positions ? positions[3].length : ''
+          plannedTripsRTL: positions ? positions[1] : '',
+          plannedTripsSTL: positions ? positions[2] : '',
+          plannedTripsSTM: positions ? positions[3] : ''
         })
 
       })
@@ -322,6 +322,8 @@ class Livemap extends Component {
       const uniqueRoutesSTM = [...new Set(vehRoutesSTM)]
 
       this.setState({ routesSTM: uniqueRoutesSTM })
+
+      localStorage.setItem('data', this.state)
     }
 
     // Gestion vehicules STL
@@ -357,6 +359,7 @@ class Livemap extends Component {
 
   componentWillUnmount = async () => {
     this.map.remove();
+    //closeSocket();
   }
 
 
@@ -388,9 +391,6 @@ class Livemap extends Component {
   stopRequestSTM = async (trace) => {
     const stopsResponseSTM = await getStopsSTM(trace);
     const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
-    const timeArray = [];
-    //const splitTimes = parseStopsSTM.replace(/[\[\]]/, "").split(',');
-    //parseStopsSTM.
     return parseStopsSTM
   }
 
@@ -501,6 +501,7 @@ class Livemap extends Component {
       x, y, mapIsLoaded } = this.state;
 
 
+
     // Identification du trip (stm, rtl) ou de la ligne (stl) hovered
     const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
     const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
@@ -557,13 +558,16 @@ class Livemap extends Component {
               <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
               <div>MAJ: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
-          ) :
-          hoveredStopSTM ?
-            hoveredStopSTM && (
-              <div className="mapToolTip" style={{ left: x, top: y }}>
-                <div>Passages  :{this.hoveredStopSTM ? this.hoveredStopSTM.properties.departs : ''}</div>
-              </div>
-            ) : ''
+          ) : ''
+    /*hoveredStopSTM ?
+      hoveredStopSTM && (
+        <div className="mapToolTip" style={{ left: x, top: y }}>
+          <div>Passages :{this.hoveredStopSTM ? this.stopSTM.features.filter((e) => {
+            return e.id === parseInt(this.state.hoveredStopsSTM.id)
+          }).properties.departs.map((e) => { return e })
+            : ''}</div>
+        </div>
+      ) : ''*/
 
   }
 
@@ -577,15 +581,15 @@ class Livemap extends Component {
         <StatCards
           lastRefreshSTM={this.state.timestampSTM ? this.state.timestampSTM : '-'}
           onlineVehiclesSTM={this.state.vehiclesSTM ? this.state.vehiclesSTM.features.length : 0}
-          plannedVehiclesSTM={this.state.plannedTripsSTM ? this.state.plannedTripsSTM : 0}
+          plannedVehiclesSTM={this.state.plannedTripsSTM ? this.state.plannedTripsSTM.length : 0}
           routesSTM={this.state.routesSTM ? this.state.routesSTM.length : 0}
           lastRefreshSTL={this.state.timestampSTL ? this.state.timestampSTL : '-'}
           onlineVehiclesSTL={this.state.vehiclesSTL ? this.state.vehiclesSTL.features.length : 0}
-          plannedVehiclesSTL={this.state.plannedTripsSTL ? this.state.plannedTripsSTL : 0}
+          plannedVehiclesSTL={this.state.plannedTripsSTL ? this.state.plannedTripsSTL.length : 0}
           routesSTL={this.state.routesSTL ? this.state.routesSTL.length : 0}
           lastRefreshRTL={this.state.timestampRTL ? this.state.timestampRTL : '-'}
           onlineVehiclesRTL={this.state.vehiclesRTL ? this.state.vehiclesRTL.features.length : 0}
-          plannedVehiclesRTL={this.state.plannedTripsRTL ? this.state.plannedTripsRTL : 0}
+          plannedVehiclesRTL={this.state.plannedTripsRTL ? this.state.plannedTripsRTL.length : 0}
           routesRTL={this.state.routesRTL ? this.state.routesRTL.length : 0}
         />
         <MapGL

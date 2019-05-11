@@ -76,7 +76,7 @@ module.exports = {
 
     return knex.raw(`
     WITH unnested AS (
-      SELECT trip_id, service_id, a.time, a.minmax
+      SELECT trip_id, service_id, route_id, a.time, a.minmax
       FROM "public".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       ),
       unnestmin AS (
@@ -84,6 +84,7 @@ module.exports = {
           service_id,
           trip_id AS tripmin,
           time AS timemin,
+          route_id,
           minmax
         FROM unnested
         WHERE minmax = 1 AND unnested.time::integer <= ${seconds}
@@ -98,7 +99,8 @@ module.exports = {
       ),
       plantrips AS (
         SELECT
-              unnestmin.service_id,  
+              unnestmin.service_id,
+              unnestmin.route_id,  
               unnestmin.tripmin,
               unnestmin.timemin,
               unnestmax.timemax
@@ -108,6 +110,7 @@ module.exports = {
       rundates AS (
       SELECT 
         plantrips.service_id,
+        plantrips.route_id,
         plantrips.tripmin,
         plantrips.timemin,
         plantrips.timemax,
@@ -127,7 +130,8 @@ module.exports = {
       )
       SELECT 
       distinct(plantrips.tripmin),
-	    plantrips.service_id,
+      plantrips.service_id,
+      plantrips.route_id,
       weekdayrun.active,
 	    rundates.start_date,
 	    rundates.end_date
@@ -213,13 +217,14 @@ module.exports = {
     return knex.raw(`
     --une rangée pour l'heure de début du voyage et une autre pour l'heure de fin pour chaque voyage
     WITH unnested AS (
-      SELECT trip_id, service_id, a.time, a.minmax
+      SELECT trip_id, service_id, route_id, a.time, a.minmax
       FROM "STL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       ),
       --condition pour heure départ
       unnestmin AS (
         SELECT 
           service_id,
+          route_id,
           trip_id AS tripmin,
           time AS timemin,
           minmax
@@ -239,6 +244,7 @@ module.exports = {
       plantrips AS (
         SELECT
               unnestmin.service_id,  
+              unnestmin.route_id,
               unnestmin.tripmin,
               unnestmin.timemin,
               unnestmax.timemax
@@ -249,6 +255,7 @@ module.exports = {
       rundates AS (
       SELECT 
         plantrips.service_id,
+        plantrips.route_id,
         plantrips.tripmin,
         plantrips.timemin,
         plantrips.timemax,
@@ -270,7 +277,8 @@ module.exports = {
       --filtrer le jour de la semaine et les dates d'opération
       SELECT 
       distinct(plantrips.tripmin),
-	    plantrips.service_id,
+      plantrips.service_id,
+      plantrips.route_id,
       weekdayrun.active,
 	    rundates.start_date,
 	    rundates.end_date
@@ -357,12 +365,13 @@ module.exports = {
 
     return knex.raw(`
     WITH unnested AS (
-      SELECT trip_id, service_id, a.time, a.minmax
+      SELECT trip_id, service_id, route_id, a.time, a.minmax
       FROM "RTL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       WHERE service_id = '${service}'
       ),
       unnestmin AS (
         SELECT 
+          route_id,
           trip_id AS tripmin,
           time AS timemin,
           minmax
@@ -378,6 +387,7 @@ module.exports = {
         WHERE minmax = 2 AND unnested.time::integer >= ${seconds}
       )
       SELECT
+        unnestmin.route_id,
         unnestmin.tripmin,
         unnestmin.timemin,
         unnestmax.timemax

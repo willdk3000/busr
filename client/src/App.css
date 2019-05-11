@@ -37,3 +37,15 @@
   z-index: 9;
   pointer-events: none;
 }
+
+.custom-tooltip{
+  background-color: rgba(230, 230, 230, 0.85);
+  padding-left: 15px;
+  padding-right:15px;
+  padding-top: 5px;
+  padding-bottom: 1px;
+}
+
+#tableOnline th, td {
+  text-align: center;   
+}
