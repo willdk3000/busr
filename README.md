@@ -37,14 +37,8 @@ Copier le repo sur la machine locale
 ```
 
 ```
-Configurer la BD et le fichier .env du côté serveur (Accès BD+CLÉ STM) et du côté client (CLÉ MAPBOX)
-Créer une table "vehicles" qui stockera les données temps réel avec les champs:
-* "timestamp" (timestamp without timezone) 
-* "time" (time without timezone)
-* "data" (jsonb)
-* "vehlen" (integer)
-* "weekday" (text)
-* "reseau" (text)
+Configurer le fichier .env du côté serveur (Accès BD, CLÉ STM, CLÉ EXO) 
+et du côté client (CLÉ MAPBOX)
 ```
 
 
