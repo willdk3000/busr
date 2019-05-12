@@ -18,6 +18,20 @@
   border-width: 1px;
 }
 
+#agency-card {
+  text-align: center;
+  background-color:rgb(233, 241, 243);
+  border-style: solid;
+  border-width: 1px;
+}
+
+#agency-card:hover {
+  text-align: center;
+  background-color:"#38b2a3";
+  border-style: solid;
+  border-width: 1px;
+}
+
 #nom-stat {
   font-size: 0.8em;
 }

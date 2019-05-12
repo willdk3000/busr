@@ -59,7 +59,7 @@ module.exports = {
     let split = timeParse.split(':');
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
-    let seconds28 = 0
+    let seconds28 = seconds;
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
       seconds28 = seconds + 86400
@@ -205,6 +205,7 @@ module.exports = {
     let split = timeParse.split(':');
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+    let seconds28 = seconds;
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
       seconds28 = seconds + 86400
@@ -355,7 +356,7 @@ module.exports = {
     let split = timeParse.split(':');
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
-    let seconds28 = 0
+    let seconds28 = seconds;
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
       seconds28 = seconds + 86400

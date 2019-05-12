@@ -109,22 +109,23 @@ class Livetrips extends Component {
       this.state.plannedTripsRTL ?
         <div className="container">
           <div className="row">
-            <div
-              id="stat-card"
+            <button
+              id="agency-card"
+              type="button" className="col btn btn-outline-info"
               style={this.state.selectSTM === 1 ? { backgroundColor: "#38B2A3", color: "#FFFFFF" } : { backgroundColor: "#E9F1F3", color: "#000000" }}
-              className="col"
               onClick={(e) => this.handleClickSTM(e)}>
               STM
-            </div>
-            <div id="stat-card" className="col">
+            </button>
+            <button type="button" className="col btn btn-outline-secondary">
               STL
-            </div>
-            <div
-              id="stat-card"
+            </button>
+            <button
+              type="button" className="col btn btn-outline-info"
               style={this.state.selectRTL === 1 ? { backgroundColor: "#38B2A3", color: "#FFFFFF" } : { backgroundColor: "#E9F1F3", color: "#000000" }}
-              className="col" onClick={(e) => this.handleClickRTL(e)}>
+              onClick={(e) => this.handleClickRTL(e)}
+            >
               RTL
-            </div>
+            </button>
           </div>
           <div className="row">
             <table id="tableOnline" className="table">

@@ -9,6 +9,10 @@ import {
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js'
 
+import {
+  tripsToArcsRTL, animate
+} from '../helpers/AnimationHelper.js'
+
 class Livemap extends Component {
 
   state = {
@@ -153,6 +157,13 @@ class Livemap extends Component {
         }
       );
 
+      // Sources shapes ANIM
+      map.addSource(
+        'routeAnimRTL', {
+          "type": "geojson",
+          "data": emptyGeoJSON
+        });
+
       //ajout de la couche de vehicules (basee sur la source vehicules)
       //pour les icones de bus, s'assurer de mettre le type symbol
       //le code 0xF207 s'explique comme suit :
@@ -293,6 +304,18 @@ class Livemap extends Component {
         }
       );
 
+      // Couches route ANIM
+
+      map.addLayer({
+        "id": "routeAnimRTL",
+        "source": "routeAnimRTL",
+        "type": "line",
+        "paint": {
+          "line-width": 0,
+          "line-color": "#007cbf"
+        }
+      });
+
       this.setState({ mapIsLoaded: true });
 
     })
@@ -303,7 +326,7 @@ class Livemap extends Component {
 
   //rafraichir les donnees avec les nouvelles donnees recues de socketio
   //au moment du update du component
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate = async (prevProps, prevState) => {
     const { vehiclesSTM, vehiclesSTL, vehiclesRTL } = this.state;
     const { mapIsLoaded } = this.state;
 
@@ -349,12 +372,29 @@ class Livemap extends Component {
 
       const uniqueRoutesRTL = [...new Set(vehRoutesRTL)]
 
+      // Animation
+      // if (prevState.vehiclesRTL && this.state.vehiclesRTL) {
+      //   const arcsRTL = await tripsToArcsRTL(prevState.vehiclesRTL, this.state.vehiclesRTL, this.state.tracesRTL);
+
+      //   // console.log(arcsRTL)
+      //   // console.log(prevState.vehiclesRTL.features)
+
+      //   // let i = 0;
+      //   // prevState.vehiclesRTL.features.forEach((e) => {
+      //   //   animate(this.map, prevState.vehiclesRTL.features, arcsRTL, i, 0)
+      //   //   i++
+      //   // })
+
+      // }
+
       this.setState({ routesRTL: uniqueRoutesRTL })
+
     }
 
-    //    console.log(this.state)
+    //console.log(this.state)
 
   }
+
 
 
   componentWillUnmount = async () => {
@@ -386,6 +426,7 @@ class Livemap extends Component {
     });
 
   };
+
 
 
   stopRequestSTM = async (trace) => {
