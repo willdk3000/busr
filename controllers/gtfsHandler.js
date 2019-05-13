@@ -22,7 +22,7 @@ module.exports = {
                                 'trips', trips)        
                   ) AS feature
                  
-                  FROM (SELECT * FROM traces) inputs) features;`,
+                  FROM (SELECT * FROM "public".traces) inputs) features;`,
     ).then(result => {
       res.json(result)
     });
@@ -44,7 +44,7 @@ module.exports = {
               'name', stop_name,
               'departs', departs)
           ) AS feature 
-      FROM (SELECT * FROM stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
+      FROM (SELECT * FROM "public".stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
       .then(result => {
         res.json(result)
       })
