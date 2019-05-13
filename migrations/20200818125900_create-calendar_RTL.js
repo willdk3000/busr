@@ -2,7 +2,7 @@
 exports.up = function (knex, Promise) {
   return knex.raw(
     `
-    CREATE TABLE RTL.calendar
+    CREATE TABLE "RTL".calendar
     (
         service_id text COLLATE pg_catalog."default",
         monday integer,
@@ -25,5 +25,5 @@ exports.up = function (knex, Promise) {
 };
 
 exports.down = function (knex, Promise) {
-  return knex.raw(`DROP TABLE RTL.calendar`);
+  return knex.raw(`DROP TABLE "RTL".calendar`);
 };

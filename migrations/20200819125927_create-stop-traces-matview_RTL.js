@@ -1,7 +1,7 @@
 exports.up = function (knex, Promise) {
 
     return knex.raw(
-        `CREATE MATERIALIZED VIEW RTL.stop_traces
+        `CREATE MATERIALIZED VIEW "RTL".stop_traces
         TABLESPACE pg_default
         AS
         WITH tableshapearrets AS (
@@ -14,8 +14,8 @@ exports.up = function (knex, Promise) {
                trips.service_id,
                trips.direction_id,
                trips.block_id
-            FROM RTL.trips
-            LEFT JOIN RTL.stop_times ON RTL.stop_times.trip_id = RTL.trips.trip_id
+            FROM "RTL".trips
+            LEFT JOIN "RTL".stop_times ON "RTL".stop_times.trip_id = "RTL".trips.trip_id
         )
         SELECT tableshapearrets.stop_id,
             tableshapearrets.stop_sequence,
@@ -32,7 +32,7 @@ exports.up = function (knex, Promise) {
             stops.stop_lon,
             stops.point_geog
         FROM tableshapearrets
-        LEFT JOIN RTL.stops ON RTL.stops.stop_id = tableshapearrets.stop_id
+        LEFT JOIN "RTL".stops ON "RTL".stops.stop_id = tableshapearrets.stop_id
         ORDER BY tableshapearrets.trip_id, tableshapearrets.shape_id, tableshapearrets.stop_sequence
         WITH NO DATA;`
     );

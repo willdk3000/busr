@@ -2,7 +2,7 @@
 exports.up = function (knex, Promise) {
 
     return knex.raw(
-        `CREATE MATERIALIZED VIEW STL.traces
+        `CREATE MATERIALIZED VIEW "STL".traces
         TABLESPACE pg_default
         AS
         WITH tableroutes AS (
@@ -11,7 +11,7 @@ exports.up = function (knex, Promise) {
             FROM ( 
                 SELECT shapes.point_geom,
                     shapes.shape_id
-                FROM STL.shapes
+                FROM "STL".shapes
                 ORDER BY shapes.shape_pt_sequence) bp
                 GROUP BY bp.shape_id
            ),
@@ -21,7 +21,7 @@ exports.up = function (knex, Promise) {
                 trips.route_id,
                 trips.trip_id
             FROM tableroutes
-            LEFT JOIN STL.trips ON STL.trips.shape_id = tableroutes.shape_id)
+            LEFT JOIN "STL".trips ON "STL".trips.shape_id = tableroutes.shape_id)
         SELECT 
             routeshape.routes_geom,
             routeshape.shape_id,
@@ -29,7 +29,7 @@ exports.up = function (knex, Promise) {
             routes.route_long_name,
             routes.route_short_name
         FROM routeshape
-        LEFT JOIN STL.routes ON routeshape.route_id = STL.routes.route_id
+        LEFT JOIN "STL".routes ON routeshape.route_id = "STL".routes.route_id
         GROUP BY routes_geom, shape_id, routeshape.route_id, route_long_name, route_short_name
         WITH NO DATA;`
     );
@@ -37,7 +37,7 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
     return knex.raw(
-        `DROP materialized view STL.traces;`);
+        `DROP materialized view "STL".traces;`);
 };
 
 

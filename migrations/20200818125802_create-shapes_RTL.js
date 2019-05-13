@@ -2,7 +2,7 @@
 exports.up = function (knex, Promise) {
     return knex.raw(
         `
-        CREATE TABLE RTL.shapes
+        CREATE TABLE "RTL".shapes
         (
             shape_id text COLLATE pg_catalog."default",
             shape_pt_lat double precision,
@@ -20,5 +20,5 @@ exports.up = function (knex, Promise) {
 };
 
 exports.down = function (knex, Promise) {
-    return knex.raw(`DROP TABLE RTL.shapes`);
+    return knex.raw(`DROP TABLE "RTL".shapes`);
 };
