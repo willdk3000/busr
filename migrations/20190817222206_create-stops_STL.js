@@ -2,7 +2,7 @@
 exports.up = function (knex, Promise) {
   return knex.raw(
     `
-    CREATE TABLE "STL".stops
+    CREATE TABLE STL.stops
     (
         stop_id text COLLATE pg_catalog."default",
         stop_code integer,
@@ -23,7 +23,7 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
   return knex.raw(
-    `DROP TABLE "STL".stops`
+    `DROP TABLE STL.stops`
   )
 };
 
