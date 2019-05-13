@@ -167,7 +167,7 @@ module.exports = {
                                 'route_name', route_long_name,
                                 'route_short_name', route_short_name)        
                   ) AS feature 
-                  FROM (SELECT * FROM STL.traces) inputs) features;`,
+                  FROM (SELECT * FROM "STL".traces) inputs) features;`,
     ).then(result => {
       res.json(result)
     });
@@ -190,7 +190,7 @@ module.exports = {
               'name', stop_name,
               'departs', departs)
           ) AS feature 
-      FROM (SELECT * FROM STL.stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
+      FROM (SELECT * FROM "STL".stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
       .then(result => {
         res.json(result)
       })
@@ -227,7 +227,7 @@ module.exports = {
     --une rangée pour l'heure de début du voyage et une autre pour l'heure de fin pour chaque voyage
     WITH unnested AS (
       SELECT trip_id, service_id, route_id, a.time, a.minmax
-      FROM STL.trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
+      FROM "STL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       ),
       --condition pour heure départ
       unnestmin AS (
@@ -271,7 +271,7 @@ module.exports = {
         calendar.start_date,
         calendar.end_date
       FROM plantrips
-      INNER JOIN STL.calendar ON plantrips.service_id = STL.calendar.service_id),
+      INNER JOIN "STL".calendar ON plantrips.service_id = "STL".calendar.service_id),
       --créer une rangée par jour de la semaine opéré
       weekdayrun AS (
       SELECT 
@@ -279,7 +279,7 @@ module.exports = {
         a.runday::integer, 
         a.daynum::integer,
         SUM(runday::integer * daynum::integer) as active
-        FROM STL.calendar, unnest(rundays) WITH ORDINALITY a(runday, daynum)
+        FROM "STL".calendar, unnest(rundays) WITH ORDINALITY a(runday, daynum)
         GROUP BY service_id, runday, daynum
         ORDER BY service_id, daynum
       )
@@ -320,7 +320,7 @@ module.exports = {
                                 'trips', trips)        
                   ) AS feature
                  
-                  FROM (SELECT * FROM RTL.traces) inputs) features;`,
+                  FROM (SELECT * FROM "RTL".traces) inputs) features;`,
     ).then(result => {
       res.json(result)
     });
@@ -343,7 +343,7 @@ module.exports = {
               'name', stop_name,
               'departs', departs)
           ) AS feature 
-      FROM (SELECT * FROM RTL.stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
+      FROM (SELECT * FROM "RTL".stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
       .then(result => {
         res.json(result)
       })
@@ -376,7 +376,7 @@ module.exports = {
     return knex.raw(`
     WITH unnested AS (
       SELECT trip_id, service_id, route_id, a.time, a.minmax
-      FROM RTL.trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
+      FROM "RTL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       WHERE service_id = '${service}'
       ),
       unnestmin AS (
