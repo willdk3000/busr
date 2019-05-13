@@ -17,7 +17,7 @@ gulp.task('import_tables_STM', function (done) {
         `\COPY "public".routes FROM '${path_stm}/routes.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stm}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence) FROM '${path_stm}/stop_times.txt' DELIMITER ',' CSV HEADER;
-        \COPY "public".trips FROM '${path_stm}/trips.txt' DELIMITER ',' CSV HEADER;
+        \COPY "public".trips (route_id,service_id,trip_id,trip_headsign,direction_id,shape_id,wheelchair_accessible,note_fr,note_en) FROM '${path_stm}/trips.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,stop_url,location_type,parent_station,wheelchair_boarding) FROM '${path_stm}/stops.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".calendar FROM '${path_stm}/calendar.txt' DELIMITER ',' CSV HEADER;
         UPDATE "public"."stops" SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
@@ -67,7 +67,7 @@ gulp.task('import_tables_STL', function (done) {
         `\COPY STL.routes FROM '${path_stl}/routes.txt' DELIMITER ',' CSV HEADER;
         \COPY STL.shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stl}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY STL.stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) FROM '${path_stl}/stop_times.txt' DELIMITER ',' CSV HEADER;
-        \COPY STL.trips FROM '${path_stl}/trips.txt' DELIMITER ',' CSV HEADER;
+        \COPY STL.trips (route_id,service_id,trip_id,block_id,shape_id,trip_headsign) FROM '${path_stl}/trips.txt' DELIMITER ',' CSV HEADER;
         \COPY STL.stops (stop_id,stop_code,stop_name,stop_lon,stop_lat,location_type,stop_display,stop_abribus) FROM '${path_stl}/stops.txt' DELIMITER ',' CSV HEADER;
         \COPY STL.calendar FROM '${path_stl}/calendar.txt' DELIMITER ',' CSV HEADER;
         UPDATE STL.stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
@@ -118,7 +118,7 @@ gulp.task('import_tables_RTL', function (done) {
         \COPY RTL.shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled) FROM '${path_rtl}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY RTL.stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint) FROM '${path_rtl}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY RTL.stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,wheelchair_boarding) FROM '${path_rtl}/stops.txt' DELIMITER ',' CSV HEADER;
-        \COPY RTL.trips FROM '${path_rtl}/trips.txt' DELIMITER ',' CSV HEADER;
+        \COPY RTL.trips (route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible) FROM '${path_rtl}/trips.txt' DELIMITER ',' CSV HEADER;
         \COPY RTL.calendar FROM '${path_rtl}/calendar.txt' DELIMITER ',' CSV HEADER;
         UPDATE RTL.stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
         UPDATE RTL.shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
