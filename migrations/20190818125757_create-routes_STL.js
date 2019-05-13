@@ -18,9 +18,7 @@ exports.up = function (knex, Promise) {
             OIDS = FALSE
         )
         TABLESPACE pg_default;
-
-        ALTER TABLE "STL".routes
-            OWNER to postgres;`
+        `
     )
 };
 

@@ -14,9 +14,7 @@ exports.up = function (knex, Promise) {
             OIDS = FALSE
         )
         TABLESPACE pg_default;
-
-        ALTER TABLE "RTL".shapes
-            OWNER to postgres;`
+        `
     )
 
 };
