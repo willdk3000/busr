@@ -2,7 +2,7 @@
 exports.up = function (knex, Promise) {
     return knex.raw(
         `
-        CREATE TABLE "STL".trips
+        CREATE TABLE STL.trips
         (
             route_id text COLLATE pg_catalog."default",
             service_id text COLLATE pg_catalog."default",
@@ -20,5 +20,5 @@ exports.up = function (knex, Promise) {
 }
 
 exports.down = function (knex, Promise) {
-    return knex.raw(`DROP TABLE "STL".trips`)
+    return knex.raw(`DROP TABLE STL.trips`)
 };

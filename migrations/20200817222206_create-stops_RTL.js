@@ -1,7 +1,7 @@
 
 exports.up = function (knex, Promise) {
   return knex.raw(
-    `CREATE TABLE "RTL".stops
+    `CREATE TABLE RTL.stops
     (
         stop_id integer,
         stop_code integer,
@@ -23,6 +23,6 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
   return knex.raw(
-    `DROP TABLE "RTL".stops`
+    `DROP TABLE RTL.stops`
   )
 };
