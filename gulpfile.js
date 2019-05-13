@@ -64,29 +64,29 @@ gulp.task('import_tables_STM', function (done) {
 //Importer tables STL
 gulp.task('import_tables_STL', function (done) {
     return knex.raw(
-        `\COPY "STL".routes FROM '${path_stl}/routes.txt' DELIMITER ',' CSV HEADER;
-        \COPY "STL".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stl}/shapes.txt' DELIMITER ',' CSV HEADER;
-        \COPY "STL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) FROM '${path_stl}/stop_times.txt' DELIMITER ',' CSV HEADER;
-        \COPY "STL".trips FROM '${path_stl}/trips.txt' DELIMITER ',' CSV HEADER;
-        \COPY "STL".stops (stop_id,stop_code,stop_name,stop_lon,stop_lat,location_type,stop_display,stop_abribus) FROM '${path_stl}/stops.txt' DELIMITER ',' CSV HEADER;
-        \COPY "STL".calendar FROM '${path_stl}/calendar.txt' DELIMITER ',' CSV HEADER;
-        UPDATE "STL".stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
-        UPDATE "STL".shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
-        UPDATE "STL".shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
-        UPDATE "STL".routes SET route_short_name = SUBSTRING("STL".routes.route_id FROM 7);
-        UPDATE "STL".stop_times SET hresecondes = 
-        ((SUBSTRING("STL".stop_times.departure_time FROM 1 FOR 2)::int)*60*60)+
-        ((SUBSTRING("STL".stop_times.departure_time FROM 4 FOR 2)::int)*60)+
-        ((SUBSTRING("STL".stop_times.departure_time FROM 7 FOR 2)::int));
-        REFRESH MATERIALIZED VIEW "STL".traces WITH DATA;
-        REFRESH MATERIALIZED VIEW "STL".stop_traces WITH DATA;
-        REFRESH MATERIALIZED VIEW "STL".stop_triptimes WITH DATA;
+        `\COPY STL.routes FROM '${path_stl}/routes.txt' DELIMITER ',' CSV HEADER;
+        \COPY STL.shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stl}/shapes.txt' DELIMITER ',' CSV HEADER;
+        \COPY STL.stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) FROM '${path_stl}/stop_times.txt' DELIMITER ',' CSV HEADER;
+        \COPY STL.trips FROM '${path_stl}/trips.txt' DELIMITER ',' CSV HEADER;
+        \COPY STL.stops (stop_id,stop_code,stop_name,stop_lon,stop_lat,location_type,stop_display,stop_abribus) FROM '${path_stl}/stops.txt' DELIMITER ',' CSV HEADER;
+        \COPY STL.calendar FROM '${path_stl}/calendar.txt' DELIMITER ',' CSV HEADER;
+        UPDATE STL.stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
+        UPDATE STL.shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
+        UPDATE STL.shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
+        UPDATE STL.routes SET route_short_name = SUBSTRING("STL".routes.route_id FROM 7);
+        UPDATE STL.stop_times SET hresecondes = 
+        ((SUBSTRING(STL.stop_times.departure_time FROM 1 FOR 2)::int)*60*60)+
+        ((SUBSTRING(STL.stop_times.departure_time FROM 4 FOR 2)::int)*60)+
+        ((SUBSTRING(STL.stop_times.departure_time FROM 7 FOR 2)::int));
+        REFRESH MATERIALIZED VIEW STL.traces WITH DATA;
+        REFRESH MATERIALIZED VIEW STL.stop_traces WITH DATA;
+        REFRESH MATERIALIZED VIEW STL.stop_triptimes WITH DATA;
         --ajout de l'heure de depart et de l'heure d'arrivee du trip
         WITH minmaxtrip AS (
             SELECT trip_id,
             MIN(hresecondes) AS mindep,
             MAX(hresecondes) AS maxdep
-            FROM "STL".stop_times
+            FROM STL.stop_times
             GROUP BY trip_id
         ),
         minmaxarray AS (
@@ -95,47 +95,47 @@ gulp.task('import_tables_STL', function (done) {
             FROM minmaxtrip
             GROUP BY trip_id
         )
-        UPDATE "STL".trips set firstlast = minmaxarray.minmax
+        UPDATE STL.trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
-        WHERE "STL".trips.trip_id = minmaxarray.trip_id;
+        WHERE STL.trips.trip_id = minmaxarray.trip_id;
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
             ARRAY_AGG(array[monday, tuesday, wednesday, thursday, friday, saturday, sunday] ORDER BY service_id) AS rundays
-            FROM "STL".calendar
+            FROM STL.calendar
             GROUP BY service_id
         )
-        UPDATE "STL".calendar set rundays = tripdays.rundays
+        UPDATE STL.calendar set rundays = tripdays.rundays
         FROM tripdays
-        WHERE "STL".calendar.service_id = tripdays.service_id`
+        WHERE STL.calendar.service_id = tripdays.service_id`
     ).then(done());
 })
 
 //Importer tables RTL
 gulp.task('import_tables_RTL', function (done) {
     return knex.raw(
-        `\COPY "RTL".routes FROM '${path_rtl}/routes.txt' DELIMITER ',' CSV HEADER;
-        \COPY "RTL".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled) FROM '${path_rtl}/shapes.txt' DELIMITER ',' CSV HEADER;
-        \COPY "RTL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint) FROM '${path_rtl}/stop_times.txt' DELIMITER ',' CSV HEADER;
-        \COPY "RTL".stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,wheelchair_boarding) FROM '${path_rtl}/stops.txt' DELIMITER ',' CSV HEADER;
-        \COPY "RTL".trips FROM '${path_rtl}/trips.txt' DELIMITER ',' CSV HEADER;
-        \COPY "RTL".calendar FROM '${path_rtl}/calendar.txt' DELIMITER ',' CSV HEADER;
-        UPDATE "RTL".stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
-        UPDATE "RTL".shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
-        UPDATE "RTL".shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
-        UPDATE "RTL".stop_times SET hresecondes = 
+        `\COPY RTL.routes FROM '${path_rtl}/routes.txt' DELIMITER ',' CSV HEADER;
+        \COPY RTL.shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled) FROM '${path_rtl}/shapes.txt' DELIMITER ',' CSV HEADER;
+        \COPY RTL.stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint) FROM '${path_rtl}/stop_times.txt' DELIMITER ',' CSV HEADER;
+        \COPY RTL.stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,wheelchair_boarding) FROM '${path_rtl}/stops.txt' DELIMITER ',' CSV HEADER;
+        \COPY RTL.trips FROM '${path_rtl}/trips.txt' DELIMITER ',' CSV HEADER;
+        \COPY RTL.calendar FROM '${path_rtl}/calendar.txt' DELIMITER ',' CSV HEADER;
+        UPDATE RTL.stops SET point_geog = st_SetSrid(st_MakePoint(stop_lon, stop_lat), 4326);
+        UPDATE RTL.shapes SET point_geog = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
+        UPDATE RTL.shapes SET point_geom = st_SetSrid(st_MakePoint(shape_pt_lon, shape_pt_lat), 4326);
+        UPDATE RTL.stop_times SET hresecondes = 
         ((SUBSTRING(departure_time FROM 1 FOR 2)::int)*60*60)+
         ((SUBSTRING(departure_time FROM 4 FOR 2)::int)*60)+
         ((SUBSTRING(departure_time FROM 7 FOR 2)::int));
-        REFRESH MATERIALIZED VIEW "RTL".traces WITH DATA;
-        REFRESH MATERIALIZED VIEW "RTL".stop_traces WITH DATA;
-        REFRESH MATERIALIZED VIEW "RTL".stop_triptimes WITH DATA;
+        REFRESH MATERIALIZED VIEW RTL.traces WITH DATA;
+        REFRESH MATERIALIZED VIEW RTL.stop_traces WITH DATA;
+        REFRESH MATERIALIZED VIEW RTL.stop_triptimes WITH DATA;
         --ajout de l'heure de depart et de l'heure d'arrivee du trip
         WITH minmaxtrip AS (
             SELECT trip_id,
             MIN(hresecondes) AS mindep,
             MAX(hresecondes) AS maxdep
-            FROM "RTL".stop_times
+            FROM RTL.stop_times
             GROUP BY trip_id
         ),
         minmaxarray AS (
@@ -144,19 +144,19 @@ gulp.task('import_tables_RTL', function (done) {
             FROM minmaxtrip
             GROUP BY trip_id
         )
-        UPDATE "RTL".trips set firstlast = minmaxarray.minmax
+        UPDATE RTL.trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
-        WHERE "RTL".trips.trip_id = minmaxarray.trip_id;
+        WHERE RTL.trips.trip_id = minmaxarray.trip_id;
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
             ARRAY_AGG(array[monday, tuesday, wednesday, thursday, friday, saturday, sunday] ORDER BY service_id) AS rundays
-            FROM "RTL".calendar
+            FROM RTL.calendar
             GROUP BY service_id
         )
-        UPDATE "RTL".calendar set rundays = tripdays.rundays
+        UPDATE RTL.calendar set rundays = tripdays.rundays
         FROM tripdays
-        WHERE "RTL".calendar.service_id = tripdays.service_id  `
+        WHERE RTL.calendar.service_id = tripdays.service_id  `
     ).then(done());
 })
 
