@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
-
+import moment from 'moment-timezone';
 import StatCards from '../components/StatCards.js'
 
 import {
@@ -45,9 +45,9 @@ class Livemap extends Component {
           vehiclesSTM: positions ? vehSTM[0].data : '',
           vehiclesSTL: positions ? vehSTL[0].data : '',
           vehiclesRTL: positions ? vehRTL[0].data : '',
-          timestampSTM: positions ? vehSTM[0].time : '',
-          timestampSTL: positions ? vehSTL[0].time : '',
-          timestampRTL: positions ? vehSTL[0].time : '',
+          timestampSTM: positions ? moment.tz(moment(vehSTM[0].time, 'HH:mm:ss'), "America/New_York").format() : '',
+          timestampSTL: positions ? moment.tz(moment(vehSTL[0].time, "HH:mm:ss"), "America/New_York").format() : '',
+          timestampRTL: positions ? moment.tz(moment(vehRTL[0].time, "HH:mm:ss"), "America/New_York").format() : '',
           subscribed: 1,
           plannedTripsRTL: positions ? positions[1] : '',
           plannedTripsSTL: positions ? positions[2] : '',
@@ -391,7 +391,7 @@ class Livemap extends Component {
 
     }
 
-    //console.log(this.state)
+    console.log(this.state)
 
   }
 

@@ -2,10 +2,10 @@
 exports.up = function (knex, Promise) {
   return knex.raw(
     `
-    CREATE TABLE public.vehicles
+    CREATE TABLE "public".vehicles
     (
-        "timestamp" timestamp without time zone,
-        "time" time without time zone,
+        "timestamp" timestamp with time zone,
+        "time" time with time zone,
         data jsonb,
         vehlen integer,
         weekday text COLLATE pg_catalog."default",
