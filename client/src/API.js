@@ -6,8 +6,8 @@ import io from "socket.io-client";
 //   io.connect('window.location.hostname', { transports: ['websocket'] })
 //   : io.connect('http://localhost:5000', { transports: ['websocket'] });
 
-const socket = io.connect('http://localhost:5000', { transports: ['websocket'] });
-//const socket = io.connect('busr-mtl.herokuapp.com', { transports: ['websocket'] });
+//const socket = io.connect('http://localhost:5000', { transports: ['websocket'] });
+const socket = io.connect('busr-mtl.herokuapp.com', { transports: ['websocket'] });
 
 export async function getNewData(cb) {
 
