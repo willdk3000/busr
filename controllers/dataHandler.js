@@ -1,9 +1,12 @@
-const knex = require('../config/knex')
+const knex = require('../config/knex');
+const moment = require('moment');
 
 module.exports = {
 
     insertSTM(req, res) {
         const veh_len = JSON.parse(req)[0].features.length
+        const time = moment(new Date()).format('HH:mm:ss');
+        console.log('TIME', time)
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -15,9 +18,10 @@ module.exports = {
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
                 to_char(now(), 'D') as weekday,
-                'STM' AS reseau                
+                'STM' AS reseau,
+                '${time}' AS timestr
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
             SELECT * FROM data_array
             `
         )
@@ -28,6 +32,8 @@ module.exports = {
 
     insertSTL(req, res) {
         const veh_len = JSON.parse(req)[0].features.length;
+        const time = moment(new Date()).format('HH:mm:ss');
+
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -38,10 +44,11 @@ module.exports = {
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(now(), 'D') as weekday ,
-                'STL' AS reseau
+                to_char(now(), 'D') as weekday,
+                'STL' AS reseau,
+                '${time}' AS timestr
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
             SELECT * FROM data_array
             `
         )
@@ -52,6 +59,8 @@ module.exports = {
 
     insertRTL(req, res) {
         const veh_len = JSON.parse(req)[0].features.length;
+        const time = moment(new Date()).format('HH:mm:ss');
+
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -63,9 +72,10 @@ module.exports = {
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
                 to_char(now(), 'D') as weekday ,
-                'RTL' AS reseau
+                'RTL' AS reseau,
+                '${time}' AS timestr
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
             SELECT * FROM data_array
             `
         )

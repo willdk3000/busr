@@ -9,7 +9,8 @@ exports.up = function (knex, Promise) {
         data jsonb,
         vehlen integer,
         weekday text COLLATE pg_catalog."default",
-        reseau text COLLATE pg_catalog."default"
+        reseau text COLLATE pg_catalog."default",
+        timestr text COLLATE pg_catalog."default"
     )
     WITH (
         OIDS = FALSE
