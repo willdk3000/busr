@@ -118,7 +118,7 @@ module.exports = {
 
     allvehicles(req, res) {
         return knex('vehicles')
-            .select('time', 'vehlen', 'weekday', 'reseau')
+            .select('timestr', 'vehlen', 'weekday', 'reseau')
             .where({})
             .then(result => {
                 res.json(result)
