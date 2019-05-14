@@ -11,6 +11,10 @@ class StatCards extends Component {
               <div id='stat'>STM</div>
             </div>
             <div className="col-sm" id="stat-card">
+              <div id='nom-stat'>API :</div>
+              <div id='stat'>gtfs-r</div>
+            </div>
+            <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
               <div id='stat'>{this.props.lastRefreshSTM.substr(0, 8)}</div>
             </div>
@@ -29,6 +33,10 @@ class StatCards extends Component {
               <div id='stat'>STL</div>
             </div>
             <div className="col-sm" id="stat-card">
+              <div id='nom-stat'>API :</div>
+              <div id='stat'>nextbus</div>
+            </div>
+            <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>
               <div id='stat'>{this.props.lastRefreshSTL.substr(0, 8)}</div>
             </div>
@@ -45,6 +53,10 @@ class StatCards extends Component {
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Réseau :</div>
               <div id='stat'>RTL</div>
+            </div>
+            <div className="col-sm" id="stat-card">
+              <div id='nom-stat'>API :</div>
+              <div id='stat'>gtfs-r</div>
             </div>
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Rafraîchit à :</div>

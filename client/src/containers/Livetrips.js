@@ -116,7 +116,7 @@ class Livetrips extends Component {
               onClick={(e) => this.handleClickSTM(e)}>
               STM
             </button>
-            <button type="button" className="col btn btn-outline-secondary">
+            <button type="button" className="col btn btn-outline-secondary" disabled>
               STL
             </button>
             <button
@@ -165,7 +165,7 @@ class Livetrips extends Component {
                       </tr>
                     )) :
                     <tr>
-                      <td>Sélectionner une agence</td>
+                      <td colspan="4" style={{ textAlign: "center" }}> Sélectionner une agence</td>
                     </tr>}
               </tbody>
             </table>
