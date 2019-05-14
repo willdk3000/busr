@@ -1,9 +1,9 @@
 import io from "socket.io-client";
 //const API_URL = process.env.NODE_ENV ? window.location.hostname : 'http://192.168.0.146:5000'
 //Pour mobile, l'adresse ci-dessous doit etre le IP et non localhost
-const socket = process.env.NODE_ENV ?
-  io.connect('http://localhost:5000', { transports: ['websocket'] })
-  : io.connect('/', { transports: ['websocket'] });
+const socket = process.env.NODE && ~process.env.NODE.indexOf("heroku") ?
+  io.connect('window.location.hostname', { transports: ['websocket'] })
+  : io.connect('http://localhost:5000', { transports: ['websocket'] });
 
 export async function getNewData(cb) {
 
