@@ -32,7 +32,7 @@ class Historique extends Component {
       allVehicles.forEach((e) => {
         parseAll.push({
           reseau: e.reseau,
-          time: parseInt(moment("2019-04-28 " + e.time.substr(0, 8)).format('x')),
+          time: parseInt(moment("2019-04-28 " + e.timestr).format('x')),
           vehlen: e.vehlen,
           weekday: e.weekday
         })
