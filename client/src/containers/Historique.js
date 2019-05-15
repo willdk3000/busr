@@ -34,7 +34,8 @@ class Historique extends Component {
           reseau: e.reseau,
           time: parseInt(moment("2019-04-28 " + e.timestr).format('x')),
           vehlen: e.vehlen,
-          weekday: e.weekday
+          weekday: e.weekday,
+          date: moment(e.timestamp).format('YYYY-MM-DD')
         })
       }) : ''
 
@@ -71,6 +72,7 @@ class Historique extends Component {
         return (
           <div className="custom-tooltip">
             <p className="label">Réseau : {payload[0].payload.reseau}<br />
+              Date : {payload[0].payload.date} <br />
               Heure : {moment(payload[0].payload.time).format('HH:mm:ss')}<br />
               Véhicules : {payload[0].payload.vehlen}</p>
           </div>

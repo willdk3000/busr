@@ -6,7 +6,6 @@ module.exports = {
     insertSTM(req, res) {
         const veh_len = JSON.parse(req)[0].features.length
         const time = moment(new Date()).format('HH:mm:ss');
-        console.log('TIME', time)
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -117,9 +116,12 @@ module.exports = {
     },
 
     allvehicles(req, res) {
+        //20160 = nombre d'enregistrements dans une semaine pour limiter les 
+        //requetes a 7 jours de donnees
+
         return knex('vehicles')
-            .select('timestr', 'vehlen', 'weekday', 'reseau')
-            .where({})
+            .select('timestamp', 'timestr', 'vehlen', 'weekday', 'reseau')
+            .where({}).orderBy('timestamp', 'desc').limit(20160)
             .then(result => {
                 res.json(result)
             })
