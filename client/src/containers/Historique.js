@@ -58,10 +58,7 @@ class Historique extends Component {
       sunday: sunday
     })
 
-    console.log(this.state)
-
-
-
+    //console.log(this.state)
 
 
   }

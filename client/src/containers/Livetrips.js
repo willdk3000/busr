@@ -43,8 +43,12 @@ class Livetrips extends Component {
             return f.properties.trip_id === e.tripmin
           }).length > 0) {
             e.online = 1
+            // e.vehicle = vehRTL[0].data.features.filter((f) => {
+            //   return f.properties.trip_id === e.tripmin
+            // }).properties.vehicle_id
           } else {
             e.online = 0
+            // e.vehicle = 'ND'
           }
         })
 
@@ -57,8 +61,14 @@ class Livetrips extends Component {
             return f.properties.trip_id === e.tripmin
           }).length > 0) {
             e.online = 1
+            // e.vehicle = vehRTL[0].data.features.filter((f) => {
+            //   return f.properties.trip_id === e.tripmin
+            // }).properties.vehicle_id
           } else {
             e.online = 0
+            // e.vehicle = vehRTL[0].data.features.filter((f) => {
+            //   return f.properties.trip_id === e.tripmin
+            // })[0]
           }
         })
 
@@ -82,8 +92,7 @@ class Livetrips extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(this.state)
-
+    //console.log(this.state)
   }
 
 
@@ -108,6 +117,16 @@ class Livetrips extends Component {
     return (
       this.state.plannedTripsRTL ?
         <div className="container">
+
+          <div className="row justify-content-md-center">
+            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#ABFFAB" }}>
+              Voyage actif
+            </div>
+            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFABAB" }}>
+              Voyage inactif
+            </div>
+          </div>
+
           <div className="row">
             <button
               id="agency-card"
@@ -122,11 +141,11 @@ class Livetrips extends Component {
             <button
               type="button" className="col btn btn-outline-info"
               style={this.state.selectRTL === 1 ? { backgroundColor: "#38B2A3", color: "#FFFFFF" } : { backgroundColor: "#E9F1F3", color: "#000000" }}
-              onClick={(e) => this.handleClickRTL(e)}
-            >
+              onClick={(e) => this.handleClickRTL(e)}>
               RTL
             </button>
           </div>
+
           <div className="row">
             <table id="tableOnline" className="table">
               <thead>
@@ -139,7 +158,7 @@ class Livetrips extends Component {
                   </th>
                   <th>
                     Heure de fin
-                    </th>
+                  </th>
                   <th>
                     Trip ID
                   </th>
