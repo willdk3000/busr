@@ -595,7 +595,7 @@ class Livemap extends Component {
             <div className="mapToolTip" style={{ left: x, top: y }}>
               <div>No de véhicule: {hoveredFeatureRTL.properties.vehicle_id}</div>
               <div>Ligne: {hoveredFeatureRTL.properties.route_id}</div>
-              <div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>
+              {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
               <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
               <div>MAJ: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
