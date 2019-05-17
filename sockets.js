@@ -21,12 +21,13 @@ function init(server) {
 
         // io.emit('message-client-connected',
         //     `Client with id ${socket.id} connected. Total connections : ${socketCount}`);
+        let intervalId;
 
         socket.on('subscribeToTimer', (interval) => {
 
             console.log('client is subscribing to timer with interval ', interval);
 
-            setInterval(async () => {
+            intervalId = setInterval(async () => {
                 console.log('emitting...')
                 let newData = await controllers.dataHandler.latest();
                 let plannedTripsRTL = await controllers.gtfsHandler.getPlannedTripsRTL();
@@ -50,7 +51,7 @@ function init(server) {
         socket.on('disconnect', () => {
             socketCount--
             console.log('user disconnected : ' + socketCount + ' connections left');
-
+            clearInterval(intervalId);
         })
 
     });

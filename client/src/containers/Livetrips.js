@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import {
-  getNewData, closeSocket,
+  getNewData, closeSocket
 } from '../API.js'
 
 const moment = require('moment');
@@ -93,6 +93,12 @@ class Livetrips extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     //console.log(this.state)
+  }
+
+
+  componentWillUnmount = async () => {
+
+    //closeSocket();
   }
 
 
