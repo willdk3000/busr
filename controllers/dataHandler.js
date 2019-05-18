@@ -122,7 +122,7 @@ module.exports = {
 
         return knex('vehicles')
             .select('timestamp', 'timestr', 'vehlen', 'weekday', 'reseau')
-            .where({}).orderBy('timestamp', 'desc').limit(5000)
+            .where({}).orderBy('timestamp', 'desc').limit(20160)
             .then(result => {
                 res.json(result)
             })
