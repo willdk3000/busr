@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import MapGL from 'react-map-gl';
-import moment from 'moment-timezone';
 import StatCards from '../components/StatCards.js'
 
 import {
-  getNewData, closeSocket,
+  getNewData, leave,
   getTracesSTM, getTracesSTL, getTracesRTL,
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js'
@@ -346,7 +345,7 @@ class Livemap extends Component {
 
       this.setState({ routesSTM: uniqueRoutesSTM })
 
-      localStorage.setItem('data', this.state)
+      //localStorage.setItem('data', this.state)
     }
 
     // Gestion vehicules STL
@@ -399,7 +398,7 @@ class Livemap extends Component {
 
   componentWillUnmount = async () => {
     this.map.remove();
-    //closeSocket();
+    leave();
   }
 
 

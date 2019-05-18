@@ -24,6 +24,11 @@ export async function getNewData(cb) {
 
 }
 
+
+export async function leave() {
+  socket.emit('leave')
+}
+
 export function closeSocket() {
   socket.disconnect()
 }

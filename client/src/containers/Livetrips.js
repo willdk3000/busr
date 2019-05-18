@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import {
-  getNewData, closeSocket
+  getNewData, leave
 } from '../API.js'
 
 const moment = require('moment');
@@ -97,7 +97,7 @@ class Livetrips extends Component {
 
 
   componentWillUnmount = async () => {
-
+    leave();
     //closeSocket();
   }
 
@@ -190,7 +190,7 @@ class Livetrips extends Component {
                       </tr>
                     )) :
                     <tr>
-                      <td colspan="4" style={{ textAlign: "center" }}> Sélectionner une agence</td>
+                      <td colSpan="4" style={{ textAlign: "center" }}> Sélectionner une agence</td>
                     </tr>}
               </tbody>
             </table>

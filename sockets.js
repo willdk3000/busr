@@ -4,8 +4,8 @@ const socketIO = require('socket.io')
 const controllers = require('./controllers')
 const api = require('./API.js')
 
-let socketCount = 0
-
+let socketCount = 0;
+let timers = 0;
 //const removeData = controllers.dataHandler.delete();
 
 function init(server) {
@@ -17,15 +17,17 @@ function init(server) {
     io.on('connection', (socket) => {
 
         socketCount++
-        console.log('user connected : ' + socketCount + ' connections')
+        console.log('User connected : ' + socketCount + ' connections')
 
         // io.emit('message-client-connected',
         //     `Client with id ${socket.id} connected. Total connections : ${socketCount}`);
         let intervalId;
 
         socket.on('subscribeToTimer', (interval) => {
+            timers++;
 
-            console.log('client is subscribing to timer with interval ', interval);
+            console.log('Client is subscribing to timer with interval ', interval);
+            console.log('Active timers : ' + timers)
 
             intervalId = setInterval(async () => {
                 console.log('emitting...')
@@ -39,18 +41,15 @@ function init(server) {
 
         });
 
-        //emitPosition(io);
-
-        //emitPosition(io);
-        // let interval = setInterval(async function () {
-        //     let refresh = await refreshPosition();
-        //     //let emit = await emitPosition(io);
-        //     console.log()
-        // }, 10000);
+        socket.on('leave', () => {
+            timers--;
+            console.log('Client changed page. ' + timers + ' timers left.')
+            clearInterval(intervalId);
+        });
 
         socket.on('disconnect', () => {
             socketCount--
-            console.log('user disconnected : ' + socketCount + ' connections left');
+            console.log('User disconnected : ' + socketCount + ' connections left.');
             clearInterval(intervalId);
         })
 
