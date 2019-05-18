@@ -11,6 +11,8 @@ import {
   Legend
 } from 'recharts';
 
+import ReactLoading from 'react-loading';
+
 const moment = require('moment');
 
 class Historique extends Component {
@@ -190,7 +192,11 @@ class Historique extends Component {
 
         <br />
       </div>
-    ) : 'Chargement...';
+    ) : <div className="container">
+        <div className="row justify-content-md-center">
+          <p><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></p>
+        </div>
+      </div >
   }
 }
 

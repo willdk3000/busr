@@ -20,7 +20,7 @@ export async function getNewData(cb) {
 
   socket.on('refresh data', data => cb(null, data))
 
-  socket.emit('subscribeToTimer', 5000);
+  socket.emit('subscribeToTimer', 3000);
 
 }
 

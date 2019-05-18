@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactLoading from 'react-loading';
 
 import {
   getNewData, leave
@@ -9,7 +10,6 @@ const moment = require('moment');
 class Livetrips extends Component {
 
   state = {
-    subscribed: 0,
     selectSTM: 0,
     selectSTL: 0,
     selectRTL: 0
@@ -17,77 +17,74 @@ class Livetrips extends Component {
 
   componentDidMount = async () => {
 
-    const getData = this.state.subscribed === 0 ?
-      getNewData((err, positions) => {
+    const getData = getNewData((err, positions) => {
 
+      // Séparation des donnnées par réseau
 
-        // Séparation des donnnées par réseau
+      const vehSTM = positions ? positions[0].filter((e) => {
+        return e.reseau === 'STM'
+      }) : ''
 
-        const vehSTM = positions ? positions[0].filter((e) => {
-          return e.reseau === 'STM'
-        }) : ''
+      const vehSTL = positions ? positions[0].filter((e) => {
+        return e.reseau === 'STL'
+      }) : ''
 
-        const vehSTL = positions ? positions[0].filter((e) => {
-          return e.reseau === 'STL'
-        }) : ''
+      const vehRTL = positions ? positions[0].filter((e) => {
+        return e.reseau === 'RTL'
+      }) : ''
 
-        const vehRTL = positions ? positions[0].filter((e) => {
-          return e.reseau === 'RTL'
-        }) : ''
+      // Ajout d'une propriété "online" aux voyages planifiés
+      // Permet d'identifier les voyages en ligne dans le tableau
 
-        // Ajout d'une propriété "online" aux voyages planifiés
-        // Permet d'identifier les voyages en ligne dans le tableau
-
-        const checkOnlineRTL = positions[1].forEach((e) => {
-          if (vehRTL[0].data.features.filter((f) => {
-            return f.properties.trip_id === e.tripmin
-          }).length > 0) {
-            e.online = 1
-            // e.vehicle = vehRTL[0].data.features.filter((f) => {
-            //   return f.properties.trip_id === e.tripmin
-            // }).properties.vehicle_id
-          } else {
-            e.online = 0
-            // e.vehicle = 'ND'
-          }
-        })
-
-        // Pour les données de la STL, il n'y a pas de trip_id dans
-        // les appels next_bus - voir si le match peut se faire avec
-        // la ligne et l'heure...
-
-        const checkOnlineSTM = positions[3].forEach((e) => {
-          if (vehSTM[0].data.features.filter((f) => {
-            return f.properties.trip_id === e.tripmin
-          }).length > 0) {
-            e.online = 1
-            // e.vehicle = vehRTL[0].data.features.filter((f) => {
-            //   return f.properties.trip_id === e.tripmin
-            // }).properties.vehicle_id
-          } else {
-            e.online = 0
-            // e.vehicle = vehRTL[0].data.features.filter((f) => {
-            //   return f.properties.trip_id === e.tripmin
-            // })[0]
-          }
-        })
-
-        this.setState({
-          vehiclesSTM: positions ? vehSTM[0].data : '',
-          vehiclesSTL: positions ? vehSTL[0].data : '',
-          vehiclesRTL: positions ? vehRTL[0].data : '',
-          timestampSTM: positions ? vehSTM[0].time : '',
-          timestampSTL: positions ? vehSTL[0].time : '',
-          timestampRTL: positions ? vehSTL[0].time : '',
-          subscribed: 1,
-          plannedTripsRTL: positions ? positions[1] : '',
-          plannedTripsSTL: positions ? positions[2] : '',
-          plannedTripsSTM: positions ? positions[3] : ''
-        })
-
+      const checkOnlineRTL = positions[1].forEach((e) => {
+        if (vehRTL[0].data.features.filter((f) => {
+          return f.properties.trip_id === e.tripmin
+        }).length > 0) {
+          e.online = 1
+          // e.vehicle = vehRTL[0].data.features.filter((f) => {
+          //   return f.properties.trip_id === e.tripmin
+          // }).properties.vehicle_id
+        } else {
+          e.online = 0
+          // e.vehicle = 'ND'
+        }
       })
-      : '';
 
+      // Pour les données de la STL, il n'y a pas de trip_id dans
+      // les appels next_bus - voir si le match peut se faire avec
+      // la ligne et l'heure...
+
+      const checkOnlineSTM = positions[3].forEach((e) => {
+        if (vehSTM[0].data.features.filter((f) => {
+          return f.properties.trip_id === e.tripmin
+        }).length > 0) {
+          e.online = 1
+          // e.vehicle = vehRTL[0].data.features.filter((f) => {
+          //   return f.properties.trip_id === e.tripmin
+          // }).properties.vehicle_id
+        } else {
+          e.online = 0
+          // e.vehicle = vehRTL[0].data.features.filter((f) => {
+          //   return f.properties.trip_id === e.tripmin
+          // })[0]
+        }
+      })
+
+      this.setState({
+        vehiclesSTM: positions ? vehSTM[0].data : '',
+        vehiclesSTL: positions ? vehSTL[0].data : '',
+        vehiclesRTL: positions ? vehRTL[0].data : '',
+        timestampSTM: positions ? vehSTM[0].time : '',
+        timestampSTL: positions ? vehSTL[0].time : '',
+        timestampRTL: positions ? vehSTL[0].time : '',
+        plannedTripsRTL: positions ? positions[1] : '',
+        plannedTripsSTL: positions ? positions[2] : '',
+        plannedTripsSTM: positions ? positions[3] : ''
+      })
+
+    })
+
+    // Clear interval if refresh page
 
   }
 
@@ -122,8 +119,8 @@ class Livetrips extends Component {
   render() {
     return (
       this.state.plannedTripsRTL ?
-        <div className="container">
 
+        <div className="container">
           <div className="row justify-content-md-center">
             <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#ABFFAB" }}>
               Voyage actif
@@ -196,7 +193,11 @@ class Livetrips extends Component {
             </table>
           </div>
         </div >
-        : 'Chargement...'
+        : <div className="container">
+          <div className="row justify-content-md-center">
+            <ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} />
+          </div>
+        </div>
     );
   }
 }

@@ -15,7 +15,6 @@ import {
 class Livemap extends Component {
 
   state = {
-    subscribed: 0,
     viewport: {
       latitude: 45.556827,
       longitude: -73.662362,
@@ -25,36 +24,33 @@ class Livemap extends Component {
 
   componentDidMount = async () => {
 
-    const getData = this.state.subscribed === 0 ?
-      getNewData((err, positions) => {
+    const getData = getNewData((err, positions) => {
 
-        const vehSTM = positions ? positions[0].filter((e) => {
-          return e.reseau === 'STM'
-        }) : ''
+      const vehSTM = positions ? positions[0].filter((e) => {
+        return e.reseau === 'STM'
+      }) : ''
 
-        const vehSTL = positions ? positions[0].filter((e) => {
-          return e.reseau === 'STL'
-        }) : ''
+      const vehSTL = positions ? positions[0].filter((e) => {
+        return e.reseau === 'STL'
+      }) : ''
 
-        const vehRTL = positions ? positions[0].filter((e) => {
-          return e.reseau === 'RTL'
-        }) : ''
+      const vehRTL = positions ? positions[0].filter((e) => {
+        return e.reseau === 'RTL'
+      }) : ''
 
-        this.setState({
-          vehiclesSTM: positions ? vehSTM[0].data : '',
-          vehiclesSTL: positions ? vehSTL[0].data : '',
-          vehiclesRTL: positions ? vehRTL[0].data : '',
-          timestampSTM: positions ? vehSTM[0].timestr : '',
-          timestampSTL: positions ? vehSTL[0].timestr : '',
-          timestampRTL: positions ? vehRTL[0].timestr : '',
-          subscribed: 1,
-          plannedTripsRTL: positions ? positions[1] : '',
-          plannedTripsSTL: positions ? positions[2] : '',
-          plannedTripsSTM: positions ? positions[3] : ''
-        })
-
+      this.setState({
+        vehiclesSTM: vehSTM[0].data,
+        vehiclesSTL: vehSTL[0].data,
+        vehiclesRTL: vehRTL[0].data,
+        timestampSTM: vehSTM[0].timestr,
+        timestampSTL: vehSTL[0].timestr,
+        timestampRTL: vehRTL[0].timestr,
+        plannedTripsRTL: positions ? positions[1] : '',
+        plannedTripsSTL: positions ? positions[2] : '',
+        plannedTripsSTM: positions ? positions[3] : ''
       })
-      : '';
+
+    })
 
     const map = this.reactMap.getMap();
 
@@ -77,6 +73,12 @@ class Livemap extends Component {
     })
 
 
+  }
+
+
+  componentWillUnmount = async () => {
+    this.map.remove();
+    leave();
   }
 
 
@@ -345,7 +347,6 @@ class Livemap extends Component {
 
       this.setState({ routesSTM: uniqueRoutesSTM })
 
-      //localStorage.setItem('data', this.state)
     }
 
     // Gestion vehicules STL
@@ -394,12 +395,6 @@ class Livemap extends Component {
 
   }
 
-
-
-  componentWillUnmount = async () => {
-    this.map.remove();
-    leave();
-  }
 
 
   _onViewportChange = viewport => this.setState({ viewport });
