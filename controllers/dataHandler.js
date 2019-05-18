@@ -116,12 +116,13 @@ module.exports = {
     },
 
     allvehicles(req, res) {
+
         //20160 = nombre d'enregistrements dans une semaine pour limiter les 
         //requetes a 7 jours de donnees
 
         return knex('vehicles')
             .select('timestamp', 'timestr', 'vehlen', 'weekday', 'reseau')
-            .where({}).orderBy('timestamp', 'desc').limit(20160)
+            .where({}).orderBy('timestamp', 'desc').limit(5000)
             .then(result => {
                 res.json(result)
             })

@@ -29,8 +29,6 @@ class Livemap extends Component {
     const getData = this.state.subscribed === 0 ?
       getNewData((err, positions) => {
 
-        localStorage.setItem("positions", JSON.stringify(positions));
-
         const vehSTM = positions ? positions[0].filter((e) => {
           return e.reseau === 'STM'
         }) : ''
