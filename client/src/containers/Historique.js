@@ -193,9 +193,9 @@ class Historique extends Component {
         <br />
       </div>
     ) : <div className="container">
-        <p className="row justify-content-md-center">Chargement en cours...</p>
-        <div className="row justify-content-md-center">
-          <p><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></p>
+        <div className="row justify-content-center">Chargement en cours...</div>
+        <div className="row justify-content-center">
+          <div><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></div>
         </div>
       </div >
   }

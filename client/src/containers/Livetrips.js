@@ -112,13 +112,23 @@ class Livetrips extends Component {
     })
   }
 
+  handleTripClickRTL = async (e) => {
+    console.log(e.target.innerHTML)
+    //list.splice( 1, 0, "baz");
+    let tripsArray = [...this.state.plannedTripsRTL.sort((a, b) => (a.timemin > b.timemin))];
+    let position = tripsArray.indexOf((d) => { return d.tripmin === e.target.innerHTML });
+    console.log(position)
+    tripsArray.splice(position, 0, { tripmin: 'abcdefg' });
+    console.log(tripsArray)
+  }
+
 
   render() {
     return (
       this.state.plannedTripsRTL ?
 
         <div className="container">
-          <div className="row justify-content-md-center">
+          <div className="row justify-content-center">
             <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#ABFFAB" }}>
               Voyage actif
             </div>
@@ -171,7 +181,12 @@ class Livetrips extends Component {
                       <td>{e.route_id}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                      <td style={{ backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB" }}>{e.tripmin}</td>
+                      <td
+                        style={{ backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB" }}
+                      >
+                        {/*onClick={(event) => this.handleTripClickRTL(event)*/}
+                        {e.tripmin}
+                      </td>
                     </tr>
                   )) :
                   this.state.selectSTM == 1 ? this.state.plannedTripsSTM.sort((a, b) => (a.timemin > b.timemin) ? 1 : -1)
@@ -191,9 +206,9 @@ class Livetrips extends Component {
           </div>
         </div >
         : <div className="container">
-          <p className="row justify-content-md-center">Chargement en cours...</p>
-          <div className="row justify-content-md-center">
-            <p><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></p>
+          <div className="row justify-content-center">Chargement en cours...</div>
+          <div className="row justify-content-center">
+            <div><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></div>
           </div>
         </div>
     );
