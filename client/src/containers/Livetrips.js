@@ -84,8 +84,6 @@ class Livetrips extends Component {
 
     })
 
-    // Clear interval if refresh page
-
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -95,7 +93,6 @@ class Livetrips extends Component {
 
   componentWillUnmount = async () => {
     leave();
-    //closeSocket();
   }
 
 

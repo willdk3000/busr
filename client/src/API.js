@@ -29,10 +29,6 @@ export async function leave() {
   socket.emit('leave')
 }
 
-export function closeSocket() {
-  socket.disconnect()
-}
-
 
 // Donnees pour cartographie
 export async function getTracesSTM() {

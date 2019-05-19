@@ -71,7 +71,11 @@ module.exports = {
 
     if (dayNow == 0 && seconds > 14340) {
       service = 7
+    } else if (dayNow == 1 && seconds <= 14340) {
+      service = 7
     } else if (dayNow == 6 && seconds > 14340) {
+      service = 6
+    } else if (dayNow == 0 && seconds <= 14340) {
       service = 6
     } else {
       service = 1
@@ -217,7 +221,11 @@ module.exports = {
 
     if (dayNow == 0 && seconds > 14340) {
       service = 7
+    } else if (dayNow == 1 && seconds <= 14340) {
+      service = 7
     } else if (dayNow == 6 && seconds > 14340) {
+      service = 6
+    } else if (dayNow == 0 && seconds <= 14340) {
       service = 6
     } else {
       service = 1
@@ -367,7 +375,11 @@ module.exports = {
     let service = '';
     if (dayNow == 0 && seconds > 14340) {
       service = 'DI'
+    } else if (dayNow == 1 && seconds <= 14340) {
+      service = 'DI'
     } else if (dayNow == 6 && seconds > 14340) {
+      service = 'SA'
+    } else if (dayNow == 0 && seconds <= 14340) {
       service = 'SA'
     } else {
       service = 'SE'
