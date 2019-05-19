@@ -12,7 +12,7 @@ module.exports = {
             `
             WITH data_array AS (
                 SELECT 
-                NOW() AS timestamp,
+                timezone('US/Eastern', NOW()::timestamp) AS timestamp,
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
@@ -39,7 +39,7 @@ module.exports = {
             `
             WITH data_array AS (
                 SELECT 
-                NOW() AS timestamp,
+                timezone('US/Eastern', NOW()::timestamp) AS timestamp,
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
@@ -66,7 +66,7 @@ module.exports = {
             `
             WITH data_array AS (
                 SELECT 
-                NOW() AS timestamp,
+                timezone('US/Eastern', NOW()::timestamp) AS timestamp,
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
