@@ -110,7 +110,7 @@ class Historique extends Component {
                 ]}
               />
               <YAxis dataKey="vehlen" name='véhicules' />
-              <ZAxis dataKey="z" range={[20]} />
+              <ZAxis dataKey="z" range={[10]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
@@ -144,7 +144,7 @@ class Historique extends Component {
                   1556499600000, 1556503200000, 1556506800000, 1556510399900
                 ]} />
               <YAxis dataKey="vehlen" name='véhicules' />
-              <ZAxis dataKey="z" range={[20]} />
+              <ZAxis dataKey="z" range={[10]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
@@ -177,7 +177,7 @@ class Historique extends Component {
                   1556499600000, 1556503200000, 1556506800000, 1556510399900
                 ]} />
               <YAxis dataKey="vehlen" name='véhicules' />
-              <ZAxis dataKey="z" range={[20]} />
+              <ZAxis dataKey="z" range={[10]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
