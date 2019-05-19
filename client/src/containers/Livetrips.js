@@ -194,8 +194,9 @@ class Livetrips extends Component {
           </div>
         </div >
         : <div className="container">
+          <p className="row justify-content-md-center">Chargement en cours...</p>
           <div className="row justify-content-md-center">
-            <ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} />
+            <p><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></p>
           </div>
         </div>
     );
