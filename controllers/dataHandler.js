@@ -10,8 +10,6 @@ module.exports = {
         let timeNow = new Date();
         let dayNow = timeNow.getDay();
 
-        //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
-        //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
             `
             WITH data_array AS (
@@ -40,8 +38,6 @@ module.exports = {
         let timeNow = new Date();
         let dayNow = timeNow.getDay();
 
-        //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
-        //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
             `
             WITH data_array AS (
@@ -70,8 +66,6 @@ module.exports = {
         let timeNow = new Date();
         let dayNow = timeNow.getDay();
 
-        //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
-        //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
             `
             WITH data_array AS (
