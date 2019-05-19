@@ -7,6 +7,9 @@ module.exports = {
         const veh_len = JSON.parse(req)[0].features.length
         const time = moment(new Date()).format('HH:mm:ss');
 
+        let timeNow = new Date();
+        let dayNow = timeNow.getDay();
+
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -17,7 +20,7 @@ module.exports = {
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(now(), 'D') as weekday,
+                '${dayNow}' as weekday,
                 'STM' AS reseau,
                 '${time}' AS timestr
             )
@@ -34,6 +37,9 @@ module.exports = {
         const veh_len = JSON.parse(req)[0].features.length;
         const time = moment(new Date()).format('HH:mm:ss');
 
+        let timeNow = new Date();
+        let dayNow = timeNow.getDay();
+
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -44,7 +50,7 @@ module.exports = {
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(now(), 'D') as weekday,
+                '${dayNow}' as weekday,
                 'STL' AS reseau,
                 '${time}' AS timestr
             )
@@ -61,6 +67,9 @@ module.exports = {
         const veh_len = JSON.parse(req)[0].features.length;
         const time = moment(new Date()).format('HH:mm:ss');
 
+        let timeNow = new Date();
+        let dayNow = timeNow.getDay();
+
         //SELECT LOCALTIME AS timestamp //pour avoir seulement l'heure
         //pour les weekday, 1 = dimanche, 2 = lundi, ...
         return knex.raw(
@@ -71,7 +80,7 @@ module.exports = {
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(now(), 'D') as weekday ,
+                '${dayNow}' as weekday ,
                 'RTL' AS reseau,
                 '${time}' AS timestr
             )

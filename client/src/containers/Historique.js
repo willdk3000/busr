@@ -44,15 +44,15 @@ class Historique extends Component {
     // Séparation des données de semaine, samedi, dimanche
 
     const week = parseAll.filter((e) => {
-      return parseInt(e.weekday) > 1 && parseInt(e.weekday) < 7
+      return parseInt(e.weekday) > 0 && parseInt(e.weekday) < 6
     })
 
     const saturday = parseAll.filter((e) => {
-      return parseInt(e.weekday) === 7
+      return parseInt(e.weekday) === 6
     })
 
     const sunday = parseAll.filter((e) => {
-      return parseInt(e.weekday) === 1
+      return parseInt(e.weekday) === 0
     })
 
     this.setState({
