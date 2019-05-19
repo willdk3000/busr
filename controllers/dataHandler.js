@@ -12,11 +12,11 @@ module.exports = {
             `
             WITH data_array AS (
                 SELECT 
-                timezone('Canada/Eastern', NOW()::timestamp) AS timestamp,
+                NOW() AS timestamp,
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(timezone('Canada/Eastern', NOW()::timestamp), 'D') as weekday,
+                to_char(now(), 'D') as weekday,
                 'STM' AS reseau,
                 '${time}' AS timestr
             )
@@ -39,11 +39,11 @@ module.exports = {
             `
             WITH data_array AS (
                 SELECT 
-                timezone('Canada/Eastern', NOW()::timestamp) AS timestamp,
+                NOW() AS timestamp,
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(timezone('Canada/Eastern', NOW()::timestamp), 'D') as weekday,
+                to_char(now(), 'D') as weekday,
                 'STL' AS reseau,
                 '${time}' AS timestr
             )
@@ -66,11 +66,11 @@ module.exports = {
             `
             WITH data_array AS (
                 SELECT 
-                timezone('Canada/Eastern', NOW()::timestamp) AS timestamp,
+                NOW() AS timestamp,
                 LOCALTIME AS time,
                 jsonb_array_elements('${req}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
-                to_char(timezone('Canada/Eastern', NOW()::timestamp), 'D') as weekday ,
+                to_char(now(), 'D') as weekday ,
                 'RTL' AS reseau,
                 '${time}' AS timestr
             )
