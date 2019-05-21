@@ -384,7 +384,6 @@ module.exports = {
     } else {
       service = 'SE'
     }
-    service = 'F3'
 
     return knex.raw(`
     WITH unnested AS (
