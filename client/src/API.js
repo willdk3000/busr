@@ -72,13 +72,13 @@ export async function getTracesRTL() {
 };
 
 
-export async function getStopsRTL(trace) {
+export async function getStopsRTL(trip) {
   const response = await fetch('/api/stops_rtl', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "trace": trace })
+    body: JSON.stringify({ "trip": trip })
   });
   return response.json()
 }

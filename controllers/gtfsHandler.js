@@ -349,9 +349,9 @@ module.exports = {
               'properties', jsonb_build_object(
               'code', stop_code,
               'name', stop_name,
-              'departs', departs)
+              'stop_sequence', stop_sequence)
           ) AS feature 
-      FROM (SELECT * FROM "RTL".stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
+      FROM (SELECT * FROM "RTL".stop_traces WHERE trip_id ='${req.body.trip}' ORDER BY stop_sequence) inputs) features;`)
       .then(result => {
         res.json(result)
       })
@@ -384,6 +384,7 @@ module.exports = {
     } else {
       service = 'SE'
     }
+    service = 'F3'
 
     return knex.raw(`
     WITH unnested AS (

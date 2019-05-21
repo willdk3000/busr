@@ -32,7 +32,7 @@ const moment = require('moment')
 const controllers = require('./controllers')
 
 const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
-const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
+const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/TripUpdate.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
 
 
 const requestSettingsSTM = {
@@ -90,18 +90,18 @@ function requestDataSTM() {
 // }
 
 // Requete vers le serveur d'exo (RTL)
-// function requestDataRTL() {
-//   // return new Promise(function (resolve, reject) {
-//   //   request(requestSettingsRTL, function (error, response, body) {
-//   //     if (!error && response.statusCode == 200) {
-//   //       resolve(body);
-//   //     }
-//   //     else {
-//   //       console.log(response.statusCode, error)
-//   //     }
-//   //   })
-//   // });
-// }
+function requestDataRTL() {
+  return new Promise(function (resolve, reject) {
+    request(requestSettingsRTL, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        resolve(body);
+      }
+      else {
+        console.log(response.statusCode, error)
+      }
+    })
+  });
+}
 
 async function main() {
 
@@ -116,13 +116,14 @@ async function main() {
 
   const tripUpdates = Object.values(feed.entity);
 
-  //console.log(tripUpdates);
+  //console.log(tripUpdates[0]);
 
   tripUpdates.forEach((e) => {
     tripArraySTM.push([e.id, e.trip_update.trip.start_time, e.trip_update.trip.start_date])
   })
 
-  console.log(tripArraySTM)
+  //console.log(tripArraySTM)
+
   // vehicles.forEach((e) => {
   //   let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
   //     vehicle_id: e.id,
@@ -165,12 +166,14 @@ async function main() {
 
 
   // GESTION VEHICULES RTL
-  // vehArrayRTL = [];
+  vehArrayRTL = [];
 
-  // let dataRTL = await requestDataRTL();
-  // let feedRTL = GtfsRealtimeBindings.FeedMessage.decode(dataRTL);
+  let dataRTL = await requestDataRTL();
+  let feedRTL = GtfsRealtimeBindings.FeedMessage.decode(dataRTL);
 
-  // const vehiclesRTL = Object.values(feedRTL.entity);
+  const tripUpdatesRTL = Object.values(feedRTL.entity);
+
+  console.log(tripUpdatesRTL);
 
   // vehiclesRTL.forEach((e) => {
   //   let vehPosRTL = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {

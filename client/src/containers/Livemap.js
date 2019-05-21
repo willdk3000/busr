@@ -422,16 +422,16 @@ class Livemap extends Component {
   };
 
 
-
   stopRequestSTM = async (trace) => {
     const stopsResponseSTM = await getStopsSTM(trace);
     const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
     return parseStopsSTM
   }
 
-  stopRequestRTL = async (trace) => {
-    const stopsResponseRTL = await getStopsRTL(trace);
+  stopRequestRTL = async (trip) => {
+    const stopsResponseRTL = await getStopsRTL(trip);
     const parseStopsRTL = stopsResponseRTL.rows[0].jsonb_build_object
+    console.log(parseStopsRTL)
     return parseStopsRTL
   }
 
@@ -505,7 +505,7 @@ class Livemap extends Component {
       : this.map.getSource("stopsSTM").setData(emptyGeoJSON))
       : '';
 
-    const stopsRTL = tripClickRTL !== '' ? await this.stopRequestRTL(traceRTL[0].properties.ID) : '';
+    const stopsRTL = tripClickRTL !== '' ? await this.stopRequestRTL(tripClickRTL) : '';
     this.setState({ stopsRTL: stopsRTL })
 
 
