@@ -211,7 +211,7 @@ class Livetrips extends Component {
     let turfLine = turf.lineString(coordTrace);
     let pt = turf.point(currentPositionFeature);
     let snapped = turf.nearestPointOnLine(turfLine, pt, { units: 'kilometers' });
-    let dist = [{ x: Math.round((snapped.properties.location) * 1000), y: 0, z: 35 }]
+    let dist = [{ x: Math.round((snapped.properties.location) * 1000), y: 0, z: 60 }]
 
     //Afficher le graphique
     const CustomTooltip = ({ active, payload }) => {
@@ -237,7 +237,7 @@ class Livetrips extends Component {
             <ScatterChart>
               <XAxis type="number" dataKey="x" hide />
               <YAxis type="number" dataKey="y" hide />
-              <ZAxis type="number" dataKey="z" range={[10, 50]} domain={[15, 35]} />
+              <ZAxis type="number" dataKey="z" range={[10, 100]} domain={[15, 75]} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
               <Scatter name="Arrets" data={data} fill="#000000" stroke="#5B5B5B" line shape="circle" />
               <Scatter name="Bus" data={dist} fill="#A93332" line shape="circle" />
@@ -253,7 +253,7 @@ class Livetrips extends Component {
             <ScatterChart>
               <XAxis type="number" dataKey="x" hide />
               <YAxis type="number" dataKey="y" hide />
-              <ZAxis type="number" dataKey="z" range={[10, 50]} domain={[15, 35]} />
+              <ZAxis type="number" dataKey="z" range={[10, 100]} domain={[15, 75]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
