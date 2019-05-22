@@ -213,9 +213,6 @@ class Livetrips extends Component {
     let snapped = turf.nearestPointOnLine(turfLine, pt, { units: 'kilometers' });
     let dist = [{ x: Math.round((snapped.properties.location) * 1000), y: 0, z: 35 }]
 
-    //      console.log(dist)
-    //Creer le point dans une nouvelle source
-
     //Afficher le graphique
     const CustomTooltip = ({ active, payload }) => {
       if (active) {
@@ -324,16 +321,16 @@ class Livetrips extends Component {
             <table id="tableOnline" className="table">
               <thead>
                 <tr>
-                  <th>
+                  <th style={{ width: "10%" }}>
                     Ligne
                   </th>
-                  <th>
+                  <th style={{ width: "10%" }}>
                     Heure de départ
                   </th>
-                  <th>
+                  <th style={{ width: "10%" }}>
                     Heure de fin
                   </th>
-                  <th>
+                  <th style={{ width: "70%" }}>
                     Trip ID
                   </th>
                 </tr>
@@ -345,7 +342,10 @@ class Livetrips extends Component {
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                     <td
-                      style={{ backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB" }}
+                      style={{
+                        backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB",
+                        cursor: e.online === 1 ? 'pointer' : 'default'
+                      }}
                       onClick={(event) => this.handleTripClickRTL(event)}
                     >
                       {e.tripmin}
