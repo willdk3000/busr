@@ -359,10 +359,10 @@ class Livetrips extends Component {
 
         <div className="container-fluid">
           <div className="row justify-content-center">
-            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#ABFFAB" }}>
+            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
               Voyage planifié actif
             </div>
-            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFABAB" }}>
+            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
               Voyage planifié inactif
             </div>
           </div>
@@ -410,13 +410,14 @@ class Livetrips extends Component {
               </thead>
               <tbody>
                 {this.state.selectRTL === 1 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
-                  <tr key={e.keyid}>
+                  <tr
+                    key={e.keyid}
+                    style={{ backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2" }}>
                     <td>{e.route_id}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                     <td
                       style={{
-                        backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB",
                         cursor: e.online === 1 ? 'pointer' : 'default'
                       }}
                       onClick={(event) => this.handleTripClickRTL(event)}
@@ -432,14 +433,13 @@ class Livetrips extends Component {
                     </td>
                   </tr>) :
                   this.state.selectSTM === 1 ? this.state.plannedTripsSTM.map((e) => (
-                    <tr key={e.tripmin}>
+                    <tr
+                      key={e.tripmin}
+                      style={{ backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2" }}>
                       <td>{e.route_id}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                      <td style={{
-                        backgroundColor: e.online === 1 ? "#ABFFAB" : "#FFABAB",
-                        width: "50%"
-                      }}>{e.tripmin}</td>
+                      <td style={{ width: "50%" }}>{e.tripmin}</td>
                     </tr>
                   )) :
                     <tr>
