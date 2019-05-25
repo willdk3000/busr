@@ -1,16 +1,13 @@
 import io from "socket.io-client";
 
-//const API_URL = process.env.NODE_ENV ? window.location.hostname : 'http://192.168.0.146:5000'
-//Pour mobile, l'adresse ci-dessous doit etre le IP et non localhost
-
-// const socket = process.env.HEROKU ?
-//   io.connect('window.location.hostname', { transports: ['websocket'] })
-//   : io.connect('http://localhost:5000', { transports: ['websocket'] });
+//const API_URL = 'http://192.168.0.146:5000'
 
 const socket = process.env.NODE_ENV === 'production' ?
   io.connect('busr-mtl.herokuapp.com', { transports: ['websocket'] }) :
-  io.connect('http://localhost:5000', { transports: ['websocket'] })
+  io.connect('http://192.168.0.146:5000', { transports: ['websocket'] })
 
+
+// Fonctions realtime
 
 export async function getNewData(cb) {
 
@@ -30,12 +27,12 @@ export async function leave() {
 }
 
 
-// Donnees pour cartographie
+// Données pour cartographie
+
 export async function getTracesSTM() {
   const response = await fetch('/api/traces_stm')
   return response.json();
 };
-
 
 export async function getStopsSTM(trace) {
   const response = await fetch('/api/stops_stm', {
@@ -84,7 +81,7 @@ export async function getStopsRTL(trip) {
 }
 
 
-// Donnees pour graphiques
+// Données pour graphiques
 
 export async function getHistory() {
   const response = await fetch('/api/allvehicles')
