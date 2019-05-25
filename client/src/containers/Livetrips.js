@@ -226,6 +226,7 @@ class Livetrips extends Component {
       stopsRTL.features.map((f) => {
         data.push({
           name: f.properties.name,
+          time: f.properties.departure_time,
           x: f.properties.stop_sequence,
           y: 0,
           z: 15
@@ -262,7 +263,8 @@ class Livetrips extends Component {
           return (
             <div className="custom-tooltip">
               <p className="label">{payload[0].payload.name}<br />
-                Distance : {payload[0].payload.x}</p>
+                Distance : {payload[0].payload.x}<br />
+                Planifié : {payload[0].payload.time}</p>
             </div>
           );
         }
