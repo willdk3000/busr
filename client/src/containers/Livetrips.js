@@ -241,7 +241,9 @@ class Livetrips extends Component {
               <XAxis type="number" dataKey="x" hide />
               <YAxis type="number" dataKey="y" hide />
               <ZAxis type="number" dataKey="z" range={[10, 100]} domain={[15, 75]} />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <Tooltip
+                content={<CustomTooltip />}
+              />
               <Scatter name="Arrets" data={data} fill="#000000" stroke="#5B5B5B" line shape="circle" />
               <Scatter name="Bus" data={dist} fill="#A93332" line shape="circle" />
             </ScatterChart>
