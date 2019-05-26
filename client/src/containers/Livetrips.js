@@ -414,16 +414,15 @@ class Livetrips extends Component {
                 {this.state.selectRTL === 1 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
                   <tr
                     key={e.keyid}
-                    style={{ backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2" }}>
+                    style={{
+                      backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2",
+                      cursor: e.online === 1 ? 'pointer' : 'default'
+                    }}
+                    onClick={(event) => this.handleTripClickRTL(event)}>
                     <td>{e.route_id}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                    <td
-                      style={{
-                        cursor: e.online === 1 ? 'pointer' : 'default'
-                      }}
-                      onClick={(event) => this.handleTripClickRTL(event)}
-                    >
+                    <td>
                       {e.tripmin}
                     </td>
                   </tr>
