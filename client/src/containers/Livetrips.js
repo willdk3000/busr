@@ -124,8 +124,6 @@ class Livetrips extends Component {
     if (tripListRTL.length !== prevState.tripListRTL.length) {
       this.regenGraphRTL();
     }
-
-    console.log(this.state);
   }
 
 
@@ -415,14 +413,17 @@ class Livetrips extends Component {
                   <tr
                     key={e.keyid}
                     style={{
-                      backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2",
-                      cursor: e.online === 1 ? 'pointer' : 'default'
-                    }}
-                    onClick={(event) => this.handleTripClickRTL(event)}>
+                      backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
+                    }}>
                     <td>{e.route_id}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                    <td>
+                    <td
+                      style={{
+                        cursor: e.online === 1 ? 'pointer' : 'default'
+                      }}
+                      onClick={(event) => this.handleTripClickRTL(event)}
+                    >
                       {e.tripmin}
                     </td>
                   </tr>
