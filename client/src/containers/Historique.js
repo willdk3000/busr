@@ -109,15 +109,18 @@ class Historique extends Component {
                   1556499600000, 1556503200000, 1556506800000, 1556510399900
                 ]}
               />
-              <YAxis dataKey="vehlen" name='véhicules' />
+              <YAxis yAxisId="left" dataKey="vehlen" name='véhicules'
+                label={{ value: 'STM', angle: -90, position: 'insideLeft' }} />
+              <YAxis yAxisId="right" orientation="right" dataKey="vehlen" name='véhicules'
+                label={{ value: 'STL, RTL', angle: -90, position: 'right' }} />
               <ZAxis dataKey="z" range={[10]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
               <Legend />
-              <Scatter name="STM" data={this.state.week.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
-              <Scatter name="STL" data={this.state.week.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
-              <Scatter name="RTL" data={this.state.week.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
+              <Scatter yAxisId="left" name="STM" data={this.state.week.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
+              <Scatter yAxisId="right" name="STL" data={this.state.week.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
+              <Scatter yAxisId="right" name="RTL" data={this.state.week.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
@@ -143,15 +146,18 @@ class Historique extends Component {
                   1556485200000, 1556488800000, 1556492400000, 1556496000000,
                   1556499600000, 1556503200000, 1556506800000, 1556510399900
                 ]} />
-              <YAxis dataKey="vehlen" name='véhicules' />
+              <YAxis yAxisId="left" dataKey="vehlen" name='véhicules'
+                label={{ value: 'STM', angle: -90, position: 'insideLeft' }} />
+              <YAxis yAxisId="right" orientation="right" dataKey="vehlen" name='véhicules'
+                label={{ value: 'STL, RTL', angle: -90, position: 'right' }} />
               <ZAxis dataKey="z" range={[10]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
               <Legend />
-              <Scatter name="STM" data={this.state.saturday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
-              <Scatter name="STL" data={this.state.saturday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
-              <Scatter name="RTL" data={this.state.saturday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
+              <Scatter yAxisId="left" name="STM" data={this.state.saturday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
+              <Scatter yAxisId="right" name="STL" data={this.state.saturday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
+              <Scatter yAxisId="right" name="RTL" data={this.state.saturday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
@@ -176,15 +182,18 @@ class Historique extends Component {
                   1556485200000, 1556488800000, 1556492400000, 1556496000000,
                   1556499600000, 1556503200000, 1556506800000, 1556510399900
                 ]} />
-              <YAxis dataKey="vehlen" name='véhicules' />
+              <YAxis yAxisId="left" dataKey="vehlen" name='véhicules'
+                label={{ value: 'STM', angle: -90, position: 'insideLeft' }} />
+              <YAxis yAxisId="right" orientation="right" dataKey="vehlen" name='véhicules'
+                label={{ value: 'STL, RTL', angle: -90, position: 'right' }} />
               <ZAxis dataKey="z" range={[10]} />
               <Tooltip
                 content={<CustomTooltip />}
               />
               <Legend />
-              <Scatter name="STM" data={this.state.sunday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
-              <Scatter name="STL" data={this.state.sunday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
-              <Scatter name="RTL" data={this.state.sunday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
+              <Scatter yAxisId="left" name="STM" data={this.state.sunday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
+              <Scatter yAxisId="right" name="STL" data={this.state.sunday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
+              <Scatter yAxisId="right" name="RTL" data={this.state.sunday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
