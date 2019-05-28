@@ -422,8 +422,8 @@ class Livemap extends Component {
   };
 
 
-  stopRequestSTM = async (trace) => {
-    const stopsResponseSTM = await getStopsSTM(trace);
+  stopRequestSTM = async (trip) => {
+    const stopsResponseSTM = await getStopsSTM(trip);
     const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
     return parseStopsSTM
   }
@@ -431,7 +431,6 @@ class Livemap extends Component {
   stopRequestRTL = async (trip) => {
     const stopsResponseRTL = await getStopsRTL(trip);
     const parseStopsRTL = stopsResponseRTL.rows[0].jsonb_build_object
-    console.log(parseStopsRTL)
     return parseStopsRTL
   }
 
@@ -497,7 +496,7 @@ class Livemap extends Component {
       : '';
 
     //Requete pour obtenir les arrets a afficher selon le trip (ou la route)
-    const stopsSTM = tripClickSTM !== '' ? await this.stopRequestSTM(traceSTM[0].properties.ID) : '';
+    const stopsSTM = tripClickSTM !== '' ? await this.stopRequestSTM(tripClickSTM) : '';
     this.setState({ stopsSTM: stopsSTM })
 
 

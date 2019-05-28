@@ -42,9 +42,10 @@ module.exports = {
               'properties', jsonb_build_object(
               'code', stop_code,
               'name', stop_name,
-              'departs', departs)
+              'stop_sequence', stop_sequence,
+              'departure_time', departure_time)
           ) AS feature 
-      FROM (SELECT * FROM "public".stop_triptimes WHERE shape_id ='${req.body.trace}') inputs) features;`)
+          FROM (SELECT * FROM stop_traces WHERE trip_id ='${req.body.trip}' ORDER BY stop_sequence) inputs) features;`)
       .then(result => {
         res.json(result)
       })
@@ -83,7 +84,7 @@ module.exports = {
 
     return knex.raw(`
     WITH unnested AS (
-      SELECT trip_id, service_id, route_id, a.time, a.minmax
+      SELECT trip_id, service_id, route_id, direction_id, a.time, a.minmax
       FROM "public".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       ),
       unnestmin AS (
@@ -92,6 +93,7 @@ module.exports = {
           trip_id AS tripmin,
           time AS timemin,
           route_id,
+          direction_id,
           minmax
         FROM unnested
         WHERE minmax = 1 AND unnested.time::integer <= ${seconds28}
@@ -108,6 +110,7 @@ module.exports = {
         SELECT
               unnestmin.service_id,
               unnestmin.route_id,  
+              unnestmin.direction_id,
               unnestmin.tripmin,
               unnestmin.timemin,
               unnestmax.timemax
@@ -118,6 +121,7 @@ module.exports = {
       SELECT 
         plantrips.service_id,
         plantrips.route_id,
+        plantrips.direction_id,
         plantrips.tripmin,
         plantrips.timemin,
         plantrips.timemax,
@@ -139,6 +143,7 @@ module.exports = {
       distinct(plantrips.tripmin),
       plantrips.service_id,
       plantrips.route_id,
+      plantrips.direction_id,
       plantrips.timemin,
       plantrips.timemax,
       weekdayrun.active,
@@ -148,6 +153,7 @@ module.exports = {
       INNER JOIN plantrips ON plantrips.service_id = weekdayrun.service_id
 	    INNER JOIN rundates ON rundates.service_id = weekdayrun.service_id
       WHERE active = ${service} AND start_date::integer <= ${dateParse} AND end_date::integer >= ${dateParse}
+      ORDER BY plantrips.route_id, plantrips.direction_id, plantrips.timemin
     `).then(result => {
       return result.rows
     })
@@ -388,13 +394,14 @@ module.exports = {
 
     return knex.raw(`
     WITH unnested AS (
-      SELECT trip_id, service_id, route_id, a.time, a.minmax
+      SELECT trip_id, service_id, route_id, direction_id, a.time, a.minmax
       FROM "RTL".trips, unnest(firstlast) WITH ORDINALITY a(time, minmax)
       WHERE service_id = '${service}'
       ),
       unnestmin AS (
         SELECT 
           route_id,
+          direction_id,
           trip_id AS tripmin,
           time AS timemin,
           minmax
@@ -411,11 +418,13 @@ module.exports = {
       )
       SELECT
         unnestmin.route_id,
+        unnestmin.direction_id,
         unnestmin.tripmin,
         unnestmin.timemin,
         unnestmax.timemax
       FROM unnestmin
       INNER JOIN unnestmax ON unnestmin.tripmin = unnestmax.tripmax
+      ORDER BY unnestmin.route_id, unnestmin.direction_id, unnestmin.timemin
     `).then(result => {
       return result.rows
     })

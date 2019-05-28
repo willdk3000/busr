@@ -7,19 +7,16 @@ import {
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js';
 
-import {
-  ResponsiveContainer,
-  ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip
-} from 'recharts';
+import { calcGraphsTripsRTL } from '../helpers/tripsRoutesRTL.js';
+import { calcGraphsTripsSTM } from '../helpers/tripsRoutesSTM.js';
+
 
 const moment = require('moment');
-const turf = require('@turf/turf');
-
 
 class Livetrips extends Component {
 
   state = {
-    tripListRTL: [],
+    tripList: [],
     selectSTM: 0,
     selectSTL: 0,
     selectRTL: 0
@@ -45,10 +42,10 @@ class Livetrips extends Component {
 
       // Ajout d'une propriété "online" aux voyages planifiés
       // Permet d'identifier les voyages en ligne dans le tableau
-      let keyID = 0;
+      let keyIDRTL = 0;
       const checkOnlineRTL = positions[1].forEach((e) => {
-        e.keyid = keyID;
-        keyID++;
+        e.keyid = keyIDRTL;
+        keyIDRTL++;
         if (vehRTL[0].data.features.filter((f) => {
           return f.properties.trip_id === e.tripmin
         }).length > 0) {
@@ -61,8 +58,10 @@ class Livetrips extends Component {
       // Pour les données de la STL, il n'y a pas de trip_id dans
       // les appels next_bus - voir si le match peut se faire avec
       // la ligne et l'heure...
-
+      let keyIDSTM = 0;
       const checkOnlineSTM = positions[3].forEach((e) => {
+        e.keyid = keyIDSTM;
+        keyIDSTM++;
         if (vehSTM[0].data.features.filter((f) => {
           return f.properties.trip_id === e.tripmin
         }).length > 0) {
@@ -73,18 +72,6 @@ class Livetrips extends Component {
       })
 
 
-      // let matches = [];
-
-      // const autoRemove = this.state.tripListRTL.length > 0 ?
-      //   this.state.tripListRTL.forEach((e) => {
-      //     matches.push(positions[1].filter((f) => {
-      //       return e === f.tripmin
-      //     }))
-      //   }) :
-      //   '';
-      // console.log(matches)
-
-
       this.setState({
         vehiclesSTM: positions ? vehSTM[0].data : '',
         vehiclesSTL: positions ? vehSTL[0].data : '',
@@ -92,10 +79,12 @@ class Livetrips extends Component {
         timestampSTM: positions ? vehSTM[0].time : '',
         timestampSTL: positions ? vehSTL[0].time : '',
         timestampRTL: positions ? vehSTL[0].time : '',
-        plannedTripsRTL: positions ? positions[1].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : '',
+        plannedTripsRTL: positions ? positions[1] : '',
         plannedTripsSTL: positions ? positions[2].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : '',
-        plannedTripsSTM: positions ? positions[3].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : ''
+        plannedTripsSTM: positions ? positions[3] : ''
       })
+
+      //plannedTripsRTL: positions ? positions[1].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : ''
 
     })
 
@@ -105,9 +94,18 @@ class Livetrips extends Component {
       tracesRTL: tracesRTL.rows[0].jsonb_build_object
     })
 
+    const tracesSTM = await getTracesSTM();
+    this.setState({
+      tracesSTM: tracesSTM.rows[0].jsonb_build_object
+    })
 
-    if (this.state.plannedTripsRTL) {
+
+    if (this.state.selectRTL === 1 && this.state.plannedTripsRTL) {
       this.regenGraphRTL();
+    }
+
+    if (this.state.selectSTM === 1 && this.state.plannedTripsSTM) {
+      this.regenGraphSTM();
     }
 
   }
@@ -115,15 +113,28 @@ class Livetrips extends Component {
 
   componentDidUpdate(prevProps, prevState) {
 
-    const { plannedTripsRTL, tripListRTL } = this.state;
+    const { tripList, plannedTripsRTL, plannedTripsSTM, selectRTL, selectSTM } = this.state;
 
-    if (plannedTripsRTL !== prevState.plannedTripsRTL) {
+
+    if (selectRTL === 1 && plannedTripsRTL !== prevState.plannedTripsRTL) {
       this.regenGraphRTL();
     }
 
-    if (tripListRTL.length !== prevState.tripListRTL.length) {
+    if (selectRTL === 1 && tripList.length !== prevState.tripList.length) {
       this.regenGraphRTL();
     }
+
+
+    if (selectSTM === 1 && plannedTripsSTM !== prevState.plannedTripsSTM) {
+      this.regenGraphSTM();
+    }
+
+    if (selectSTM === 1 && tripList.length !== prevState.tripList.length) {
+      this.regenGraphSTM();
+    }
+
+    console.log(this.state)
+
   }
 
 
@@ -132,12 +143,12 @@ class Livetrips extends Component {
   }
 
 
-
   handleClickSTM = async (e) => {
     this.setState({
       selectSTM: 1,
       selectSTL: 0,
-      selectRTL: 0
+      selectRTL: 0,
+      tripList: []
     })
   }
 
@@ -145,7 +156,8 @@ class Livetrips extends Component {
     this.setState({
       selectSTM: 0,
       selectSTL: 0,
-      selectRTL: 1
+      selectRTL: 1,
+      tripList: []
     })
   }
 
@@ -155,11 +167,17 @@ class Livetrips extends Component {
     return parseStopsRTL
   }
 
-  //Ajouter le graphique du trip choisi
+  stopRequestSTM = async (trip) => {
+    const stopsResponseSTM = await getStopsSTM(trip);
+    const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
+    return parseStopsSTM
+  }
+
+
 
   regenGraphRTL = async () => {
 
-    let visibleChartTrips = [...this.state.tripListRTL];
+    let visibleChartTrips = [...this.state.tripList];
 
     //Obtenir les donnees aux arrets - on ne peut pas inclure les async/await
     //dans le forEach
@@ -172,15 +190,14 @@ class Livetrips extends Component {
 
     let plannedTrips = [...this.state.plannedTripsRTL];
 
-    // Rafraichir la liste de trips pour lesquels on voit les graphs 
-    // en fonction des trips planifies
-
-
     // AutoRemove les trips planifies qui ne sont plus dans l'intervalle actuelle
 
+    //**A FAIRE : si le trip n'est plus dans l'intervalle actuelle mais
+    //que le bus est en retard, il faudrait conserver le trip...  **//
+
     let visibleChartTripsUpdate = [];
-    const autoRemove = this.state.tripListRTL.length > 0 ?
-      this.state.tripListRTL.forEach((e) => {
+    const autoRemove = this.state.tripList.length > 0 ?
+      this.state.tripList.forEach((e) => {
         if (this.state.plannedTripsRTL.filter((f) => {
           return e === f.tripmin
         }).length > 0) {
@@ -202,123 +219,103 @@ class Livetrips extends Component {
       }) :
       '';
 
-    //*****----- Demarrer la boucle qui genere les graphs ----- *****
-    let stopsCounter = 0;
+    let vehiclesRTL = this.state.vehiclesRTL;
+    let tracesRTL = this.state.tracesRTL;
 
-    visibleChartTripsLiveUpdate.forEach((e) => {
-
-      //Trouver la position du trip dans l'array
-      let tripIDS = [];
-      plannedTrips.map((f) => {
-        tripIDS.push(f.tripmin)
-      })
-
-      let position = tripIDS.indexOf(e)
-
-      //Trouver les arrêts correspondants au trip
-      let stopsRTL = stops[stopsCounter];
-      stopsCounter++;
-
-      //Préparer les données pour le graph
-      let data = [];
-      stopsRTL.features.map((f) => {
-        data.push({
-          name: f.properties.name,
-          time: f.properties.departure_time,
-          x: f.properties.stop_sequence,
-          y: 0,
-          z: 15
-        })
-      })
-
-      //Trouver les coordonnees actuelles du bus sur le trip
-      const currentPositionFeature = this.state.vehiclesRTL.features.filter((f) => {
-        return f.properties.trip_id === e
-      })[0].geometry.coordinates;
-
-      //Trouver la trace correspondant au trip
-      const traceRTL = this.state.tracesRTL.features.filter((f) => {
-        return f.properties.trips.some((g) => {
-          return g === e
-        })
-      })
-
-      //Trouver la distance parcourue par le bus sur le trip
-      const coordTrace = [];
-
-      traceRTL[0].geometry.coordinates.map((f) => {
-        coordTrace.push(f)
-      })
-
-      let turfLine = turf.lineString(coordTrace);
-      let pt = turf.point(currentPositionFeature);
-      let snapped = turf.nearestPointOnLine(turfLine, pt, { units: 'kilometers' });
-      let dist = [{ x: Math.round((snapped.properties.location) * 1000), y: 0, z: 60 }]
-
-      // Tooltip custom
-      const CustomTooltip = ({ active, payload }) => {
-        if (active) {
-          return (
-            <div className="custom-tooltip">
-              <p className="label">{payload[0].payload.name}<br />
-                Distance : {payload[0].payload.x}<br />
-                Planifié : {payload[0].payload.time}</p>
-            </div>
-          );
-        }
-        return null;
-      };
-
-      plannedTrips.splice(position + 1, 0, {
-        keyid: position + 1,
-        graph: 1,
-        online: plannedTrips[position].online,
-        timemin: parseInt(plannedTrips[position].timemin),
-        timemax: plannedTrips[position].timemax,
-        tripmin:
-          <ResponsiveContainer width="100%" height={50} >
-            <ScatterChart>
-              <XAxis type="number" dataKey="x" hide />
-              <YAxis type="number" dataKey="y" hide />
-              <ZAxis type="number" dataKey="z" range={[10, 100]} domain={[15, 75]} />
-              <Tooltip
-                content={<CustomTooltip />}
-              />
-              <Scatter name="Arrets" data={data} fill="#000000" stroke="#5B5B5B" line shape="circle" />
-              <Scatter name="Bus" data={dist} fill="#A93332" line shape="circle" />
-            </ScatterChart>
-          </ResponsiveContainer >
-
-      })
-
-    })
-
-    let keyID = 0;
-    plannedTrips.forEach((e) => {
-      e.keyid = keyID;
-      keyID++;
-    })
-
+    // Calcul des graphs
+    plannedTrips = await calcGraphsTripsRTL(
+      visibleChartTripsLiveUpdate,
+      plannedTrips,
+      stops,
+      vehiclesRTL,
+      tracesRTL
+    );
 
     this.setState({
       plannedTripsWithGraphs: plannedTrips,
-      tripListRTL: visibleChartTripsLiveUpdate
+      tripList: visibleChartTripsLiveUpdate
     })
 
   }
 
 
+
+  regenGraphSTM = async () => {
+
+    let visibleChartTrips = [...this.state.tripList];
+
+    //Obtenir les donnees aux arrets - on ne peut pas inclure les async/await
+    //dans le forEach
+
+    let stops = [];
+    for (const e of visibleChartTrips) {
+      let tripStops = await this.stopRequestSTM(e);
+      stops.push(tripStops);
+    }
+
+    let plannedTrips = [...this.state.plannedTripsSTM];
+
+    // AutoRemove les trips planifies qui ne sont plus dans l'intervalle actuelle
+
+    //**A FAIRE : si le trip n'est plus dans l'intervalle actuelle mais
+    //que le bus est en retard, il faudrait conserver le trip...  **//
+
+    let visibleChartTripsUpdate = [];
+    const autoRemove = this.state.tripList.length > 0 ?
+      this.state.tripList.forEach((e) => {
+        if (this.state.plannedTripsSTM.filter((f) => {
+          return e === f.tripmin
+        }).length > 0) {
+          visibleChartTripsUpdate.push(e)
+        }
+      }) :
+      '';
+
+    // AutoRemove les trips qui ne poussent plus de donnees temps reel
+
+    let visibleChartTripsLiveUpdate = [];
+    const autoRemoveLive = visibleChartTripsUpdate.length > 0 ?
+      visibleChartTripsUpdate.forEach((e) => {
+        if (this.state.vehiclesSTM.features.filter((f) => {
+          return f.properties.trip_id === e
+        }).length > 0) {
+          visibleChartTripsLiveUpdate.push(e)
+        }
+      }) :
+      '';
+
+    let vehiclesSTM = this.state.vehiclesSTM;
+    let tracesSTM = this.state.tracesSTM;
+
+    // Calcul des graphs
+    plannedTrips = await calcGraphsTripsSTM(
+      visibleChartTripsLiveUpdate,
+      plannedTrips,
+      stops,
+      vehiclesSTM,
+      tracesSTM
+    );
+
+    this.setState({
+      plannedTripsWithGraphs: plannedTrips,
+      tripList: visibleChartTripsLiveUpdate
+    })
+
+  }
+
+
+
   addToTripList = async (e) => {
-    let tripListAdd = [...this.state.tripListRTL];
+    let tripListAdd = [...this.state.tripList];
     tripListAdd.push(e);
-    this.setState({ tripListRTL: tripListAdd })
+    this.setState({ tripList: tripListAdd })
   }
 
   removeFromTripList = async (e) => {
-    let tripListRemove = [...this.state.tripListRTL];
+    let tripListRemove = [...this.state.tripList];
     let tripPosition = tripListRemove.indexOf(e);
     tripListRemove.splice(tripPosition, 1)
-    this.setState({ tripListRTL: tripListRemove })
+    this.setState({ tripList: tripListRemove })
   }
 
 
@@ -335,19 +332,39 @@ class Livetrips extends Component {
     const showhide = this.state.plannedTripsRTL.filter((f) => {
       return f.tripmin === e.target.innerHTML
     })[0].online === 1 &&
-      this.state.tripListRTL.filter((f) => {
+      this.state.tripList.filter((f) => {
         return f === e.target.innerHTML
       }).length === 0 ?
       this.addToTripList(e.target.innerHTML) :
       this.state.plannedTripsRTL.filter((f) => {
         return f.tripmin === e.target.innerHTML
       })[0].online === 1 &&
-        this.state.tripListRTL.filter((f) => {
+        this.state.tripList.filter((f) => {
           return f === e.target.innerHTML
         }).length > 0 ?
         this.removeFromTripList(e.target.innerHTML)
         : ''
 
+  }
+
+
+  handleTripClickSTM = async (e) => {
+
+    const showhide = this.state.plannedTripsSTM.filter((f) => {
+      return f.tripmin === e.target.innerHTML
+    })[0].online === 1 &&
+      this.state.tripList.filter((f) => {
+        return f === e.target.innerHTML
+      }).length === 0 ?
+      this.addToTripList(e.target.innerHTML) :
+      this.state.plannedTripsSTM.filter((f) => {
+        return f.tripmin === e.target.innerHTML
+      })[0].online === 1 &&
+        this.state.tripList.filter((f) => {
+          return f === e.target.innerHTML
+        }).length > 0 ?
+        this.removeFromTripList(e.target.innerHTML)
+        : ''
 
   }
 
@@ -355,7 +372,7 @@ class Livetrips extends Component {
   render() {
 
     return (
-      this.state.plannedTripsRTL ?
+      this.state.plannedTripsSTM ?
 
         <div className="container-fluid">
           <div className="row justify-content-center">
@@ -394,13 +411,16 @@ class Livetrips extends Component {
             <table id="tableOnline" className="table">
               <thead>
                 <tr>
-                  <th style={{ width: "10%" }}>
+                  <th style={{ width: "7.5%" }}>
                     Ligne
                   </th>
-                  <th style={{ width: "10%" }}>
+                  <th style={{ width: "7.5%" }}>
+                    Direction
+                  </th>
+                  <th style={{ width: "7.5%" }}>
                     Heure de départ
                   </th>
-                  <th style={{ width: "10%" }}>
+                  <th style={{ width: "7.5%" }}>
                     Heure de fin
                   </th>
                   <th style={{ width: "70%" }}>
@@ -409,13 +429,14 @@ class Livetrips extends Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.selectRTL === 1 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                {this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
                   <tr
                     key={e.keyid}
                     style={{
                       backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
                     }}>
                     <td>{e.route_id}</td>
+                    <td>{e.direction_id}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                     <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                     <td
@@ -429,24 +450,52 @@ class Livetrips extends Component {
                   </tr>
                 ) : <tr key={e.keyid}>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       style={{ backgroundColor: "#FFFFFF" }} >
                       {e.tripmin}
                     </td>
-                  </tr>) :
-                  this.state.selectSTM === 1 ? this.state.plannedTripsSTM.map((e) => (
-                    <tr
-                      key={e.tripmin}
-                      style={{ backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2" }}>
-                      <td>{e.route_id}</td>
-                      <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
-                      <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                      <td style={{ width: "50%" }}>{e.tripmin}</td>
-                    </tr>
-                  )) :
+                  </tr>) : this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs === undefined ?
                     <tr>
-                      <td colSpan="4" style={{ textAlign: "center" }}> Sélectionner une agence</td>
-                    </tr>}
+                      <td colSpan="5" style={{ textAlign: "center" }}>
+                        <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
+                      </td>
+                    </tr> :
+                    this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                      <tr
+                        key={e.keyid}
+                        style={{
+                          backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
+                        }}>
+                        <td>{e.route_id}</td>
+                        <td>{e.direction_id}</td>
+                        <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
+                        <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
+                        <td
+                          style={{
+                            cursor: e.online === 1 ? 'pointer' : 'default'
+                          }}
+                          onClick={(event) => this.handleTripClickSTM(event)}
+                        >
+                          {e.tripmin}
+                        </td>
+                      </tr>
+                    ) :
+                      <tr key={e.keyid}>
+                        <td
+                          colSpan="5"
+                          style={{ backgroundColor: "#FFFFFF" }} >
+                          {e.tripmin}
+                        </td>
+                      </tr>) :
+                      this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs === undefined ?
+                        <tr>
+                          <td colSpan="4" style={{ textAlign: "center" }}>
+                            <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
+                          </td>
+                        </tr> :
+                        <tr>
+                          <td colSpan="5" style={{ textAlign: "center" }}> Sélectionner une agence</td>
+                        </tr>}
               </tbody>
             </table>
           </div>

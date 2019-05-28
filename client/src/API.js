@@ -34,13 +34,13 @@ export async function getTracesSTM() {
   return response.json();
 };
 
-export async function getStopsSTM(trace) {
+export async function getStopsSTM(trip) {
   const response = await fetch('/api/stops_stm', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "trace": trace })
+    body: JSON.stringify({ "trip": trip })
   });
   return response.json()
 }
