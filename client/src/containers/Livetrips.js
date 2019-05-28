@@ -133,7 +133,7 @@ class Livetrips extends Component {
       this.regenGraphSTM();
     }
 
-    console.log(this.state)
+    //console.log(this.state)
 
   }
 
