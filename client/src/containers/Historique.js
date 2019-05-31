@@ -85,11 +85,16 @@ class Historique extends Component {
     };
 
     return this.state.sunday ? (
-      <div className="container-fluid" >
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-sm">
+            <h1 id="title-card">Historique des 3 derniers jours de service</h1>
+          </div>
+        </div>
         <br />
 
         <div id="chartCard">
-          <h1 style={{ color: '#000000', textAlign: 'center' }}>Semaine</h1>
+          <h3 style={{ color: '#000000', textAlign: 'center' }}>Semaine</h3>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={730} height={250}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -127,7 +132,7 @@ class Historique extends Component {
 
 
         <div id="chartCard">
-          <h1 style={{ color: '#000000', textAlign: 'center' }}>Samedi</h1>
+          <h3 style={{ color: '#000000', textAlign: 'center' }}>Samedi</h3>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={730} height={250}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -163,7 +168,7 @@ class Historique extends Component {
         </div >
 
         <div id="chartCard">
-          <h1 style={{ color: '#000000', textAlign: 'center' }}>Dimanche</h1>
+          <h3 style={{ color: '#000000', textAlign: 'center' }}>Dimanche</h3>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={500} height={250}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>

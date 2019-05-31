@@ -18,6 +18,13 @@
   border-width: 1px;
 }
 
+#title-card {
+  text-align: center;
+  background-color:#dfffe5;
+  border-style: solid;
+  border-width: 1px;
+}
+
 #agency-card {
   text-align: center;
   background-color:rgb(233, 241, 243);
