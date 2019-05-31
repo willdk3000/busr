@@ -338,8 +338,7 @@ class Livetrips extends Component {
     tripListRemove.splice(tripPosition, 1)
 
     let stopListRemove = [...this.state.selectStops];
-    let stopPosition = stopListRemove.indexOf(e.tripID);
-    stopListRemove.splice(stopPosition, 1)
+    stopListRemove.splice(tripPosition, 1)
 
     this.setState({
       tripList: tripListRemove,
