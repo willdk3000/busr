@@ -40,7 +40,6 @@ module.exports = {
               'id', stop_id,
               'geometry', ST_AsGeoJSON(point_geog)::jsonb,
               'properties', jsonb_build_object(
-              'code', stop_code,
               'name', stop_name,
               'stop_sequence', stop_sequence,
               'departure_time', departure_time)

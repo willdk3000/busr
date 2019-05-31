@@ -28,7 +28,7 @@ export async function calcGraphsTripsSTM(
     let position = tripIDS.indexOf(e)
 
     //Trouver les arrêts correspondants au trip
-    let stopsSTM = stops[stopsCounter];
+    let stopsSTM = stops[stopsCounter].tripStops;
     stopsCounter++;
 
     // Préparer les données pour le graph

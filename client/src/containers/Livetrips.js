@@ -17,16 +17,18 @@ class Livetrips extends Component {
 
   state = {
     tripList: [],
+    selectStops: [],
     selectSTM: 0,
     selectSTL: 0,
-    selectRTL: 0
+    selectRTL: 0,
+    firstRender: 0
   };
 
   componentDidMount = async () => {
 
     const getData = getNewData((err, positions) => {
 
-      // Séparation des donnnées par réseau
+      // Split data by network
 
       const vehSTM = positions ? positions[0].filter((e) => {
         return e.reseau === 'STM'
@@ -40,8 +42,9 @@ class Livetrips extends Component {
         return e.reseau === 'RTL'
       }) : ''
 
-      // Ajout d'une propriété "online" aux voyages planifiés
-      // Permet d'identifier les voyages en ligne dans le tableau
+      // Add 'online' property when planned trip matches live data
+      // Allows to color trip with green/red depending on property
+
       let keyIDRTL = 0;
       const checkOnlineRTL = positions[1].forEach((e) => {
         e.keyid = keyIDRTL;
@@ -55,9 +58,9 @@ class Livetrips extends Component {
         }
       })
 
-      // Pour les données de la STL, il n'y a pas de trip_id dans
-      // les appels next_bus - voir si le match peut se faire avec
-      // la ligne et l'heure...
+      // No trip ID in STL data
+      // To Do : find a way to match live trips to planned gtfs data
+
       let keyIDSTM = 0;
       const checkOnlineSTM = positions[3].forEach((e) => {
         e.keyid = keyIDSTM;
@@ -148,7 +151,8 @@ class Livetrips extends Component {
       selectSTM: 1,
       selectSTL: 0,
       selectRTL: 0,
-      tripList: []
+      tripList: [],
+      selectStops: []
     })
   }
 
@@ -157,7 +161,8 @@ class Livetrips extends Component {
       selectSTM: 0,
       selectSTL: 0,
       selectRTL: 1,
-      tripList: []
+      tripList: [],
+      selectStops: []
     })
   }
 
@@ -179,21 +184,28 @@ class Livetrips extends Component {
 
     let visibleChartTrips = [...this.state.tripList];
 
-    //Obtenir les donnees aux arrets - on ne peut pas inclure les async/await
-    //dans le forEach
+    // Get stops info --only if it has not been fetched yet
+    // async/await fetch can't be included in forEach
+    // has to be in for...of
 
-    let stops = [];
+    let stops = [...this.state.selectStops];
+
     for (const e of visibleChartTrips) {
-      let tripStops = await this.stopRequestRTL(e);
-      stops.push(tripStops);
+      if (stops.filter((f) => { return f.tripID === e }).length === 0) {
+        let tripStops = await this.stopRequestRTL(e);
+        stops.push({
+          tripID: e,
+          tripStops: tripStops
+        });
+      }
     }
 
     let plannedTrips = [...this.state.plannedTripsRTL];
 
-    // AutoRemove les trips planifies qui ne sont plus dans l'intervalle actuelle
+    // AutoRemove planned trips that are not in the current time window
 
-    //**A FAIRE : si le trip n'est plus dans l'intervalle actuelle mais
-    //que le bus est en retard, il faudrait conserver le trip...  **//
+    //**TO DO : if trip not in current time window but still online, means
+    //bus is late. Trip should not be autoremoved.
 
     let visibleChartTripsUpdate = [];
     const autoRemove = this.state.tripList.length > 0 ?
@@ -206,7 +218,7 @@ class Livetrips extends Component {
       }) :
       '';
 
-    // AutoRemove les trips qui ne poussent plus de donnees temps reel
+    // AutoRemove trips that are not online anymore
 
     let visibleChartTripsLiveUpdate = [];
     const autoRemoveLive = visibleChartTripsUpdate.length > 0 ?
@@ -233,7 +245,8 @@ class Livetrips extends Component {
 
     this.setState({
       plannedTripsWithGraphs: plannedTrips,
-      tripList: visibleChartTripsLiveUpdate
+      tripList: visibleChartTripsLiveUpdate,
+      selectStops: stops
     })
 
   }
@@ -244,21 +257,28 @@ class Livetrips extends Component {
 
     let visibleChartTrips = [...this.state.tripList];
 
-    //Obtenir les donnees aux arrets - on ne peut pas inclure les async/await
-    //dans le forEach
+    // Get stops info --only if it has not been fetched yet
+    // async/await fetch can't be included in forEach
+    // has to be in for...of
 
-    let stops = [];
+    let stops = [...this.state.selectStops];
+
     for (const e of visibleChartTrips) {
-      let tripStops = await this.stopRequestSTM(e);
-      stops.push(tripStops);
+      if (stops.filter((f) => { return f.tripID === e }).length === 0) {
+        let tripStops = await this.stopRequestSTM(e);
+        stops.push({
+          tripID: e,
+          tripStops: tripStops
+        });
+      }
     }
 
     let plannedTrips = [...this.state.plannedTripsSTM];
 
-    // AutoRemove les trips planifies qui ne sont plus dans l'intervalle actuelle
+    // AutoRemove planned trips that are not in the current time window
 
-    //**A FAIRE : si le trip n'est plus dans l'intervalle actuelle mais
-    //que le bus est en retard, il faudrait conserver le trip...  **//
+    //**TO DO : if trip not in current time window but still online, means
+    //bus is late. Trip should not be autoremoved.
 
     let visibleChartTripsUpdate = [];
     const autoRemove = this.state.tripList.length > 0 ?
@@ -271,7 +291,7 @@ class Livetrips extends Component {
       }) :
       '';
 
-    // AutoRemove les trips qui ne poussent plus de donnees temps reel
+    // AutoRemove trips that are not online anymore
 
     let visibleChartTripsLiveUpdate = [];
     const autoRemoveLive = visibleChartTripsUpdate.length > 0 ?
@@ -287,7 +307,7 @@ class Livetrips extends Component {
     let vehiclesSTM = this.state.vehiclesSTM;
     let tracesSTM = this.state.tracesSTM;
 
-    // Calcul des graphs
+    // Prepare graphs
     plannedTrips = await calcGraphsTripsSTM(
       visibleChartTripsLiveUpdate,
       plannedTrips,
@@ -298,11 +318,11 @@ class Livetrips extends Component {
 
     this.setState({
       plannedTripsWithGraphs: plannedTrips,
-      tripList: visibleChartTripsLiveUpdate
+      tripList: visibleChartTripsLiveUpdate,
+      selectStops: stops
     })
 
   }
-
 
 
   addToTripList = async (e) => {
@@ -311,23 +331,30 @@ class Livetrips extends Component {
     this.setState({ tripList: tripListAdd })
   }
 
+
   removeFromTripList = async (e) => {
     let tripListRemove = [...this.state.tripList];
     let tripPosition = tripListRemove.indexOf(e);
     tripListRemove.splice(tripPosition, 1)
-    this.setState({ tripList: tripListRemove })
+
+    let stopListRemove = [...this.state.selectStops];
+    let stopPosition = stopListRemove.indexOf(e.tripID);
+    stopListRemove.splice(stopPosition, 1)
+
+    this.setState({
+      tripList: tripListRemove,
+      selectStops: stopListRemove
+    })
   }
 
 
   handleTripClickRTL = async (e) => {
 
-    //Si le trip est online
-    //Si le graph du trip n'est pas encore affiché 
-    //Ajouter a la liste
+    //if trip is online and graph not showing
+    //add trip to list
 
-    //Si le trip est online
-    //Si le graph du trip est affiché
-    //Enlever de la liste
+    //if trip is online and graph showing
+    //remove trip from list
 
     const showhide = this.state.plannedTripsRTL.filter((f) => {
       return f.tripmin === e.target.innerHTML
