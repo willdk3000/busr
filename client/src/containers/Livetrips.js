@@ -21,7 +21,6 @@ class Livetrips extends Component {
     selectSTM: 0,
     selectSTL: 0,
     selectRTL: 0,
-    firstRender: 0
   };
 
   componentDidMount = async () => {
@@ -152,7 +151,8 @@ class Livetrips extends Component {
       selectSTL: 0,
       selectRTL: 0,
       tripList: [],
-      selectStops: []
+      selectStops: [],
+      plannedTripsWithGraphs: []
     })
   }
 
@@ -162,7 +162,8 @@ class Livetrips extends Component {
       selectSTL: 0,
       selectRTL: 1,
       tripList: [],
-      selectStops: []
+      selectStops: [],
+      plannedTripsWithGraphs: []
     })
   }
 
@@ -468,7 +469,7 @@ class Livetrips extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                  {this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs.length > 0 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
                     <tr
                       key={e.keyid}
                       style={{
@@ -493,13 +494,13 @@ class Livetrips extends Component {
                         style={{ backgroundColor: "#FFFFFF" }} >
                         {e.tripmin}
                       </td>
-                    </tr>) : this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs === undefined ?
+                    </tr>) : this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs.length === 0 ?
                       <tr>
                         <td colSpan="5" style={{ textAlign: "center" }}>
                           <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
                         </td>
                       </tr> :
-                      this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                      this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs.length > 0 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
                         <tr
                           key={e.keyid}
                           style={{
@@ -518,15 +519,14 @@ class Livetrips extends Component {
                             {e.tripmin}
                           </td>
                         </tr>
-                      ) :
-                        <tr key={e.keyid}>
+                      ) : <tr key={e.keyid}>
                           <td
                             colSpan="5"
                             style={{ backgroundColor: "#FFFFFF" }} >
                             {e.tripmin}
                           </td>
                         </tr>) :
-                        this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs === undefined ?
+                        this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs.length === 0 ?
                           <tr>
                             <td colSpan="4" style={{ textAlign: "center" }}>
                               <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />

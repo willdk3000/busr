@@ -47,6 +47,16 @@ gulp.task('import_tables_STM', function (done) {
         UPDATE "public".trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
         WHERE "public".trips.trip_id = minmaxarray.trip_id;
+        --ajout du nombre d'arrets pour chaque trip
+        WITH maxstops AS (    
+        SELECT trips.trip_id,
+            COUNT(stop_times.stop_sequence) as stopcount
+            FROM trips
+            LEFT JOIN stop_times ON trips.trip_id = stop_times.trip_id
+            GROUP BY trips.trip_id)
+        UPDATE trips set stopcount = maxstops.stopcount
+        FROM maxstops
+        WHERE trips.trip_id = maxstops.trip_id
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
@@ -98,6 +108,16 @@ gulp.task('import_tables_STL', function (done) {
         UPDATE "STL".trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
         WHERE "STL".trips.trip_id = minmaxarray.trip_id;
+        --ajout du nombre d'arrets pour chaque trip
+        WITH maxstops AS (    
+        SELECT trips.trip_id,
+            COUNT(stop_times.stop_sequence) as stopcount
+            FROM "STL".trips
+            LEFT JOIN "STL".stop_times ON trips.trip_id = "STL".stop_times.trip_id
+            GROUP BY trips.trip_id)
+        UPDATE "STL".trips set stopcount = maxstops.stopcount
+        FROM maxstops
+        WHERE "STL".trips.trip_id = maxstops.trip_id
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
@@ -147,6 +167,16 @@ gulp.task('import_tables_RTL', function (done) {
         UPDATE "RTL".trips set firstlast = minmaxarray.minmax
         FROM minmaxarray
         WHERE "RTL".trips.trip_id = minmaxarray.trip_id;
+        --ajout du nombre d'arrets pour chaque trip
+        WITH maxstops AS (    
+        SELECT trips.trip_id,
+            COUNT(stop_times.stop_sequence) as stopcount
+            FROM "RTL".trips
+            LEFT JOIN "RTL".stop_times ON trips.trip_id = "RTL".stop_times.trip_id
+            GROUP BY trips.trip_id)
+        UPDATE "RTL".trips set stopcount = maxstops.stopcount
+        FROM maxstops
+        WHERE "RTL".trips.trip_id = maxstops.trip_id
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,

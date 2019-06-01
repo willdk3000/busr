@@ -452,18 +452,12 @@ class Livemap extends Component {
     const clickedFeatureSTL = features && features.find(f => f.layer.id === 'position-vehicules-stl');
     const clickedFeatureRTL = features && features.find(f => f.layer.id === 'position-vehicules-rtl');
 
-    this.setState({
-      clickedFeatureSTM,
-      clickedFeatureSTL,
-      clickedFeatureRTL,
-      x: offsetX,
-      y: offsetY
-    });
 
     // Identification du trip (stm, rtl) ou de la ligne (stl) cliqué
     const tripClickSTM = clickedFeatureSTM ? clickedFeatureSTM.properties.trip_id : '';
     const routeClickSTL = clickedFeatureSTL ? clickedFeatureSTL.properties.route_id : '';
     const tripClickRTL = clickedFeatureRTL ? clickedFeatureRTL.properties.trip_id : '';
+
 
     // Détermination du shape à faire apparaître en fonction du trip ou de la ligne cliqué.
     const traceSTM = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
@@ -482,6 +476,7 @@ class Livemap extends Component {
       })
     }) : ''
 
+
     // Affichage de la trace
     const clickTraceSTM = mapIsLoaded === true ? (tripClickSTM !== '' ? this.map.getSource("tracesSTM").setData(traceSTM[0])
       : this.map.getSource("tracesSTM").setData(emptyGeoJSON))
@@ -494,6 +489,7 @@ class Livemap extends Component {
     const clickTraceRTL = mapIsLoaded === true ? (tripClickRTL !== '' ? this.map.getSource("tracesRTL").setData(traceRTL[0])
       : this.map.getSource("tracesRTL").setData(emptyGeoJSON))
       : '';
+
 
     //Requete pour obtenir les arrets a afficher selon le trip (ou la route)
     const stopsSTM = tripClickSTM !== '' ? await this.stopRequestSTM(tripClickSTM) : '';
@@ -521,6 +517,13 @@ class Livemap extends Component {
       : '';
 
 
+    this.setState({
+      clickedFeatureSTM,
+      clickedFeatureSTL,
+      clickedFeatureRTL,
+      x: offsetX,
+      y: offsetY,
+    });
 
   };
 

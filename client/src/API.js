@@ -4,7 +4,7 @@ import io from "socket.io-client";
 
 const socket = process.env.NODE_ENV === 'production' ?
   io.connect('busr-mtl.herokuapp.com', { transports: ['websocket'] }) :
-  io.connect('http://192.168.0.146:5000', { transports: ['websocket'] })
+  io.connect('http://localhost:5000', { transports: ['websocket'] })
 
 
 // Fonctions realtime

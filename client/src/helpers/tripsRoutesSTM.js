@@ -109,7 +109,7 @@ export async function calcGraphsTripsSTM(
       timemin: parseInt(plannedTrips[position].timemin),
       timemax: plannedTrips[position].timemax,
       tripmin:
-        <ResponsiveContainer width="100%" height={50} >
+        <ResponsiveContainer width="95%" height={50} >
           <ScatterChart>
             <XAxis type="number" dataKey="x" hide />
             <YAxis type="number" dataKey="y" hide />
