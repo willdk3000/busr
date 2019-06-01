@@ -399,8 +399,13 @@ class Livetrips extends Component {
 
     return (
       this.state.plannedTripsSTM ?
-
         <div className="container-fluid">
+
+          <div className="row">
+            <div className="col-sm">
+              <h2 id="title-card">Véhicule par départ</h2>
+            </div>
+          </div>
           <div className="row justify-content-center">
             <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
               Voyage planifié actif
@@ -410,120 +415,129 @@ class Livetrips extends Component {
             </div>
           </div>
 
-          <div className="row">
-            <button
-              id="agency-card"
-              type="button" className="col btn btn-outline-info"
-              style={this.state.selectSTM === 1 ?
-                { backgroundColor: "#38B2A3", color: "#FFFFFF" } :
-                { backgroundColor: "#E9F1F3", color: "#000000" }}
-              onClick={(e) => this.handleClickSTM(e)}>
-              STM
+          <div className="row no-gutters">
+            <div className="col">
+              <button
+                id="agency-card"
+                type="button" className="col btn btn-outline-info"
+                style={this.state.selectSTM === 1 ?
+                  { backgroundColor: "#38B2A3", color: "#FFFFFF" } :
+                  { backgroundColor: "#E9F1F3", color: "#000000" }}
+                onClick={(e) => this.handleClickSTM(e)}>
+                STM
             </button>
-            <button type="button" className="col btn btn-outline-secondary" disabled>
-              STL
+            </div>
+            <div className="col">
+              <button type="button" className="col btn btn-outline-secondary" disabled>
+                STL
             </button>
-            <button
-              type="button" className="col btn btn-outline-info"
-              style={this.state.selectRTL === 1 ?
-                { backgroundColor: "#38B2A3", color: "#FFFFFF" } :
-                { backgroundColor: "#E9F1F3", color: "#000000" }}
-              onClick={(e) => this.handleClickRTL(e)}>
-              RTL
+            </div>
+            <div className="col">
+              <button
+                type="button" className="col btn btn-outline-info"
+                style={this.state.selectRTL === 1 ?
+                  { backgroundColor: "#38B2A3", color: "#FFFFFF" } :
+                  { backgroundColor: "#E9F1F3", color: "#000000" }}
+                onClick={(e) => this.handleClickRTL(e)}>
+                RTL
             </button>
+            </div>
           </div>
 
+
           <div className="row">
-            <table id="tableOnline" className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: "7.5%" }}>
-                    Ligne
+            <div className="col">
+              <table id="tableOnline" className="table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "7.5%" }}>
+                      Ligne
                   </th>
-                  <th style={{ width: "7.5%" }}>
-                    Direction
+                    <th style={{ width: "7.5%" }}>
+                      Direction
                   </th>
-                  <th style={{ width: "7.5%" }}>
-                    Heure de départ
+                    <th style={{ width: "7.5%" }}>
+                      Heure de départ
                   </th>
-                  <th style={{ width: "7.5%" }}>
-                    Heure de fin
+                    <th style={{ width: "7.5%" }}>
+                      Heure de fin
                   </th>
-                  <th style={{ width: "70%" }}>
-                    Trip ID
+                    <th style={{ width: "70%" }}>
+                      Trip ID
                   </th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
-                  <tr
-                    key={e.keyid}
-                    style={{
-                      backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
-                    }}>
-                    <td>{e.route_id}</td>
-                    <td>{e.direction_id}</td>
-                    <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
-                    <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                    <td
-                      style={{
-                        cursor: e.online === 1 ? 'pointer' : 'default'
-                      }}
-                      onClick={(event) => this.handleTripClickRTL(event)}
-                    >
-                      {e.tripmin}
-                    </td>
                   </tr>
-                ) : <tr key={e.keyid}>
-                    <td
-                      colSpan="5"
-                      style={{ backgroundColor: "#FFFFFF" }} >
-                      {e.tripmin}
-                    </td>
-                  </tr>) : this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs === undefined ?
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: "center" }}>
-                        <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
-                      </td>
-                    </tr> :
-                    this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
-                      <tr
-                        key={e.keyid}
+                </thead>
+                <tbody>
+                  {this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                    <tr
+                      key={e.keyid}
+                      style={{
+                        backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
+                      }}>
+                      <td>{e.route_id}</td>
+                      <td>{e.direction_id}</td>
+                      <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
+                      <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
+                      <td
                         style={{
-                          backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
-                        }}>
-                        <td>{e.route_id}</td>
-                        <td>{e.direction_id}</td>
-                        <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
-                        <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                        <td
+                          cursor: e.online === 1 ? 'pointer' : 'default'
+                        }}
+                        onClick={(event) => this.handleTripClickRTL(event)}
+                      >
+                        {e.tripmin}
+                      </td>
+                    </tr>
+                  ) : <tr key={e.keyid}>
+                      <td
+                        colSpan="5"
+                        style={{ backgroundColor: "#FFFFFF" }} >
+                        {e.tripmin}
+                      </td>
+                    </tr>) : this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs === undefined ?
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: "center" }}>
+                          <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
+                        </td>
+                      </tr> :
+                      this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                        <tr
+                          key={e.keyid}
                           style={{
-                            cursor: e.online === 1 ? 'pointer' : 'default'
-                          }}
-                          onClick={(event) => this.handleTripClickSTM(event)}
-                        >
-                          {e.tripmin}
-                        </td>
-                      </tr>
-                    ) :
-                      <tr key={e.keyid}>
-                        <td
-                          colSpan="5"
-                          style={{ backgroundColor: "#FFFFFF" }} >
-                          {e.tripmin}
-                        </td>
-                      </tr>) :
-                      this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs === undefined ?
-                        <tr>
-                          <td colSpan="4" style={{ textAlign: "center" }}>
-                            <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
+                            backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
+                          }}>
+                          <td>{e.route_id}</td>
+                          <td>{e.direction_id}</td>
+                          <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
+                          <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
+                          <td
+                            style={{
+                              cursor: e.online === 1 ? 'pointer' : 'default'
+                            }}
+                            onClick={(event) => this.handleTripClickSTM(event)}
+                          >
+                            {e.tripmin}
                           </td>
-                        </tr> :
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: "center" }}> Sélectionner une agence</td>
-                        </tr>}
-              </tbody>
-            </table>
+                        </tr>
+                      ) :
+                        <tr key={e.keyid}>
+                          <td
+                            colSpan="5"
+                            style={{ backgroundColor: "#FFFFFF" }} >
+                            {e.tripmin}
+                          </td>
+                        </tr>) :
+                        this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs === undefined ?
+                          <tr>
+                            <td colSpan="4" style={{ textAlign: "center" }}>
+                              <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
+                            </td>
+                          </tr> :
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: "center" }}> Sélectionner une agence</td>
+                          </tr>}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div >
         : <div className="container">
