@@ -396,7 +396,8 @@ class Liveroutes extends Component {
                 style={this.state.selectSTM === 1 ?
                   { backgroundColor: "#38B2A3", color: "#FFFFFF" } :
                   { backgroundColor: "#E9F1F3", color: "#000000" }}
-                onClick={(e) => this.handleClickSTM(e)}>
+                onClick={(e) => this.handleClickSTM(e)}
+                disabled>
                 STM
             </button>
             </div>
