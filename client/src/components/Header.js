@@ -22,9 +22,9 @@ const Header = () => (
             <Link className="nav-item nav-link text-white" to="/livetrips" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Départs
             </Link>
-            {/*<Link className="nav-item nav-link text-white" to="/liveroutes" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+            <Link className="nav-item nav-link text-white" to="/liveroutes" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Lignes
-            </Link>*/}
+            </Link>
             {/*<Link className="nav-item nav-link text-white" to="/reseaux" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Réseaux
             </Link>*/}

@@ -2,28 +2,39 @@ import React, { Component } from 'react';
 import ReactLoading from 'react-loading';
 
 import {
+  ResponsiveContainer,
+  ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip
+} from 'recharts';
+
+import * as turf from '@turf/turf'
+
+import {
   getNewData, leave,
   getTracesSTM, getTracesSTL, getTracesRTL,
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js';
 
 import { calcGraphsTripsRTL, longestRoutesRTL } from '../helpers/tripsRoutesRTL.js';
-import { calcGraphsTripsSTM } from '../helpers/tripsRoutesSTM.js';
+import { calcGraphsTripsSTM, longestRoutesSTM } from '../helpers/tripsRoutesSTM.js';
 
 
 const moment = require('moment');
 
-class Livetrips extends Component {
+class Liveroutes extends Component {
 
   state = {
     tripList: [],
+    routeList: [],
     selectStops: [],
+    plannedRoutesWithGraphsRTL: [],
     selectSTM: 0,
     selectSTL: 0,
     selectRTL: 0,
   };
 
   componentDidMount = async () => {
+
+    const tracesRTL = await getTracesRTL();
 
     const getData = getNewData((err, positions) => {
 
@@ -47,6 +58,7 @@ class Livetrips extends Component {
       let keyIDRTL = 0;
       const checkOnlineRTL = positions[1].forEach((e) => {
         e.keyid = keyIDRTL;
+        e.ligneDir = e.route_id + '_' + e.direction_id
         keyIDRTL++;
         if (vehRTL[0].data.features.filter((f) => {
           return f.properties.trip_id === e.tripmin
@@ -57,7 +69,10 @@ class Livetrips extends Component {
         }
       })
 
+
       const completeTracesRTL = longestRoutesRTL(positions[1]);
+
+      //const completeTracesSTM = longestRoutesSTM(positions[3]);
 
       // No trip ID in STL data
       // To Do : find a way to match live trips to planned gtfs data
@@ -65,6 +80,7 @@ class Livetrips extends Component {
       let keyIDSTM = 0;
       const checkOnlineSTM = positions[3].forEach((e) => {
         e.keyid = keyIDSTM;
+        e.ligneDir = e.route_id + '_' + e.direction_id
         keyIDSTM++;
         if (vehSTM[0].data.features.filter((f) => {
           return f.properties.trip_id === e.tripmin
@@ -85,57 +101,37 @@ class Livetrips extends Component {
         timestampRTL: positions ? vehSTL[0].time : '',
         plannedTripsRTL: positions ? positions[1] : '',
         plannedTripsSTL: positions ? positions[2].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : '',
-        plannedTripsSTM: positions ? positions[3] : ''
+        plannedTripsSTM: positions ? positions[3] : '',
+        plannedRoutesRTL: completeTracesRTL,
+        tracesRTL: tracesRTL.rows[0].jsonb_build_object
       })
 
       //plannedTripsRTL: positions ? positions[1].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : ''
 
     })
 
-
-    const tracesRTL = await getTracesRTL();
-    const tracesSTM = await getTracesSTM();
-
-    this.setState({
-      tracesRTL: tracesRTL.rows[0].jsonb_build_object,
-      tracesSTM: tracesSTM.rows[0].jsonb_build_object
-    })
-
-
-    if (this.state.selectRTL === 1 && this.state.plannedTripsRTL) {
-      this.regenGraphRTL();
+    if (this.state.selectRTL === 1 && this.state.plannedRoutesRTL) {
+      this.regenGraphRoutesRTL();
     }
 
-    if (this.state.selectSTM === 1 && this.state.plannedTripsSTM) {
-      this.regenGraphSTM();
-    }
 
   }
 
 
   componentDidUpdate(prevProps, prevState) {
 
-    const { tripList, plannedTripsRTL, plannedTripsSTM, selectRTL, selectSTM } = this.state;
+    const { routeList, plannedRoutesRTL, selectRTL } = this.state;
 
 
-    if (selectRTL === 1 && plannedTripsRTL !== prevState.plannedTripsRTL) {
-      this.regenGraphRTL();
+    if (selectRTL === 1 && routeList.length !== prevState.routeList.length) {
+      this.regenGraphRoutesRTL();
     }
 
-    if (selectRTL === 1 && tripList.length !== prevState.tripList.length) {
-      this.regenGraphRTL();
+    if (selectRTL === 1 && plannedRoutesRTL !== prevState.plannedRoutesRTL) {
+      this.regenGraphRoutesRTL();
     }
 
-
-    if (selectSTM === 1 && plannedTripsSTM !== prevState.plannedTripsSTM) {
-      this.regenGraphSTM();
-    }
-
-    if (selectSTM === 1 && tripList.length !== prevState.tripList.length) {
-      this.regenGraphSTM();
-    }
-
-    //console.log(this.state)
+    console.log(this.state)
 
   }
 
@@ -152,7 +148,6 @@ class Livetrips extends Component {
       selectRTL: 0,
       tripList: [],
       selectStops: [],
-      plannedTripsWithGraphs: []
     })
   }
 
@@ -163,7 +158,6 @@ class Livetrips extends Component {
       selectRTL: 1,
       tripList: [],
       selectStops: [],
-      plannedTripsWithGraphs: []
     })
   }
 
@@ -173,25 +167,30 @@ class Livetrips extends Component {
     return parseStopsRTL
   }
 
-  stopRequestSTM = async (trip) => {
-    const stopsResponseSTM = await getStopsSTM(trip);
-    const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
-    return parseStopsSTM
-  }
+
+  regenGraphRoutesRTL = async () => {
+
+    // TODO: remove offline routes by assigning online property to trips...
+
+    let routeList = [...this.state.routeList];
+    let tripList = [...this.state.plannedTripsRTL];
+    let uniqueTrip = [];
 
 
+    // Trip utilise pour generer les arrets de la ligne-direction
+    routeList.forEach((e) => {
+      uniqueTrip.push(
+        tripList.filter((f) => {
+          return f.ligneDir === e
+        })[0].tripmin
+      )
+    })
 
-  regenGraphRTL = async () => {
-
-    let visibleChartTrips = [...this.state.tripList];
-
-    // Get stops info --only if it has not been fetched yet
-    // async/await fetch can't be included in forEach
-    // has to be in for...of
+    //console.log(uniqueTrip)
 
     let stops = [...this.state.selectStops];
 
-    for (const e of visibleChartTrips) {
+    for (const e of uniqueTrip) {
       if (stops.filter((f) => { return f.tripID === e }).length === 0) {
         let tripStops = await this.stopRequestRTL(e);
         stops.push({
@@ -201,52 +200,123 @@ class Livetrips extends Component {
       }
     }
 
-    let plannedTrips = [...this.state.plannedTripsRTL];
+    let visibleChartRoutes = [...this.state.plannedRoutesRTL];
 
-    // AutoRemove planned trips that are not in the current time window
+    let stopsCounter = 0;
 
-    //**TO DO : if trip not in current time window but still online, means
-    //bus is late. Trip should not be autoremoved.
+    routeList.forEach((e) => {
 
-    let visibleChartTripsUpdate = [];
-    const autoRemove = this.state.tripList.length > 0 ?
-      this.state.tripList.forEach((e) => {
-        if (this.state.plannedTripsRTL.filter((f) => {
-          return e === f.tripmin
-        }).length > 0) {
-          visibleChartTripsUpdate.push(e)
+      // Tous les trips de la ligne direction
+      let tripsLigneDir = tripList.filter((f) => {
+        return f.ligneDir === e
+      })
+
+      //console.log(tripsLigneDir)
+
+      // Trouver la position de la route dans l'array de routes pour lesquels on affiche un graph
+      let routeIDS = [];
+      visibleChartRoutes.map((f) => {
+        routeIDS.push(f.ligneDir)
+      })
+
+      let position = routeIDS.indexOf(e)
+
+      let stopsRTL = stops[stopsCounter].tripStops;
+      stopsCounter++;
+
+      // Creer l'array d'arrets selon la trace identifiee
+      let data = [];
+      stopsRTL.features.map((f) => {
+        data.push({
+          name: f.properties.name,
+          time: f.properties.departure_time,
+          x: f.properties.stop_sequence,
+          y: 0,
+          z: 15
+        })
+      })
+
+      // Preparation du calcul des positions des vehicules sur la ligne-direction
+      let distArray = [];
+      let tracesRTL = this.state.tracesRTL;
+      let vehiclesRTL = this.state.vehiclesRTL;
+
+      tripsLigneDir.forEach((k) => {
+        //Trouver les coordonnees actuelles du bus sur le trip
+
+        const currentPositionFeature = vehiclesRTL.features.filter((f) => {
+          return f.properties.trip_id === k.tripmin
+        })[0].geometry.coordinates;
+
+        //Trouver la trace correspondant au trip
+        const traceRTL = tracesRTL.features.filter((f) => {
+          return f.properties.trips.some((g) => {
+            return g === k.tripmin
+          })
+        })
+
+        //Trouver la distance parcourue par le bus sur le trip
+        const coordTrace = [];
+
+        traceRTL[0].geometry.coordinates.map((f) => {
+          coordTrace.push(f)
+        })
+
+        let turfLine = turf.lineString(coordTrace);
+        let pt = turf.point(currentPositionFeature);
+        let snapped = turf.nearestPointOnLine(turfLine, pt, { units: 'kilometers' });
+        let dist = { x: Math.round((snapped.properties.location) * 1000), y: 0, z: 60 }
+
+        distArray.push(dist);
+      })
+
+      const CustomTooltip = ({ active, payload }) => {
+        if (active) {
+          return (
+            <div className="custom-tooltip">
+              <p className="label">{payload[0].payload.name}<br />
+                Distance : {payload[0].payload.x}<br />
+              </p>
+            </div>
+          );
         }
-      }) :
-      '';
+        return null;
+      };
 
-    // AutoRemove trips that are not online anymore
+      // si jamais le graph se regenere, c'est parce qu'on utilise pas la meme source entre le premier render
+      // et les suivants. Pour s'assurer qu'il ne se regenere pas plusieurs fois, utiliser la meme source dans
+      // le state initial et dans les setState suivants
+      visibleChartRoutes.splice(position + 1, 0, {
+        keyid: position + 1,
+        graph: 1,
+        ligneDir: 'graph',
+        tripmin:
+          <ResponsiveContainer width="98%" height={50} >
+            <ScatterChart>
+              <XAxis type="number" dataKey="x" hide />
+              <YAxis type="number" dataKey="y" hide />
+              <ZAxis type="number" dataKey="z" range={[10, 100]} domain={[15, 75]} />
+              <Tooltip
+                content={<CustomTooltip />}
+              />
+              <Scatter name="Arrets" data={data} fill="#000000" stroke="#5B5B5B" line shape="circle" />
+              <Scatter name="Bus" data={distArray} fill="#A93332" shape="circle" />
+            </ScatterChart>
+          </ResponsiveContainer>
 
-    let visibleChartTripsLiveUpdate = [];
-    const autoRemoveLive = visibleChartTripsUpdate.length > 0 ?
-      visibleChartTripsUpdate.forEach((e) => {
-        if (this.state.vehiclesRTL.features.filter((f) => {
-          return f.properties.trip_id === e
-        }).length > 0) {
-          visibleChartTripsLiveUpdate.push(e)
-        }
-      }) :
-      '';
+      })
 
-    let vehiclesRTL = this.state.vehiclesRTL;
-    let tracesRTL = this.state.tracesRTL;
+    })
 
-    // Calcul des graphs
-    plannedTrips = await calcGraphsTripsRTL(
-      visibleChartTripsLiveUpdate,
-      plannedTrips,
-      stops,
-      vehiclesRTL,
-      tracesRTL
-    );
+    //Affecter une cle unique correspondant a la position dans l'array
+    let keyID = 0;
+    visibleChartRoutes.forEach((e) => {
+      e.keyid = keyID;
+      keyID++;
+    })
 
     this.setState({
-      plannedTripsWithGraphs: plannedTrips,
-      tripList: visibleChartTripsLiveUpdate,
+      plannedRoutesWithGraphsRTL: visibleChartRoutes,
       selectStops: stops
     })
 
@@ -254,101 +324,29 @@ class Livetrips extends Component {
 
 
 
-  regenGraphSTM = async () => {
-
-    let visibleChartTrips = [...this.state.tripList];
-
-    // Get stops info --only if it has not been fetched yet
-    // async/await fetch can't be included in forEach
-    // has to be in for...of
-
-    let stops = [...this.state.selectStops];
-
-    for (const e of visibleChartTrips) {
-      if (stops.filter((f) => { return f.tripID === e }).length === 0) {
-        let tripStops = await this.stopRequestSTM(e);
-        stops.push({
-          tripID: e,
-          tripStops: tripStops
-        });
-      }
-    }
-
-    let plannedTrips = [...this.state.plannedTripsSTM];
-
-    // AutoRemove planned trips that are not in the current time window
-
-    //**TO DO : if trip not in current time window but still online, means
-    //bus is late. Trip should not be autoremoved.
-
-    let visibleChartTripsUpdate = [];
-    const autoRemove = this.state.tripList.length > 0 ?
-      this.state.tripList.forEach((e) => {
-        if (this.state.plannedTripsSTM.filter((f) => {
-          return e === f.tripmin
-        }).length > 0) {
-          visibleChartTripsUpdate.push(e)
-        }
-      }) :
-      '';
-
-    // AutoRemove trips that are not online anymore
-
-    let visibleChartTripsLiveUpdate = [];
-    const autoRemoveLive = visibleChartTripsUpdate.length > 0 ?
-      visibleChartTripsUpdate.forEach((e) => {
-        if (this.state.vehiclesSTM.features.filter((f) => {
-          return f.properties.trip_id === e
-        }).length > 0) {
-          visibleChartTripsLiveUpdate.push(e)
-        }
-      }) :
-      '';
-
-    let vehiclesSTM = this.state.vehiclesSTM;
-    let tracesSTM = this.state.tracesSTM;
-
-    // Prepare graphs
-    plannedTrips = await calcGraphsTripsSTM(
-      visibleChartTripsLiveUpdate,
-      plannedTrips,
-      stops,
-      vehiclesSTM,
-      tracesSTM
-    );
-
-    this.setState({
-      plannedTripsWithGraphs: plannedTrips,
-      tripList: visibleChartTripsLiveUpdate,
-      selectStops: stops
-    })
-
+  addToRouteList = async (e) => {
+    let routeListAdd = [...this.state.routeList];
+    routeListAdd.push(e);
+    this.setState({ routeList: routeListAdd })
   }
 
 
-  addToTripList = async (e) => {
-    let tripListAdd = [...this.state.tripList];
-    tripListAdd.push(e);
-    this.setState({ tripList: tripListAdd })
-  }
+  removeFromRouteList = async (e) => {
+    let routeListRemove = [...this.state.routeList];
+    let routePosition = routeListRemove.indexOf(e);
+    routeListRemove.splice(routePosition, 1)
 
-
-  removeFromTripList = async (e) => {
-    let tripListRemove = [...this.state.tripList];
-    let tripPosition = tripListRemove.indexOf(e);
-    tripListRemove.splice(tripPosition, 1)
-
-    let stopListRemove = [...this.state.selectStops];
-    stopListRemove.splice(tripPosition, 1)
+    // let stopListRemove = [...this.state.selectStops];
+    // stopListRemove.splice(tripPosition, 1)
 
     this.setState({
-      tripList: tripListRemove,
-      selectStops: stopListRemove
+      routeList: routeListRemove,
+      // selectStops: stopListRemove
     })
   }
 
 
-  handleTripClickRTL = async (e) => {
+  handleRouteClickRTL = async (e) => {
 
     //if trip is online and graph not showing
     //add trip to list
@@ -356,44 +354,18 @@ class Livetrips extends Component {
     //if trip is online and graph showing
     //remove trip from list
 
-    const showhide = this.state.plannedTripsRTL.filter((f) => {
-      return f.tripmin === e.target.innerHTML
-    })[0].online === 1 &&
-      this.state.tripList.filter((f) => {
+    const showhide = this.state.routeList.filter((f) => {
+      return f === e.target.innerHTML
+    }).length === 0 ?
+      this.addToRouteList(e.target.innerHTML) :
+      this.state.routeList.filter((f) => {
         return f === e.target.innerHTML
-      }).length === 0 ?
-      this.addToTripList(e.target.innerHTML) :
-      this.state.plannedTripsRTL.filter((f) => {
-        return f.tripmin === e.target.innerHTML
-      })[0].online === 1 &&
-        this.state.tripList.filter((f) => {
-          return f === e.target.innerHTML
-        }).length > 0 ?
-        this.removeFromTripList(e.target.innerHTML)
+      }).length > 0 ?
+        this.removeFromRouteList(e.target.innerHTML)
         : ''
 
   }
 
-
-  handleTripClickSTM = async (e) => {
-
-    const showhide = this.state.plannedTripsSTM.filter((f) => {
-      return f.tripmin === e.target.innerHTML
-    })[0].online === 1 &&
-      this.state.tripList.filter((f) => {
-        return f === e.target.innerHTML
-      }).length === 0 ?
-      this.addToTripList(e.target.innerHTML) :
-      this.state.plannedTripsSTM.filter((f) => {
-        return f.tripmin === e.target.innerHTML
-      })[0].online === 1 &&
-        this.state.tripList.filter((f) => {
-          return f === e.target.innerHTML
-        }).length > 0 ?
-        this.removeFromTripList(e.target.innerHTML)
-        : ''
-
-  }
 
 
   render() {
@@ -404,17 +376,17 @@ class Livetrips extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h2 id="title-card">Véhicule par départ</h2>
+              <h2 id="title-card">Véhicule par ligne-direction</h2>
             </div>
           </div>
-          <div className="row justify-content-center">
+          {/*<div className="row justify-content-center">
             <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
-              Voyage planifié actif
+              Ligne en service
             </div>
             <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
-              Voyage planifié inactif
+              Ligne hors-service
             </div>
-          </div>
+    </div>*/}
 
           <div className="row no-gutters">
             <div className="col">
@@ -451,89 +423,67 @@ class Livetrips extends Component {
               <table id="tableOnline" className="table">
                 <thead>
                   <tr>
-                    <th style={{ width: "7.5%" }}>
+                    <th style={{ width: "10%" }}>
                       Ligne
                   </th>
-                    <th style={{ width: "7.5%" }}>
+                    <th style={{ width: "10%" }}>
                       Direction
                   </th>
-                    <th style={{ width: "7.5%" }}>
-                      Heure de départ
-                  </th>
-                    <th style={{ width: "7.5%" }}>
-                      Heure de fin
-                  </th>
-                    <th style={{ width: "70%" }}>
-                      Trip ID
+                    <th style={{ width: "80%" }}>
+                      Ligne-Dir
                   </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs.length > 0 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                  {this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphsRTL.length > 0 ? this.state.plannedRoutesWithGraphsRTL.map((e) => e.graph === undefined ? (
                     <tr
                       key={e.keyid}
-                      style={{
-                        backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
-                      }}>
+                    >
                       <td>{e.route_id}</td>
                       <td>{e.direction_id}</td>
-                      <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
-                      <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
-                      <td
-                        style={{
-                          cursor: e.online === 1 ? 'pointer' : 'default'
-                        }}
-                        onClick={(event) => this.handleTripClickRTL(event)}
-                      >
-                        {e.tripmin}
-                      </td>
+                      <td style={{
+                        cursor: 'pointer'
+                      }}
+                        onClick={(event) => this.handleRouteClickRTL(event)}>{e.ligneDir}</td>
                     </tr>
                   ) : <tr key={e.keyid}>
                       <td
-                        colSpan="5"
-                        style={{ backgroundColor: "#FFFFFF" }} >
+                        colSpan="3">
                         {e.tripmin}
                       </td>
-                    </tr>) : this.state.selectRTL === 1 && this.state.plannedTripsWithGraphs.length === 0 ?
+                    </tr>) : this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphsRTL.length === 0 ?
                       <tr>
-                        <td colSpan="5" style={{ textAlign: "center" }}>
+                        <td colSpan="3" style={{ textAlign: "center" }}>
                           <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
                         </td>
                       </tr> :
-                      this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs.length > 0 ? this.state.plannedTripsWithGraphs.map((e) => e.graph === undefined ? (
+                      this.state.selectSTM === 1 && this.state.plannedRoutesWithGraphs.length > 0 ? this.state.plannedRoutesWithGraphs.map((e) => e.graph === undefined ? (
                         <tr
                           key={e.keyid}
-                          style={{
-                            backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
-                          }}>
+                        >
                           <td>{e.route_id}</td>
                           <td>{e.direction_id}</td>
-                          <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
-                          <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                           <td
                             style={{
-                              cursor: e.online === 1 ? 'pointer' : 'default'
+                              cursor: 'pointer'
                             }}
-                            onClick={(event) => this.handleTripClickSTM(event)}
-                          >
-                            {e.tripmin}
-                          </td>
+                            onClick={(event) => this.handleTripClickSTM(event)}>{e.ligneDir}</td>
                         </tr>
                       ) : <tr key={e.keyid}>
                           <td
-                            colSpan="5"
-                            style={{ backgroundColor: "#FFFFFF" }} >
+                            colSpan="3"
+                          >
                             {e.tripmin}
                           </td>
                         </tr>) :
-                        this.state.selectSTM === 1 && this.state.plannedTripsWithGraphs.length === 0 ?
+                        this.state.selectSTM === 1 && this.state.plannedRoutesWithGraphs.length === 0 ?
                           <tr>
-                            <td colSpan="4" style={{ textAlign: "center" }}>
+                            <td colSpan="3" style={{ textAlign: "center" }}>
                               <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
                             </td>
                           </tr> :
                           <tr>
-                            <td colSpan="5" style={{ textAlign: "center" }}> Sélectionner une agence</td>
+                            <td colSpan="3" style={{ textAlign: "center" }}> Sélectionner une agence</td>
                           </tr>}
                 </tbody>
               </table>
@@ -550,4 +500,4 @@ class Livetrips extends Component {
   }
 }
 
-export default Livetrips;
+export default Liveroutes;

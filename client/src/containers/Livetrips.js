@@ -205,7 +205,7 @@ class Livetrips extends Component {
 
     // AutoRemove planned trips that are not in the current time window
 
-    //**TO DO : if trip not in current time window but still online, means
+    //** TODO: if trip not in current time window but still online, means
     //bus is late. Trip should not be autoremoved.
 
     let visibleChartTripsUpdate = [];

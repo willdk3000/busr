@@ -138,3 +138,30 @@ export async function calcGraphsTripsSTM(
   return plannedTrips
 
 }
+
+
+export async function longestRoutesSTM(plannedTripsSTM) {
+
+  let uniqueKey = [];
+  plannedTripsSTM.map((e) => {
+    uniqueKey.push({
+      route_id: e.route_id,
+      direction_id: e.direction_id,
+      uniqueKey: e.route_id + '_' + e.direction_id,
+      stopcount: e.stopcount
+    })
+  })
+
+  // Get unique routes-directions
+  let uniqueRoutes = Array.from(new Set(uniqueKey.map(e => e.uniqueKey)))
+    .map(f => {
+      return {
+        uniqueKey: f,
+        route_id: uniqueKey.find(s => s.uniqueKey === f).route_id,
+        direction_id: uniqueKey.find(s => s.uniqueKey === f).direction_id,
+      }
+    })
+
+  console.log('orig', plannedTripsSTM)
+  console.log('uniques', uniqueRoutes);
+}

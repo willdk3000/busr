@@ -56,7 +56,7 @@ gulp.task('import_tables_STM', function (done) {
             GROUP BY trips.trip_id)
         UPDATE trips set stopcount = maxstops.stopcount
         FROM maxstops
-        WHERE trips.trip_id = maxstops.trip_id
+        WHERE trips.trip_id = maxstops.trip_id;
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
@@ -117,7 +117,7 @@ gulp.task('import_tables_STL', function (done) {
             GROUP BY trips.trip_id)
         UPDATE "STL".trips set stopcount = maxstops.stopcount
         FROM maxstops
-        WHERE "STL".trips.trip_id = maxstops.trip_id
+        WHERE "STL".trips.trip_id = maxstops.trip_id;
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
@@ -176,7 +176,7 @@ gulp.task('import_tables_RTL', function (done) {
             GROUP BY trips.trip_id)
         UPDATE "RTL".trips set stopcount = maxstops.stopcount
         FROM maxstops
-        WHERE "RTL".trips.trip_id = maxstops.trip_id
+        WHERE "RTL".trips.trip_id = maxstops.trip_id;
         --ajout des jours de service dans une seule colonne
         WITH tripdays AS (
             SELECT service_id,
