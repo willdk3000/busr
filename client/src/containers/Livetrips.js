@@ -10,7 +10,6 @@ import {
 import { calcGraphsTripsRTL } from '../helpers/tripsRTL.js';
 import { calcGraphsTripsSTM } from '../helpers/tripsSTM.js';
 
-
 const moment = require('moment');
 
 class Livetrips extends Component {

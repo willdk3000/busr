@@ -118,7 +118,7 @@ export async function calcGraphsTripsSTM(
               content={<CustomTooltip />}
             />
             <Scatter name="Arrets" data={data} fill="#000000" stroke="#5B5B5B" line shape="circle" />
-            <Scatter name="Bus" data={dist} fill="#A93332" line shape="circle" />
+            <Scatter name="Bus" data={dist} fill="#009DE0" line shape="circle" />
           </ScatterChart>
         </ResponsiveContainer >
 
@@ -139,28 +139,3 @@ export async function calcGraphsTripsSTM(
 
 }
 
-
-export async function longestRoutesSTM(plannedTripsSTM) {
-
-  let uniqueKey = [];
-  plannedTripsSTM.map((e) => {
-    uniqueKey.push({
-      route_id: e.route_id,
-      direction_id: e.direction_id,
-      uniqueKey: e.route_id + '_' + e.direction_id,
-      stopcount: e.stopcount
-    })
-  })
-
-  // Get unique routes-directions
-  let uniqueRoutes = Array.from(new Set(uniqueKey.map(e => e.uniqueKey)))
-    .map(f => {
-      return {
-        uniqueKey: f,
-        route_id: uniqueKey.find(s => s.uniqueKey === f).route_id,
-        direction_id: uniqueKey.find(s => s.uniqueKey === f).direction_id,
-      }
-    })
-
-
-}

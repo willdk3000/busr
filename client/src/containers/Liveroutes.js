@@ -2,22 +2,14 @@ import React, { Component } from 'react';
 import ReactLoading from 'react-loading';
 
 import {
-  ResponsiveContainer,
-  ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip
-} from 'recharts';
-
-import * as turf from '@turf/turf'
-
-import {
   getNewData, leave,
   getTracesSTM, getTracesSTL, getTracesRTL,
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js';
 
 import { longestRoutesRTL, regenGraphRoutesRTL } from '../helpers/routesRTL.js';
+import { longestRoutesSTM, regenGraphRoutesSTM } from '../helpers/routesSTM.js';
 
-
-const moment = require('moment');
 
 class Liveroutes extends Component {
 
@@ -25,7 +17,7 @@ class Liveroutes extends Component {
     tripList: [],
     routeList: [],
     selectStops: [],
-    plannedRoutesWithGraphsRTL: [],
+    plannedRoutesWithGraphs: [],
     selectSTM: 0,
     selectSTL: 0,
     selectRTL: 0,
@@ -34,6 +26,8 @@ class Liveroutes extends Component {
   componentDidMount = async () => {
 
     const tracesRTL = await getTracesRTL();
+
+    const tracesSTM = await getTracesSTM();
 
     const getData = getNewData((err, positions) => {
 
@@ -68,10 +62,8 @@ class Liveroutes extends Component {
         }
       })
 
-      // keep plannedTrips that have at least 1 online trip
-      const completeTracesRTL = longestRoutesRTL(positions[1])//.filter((e) => {
-      //  return e.online === 1
-      //});
+      // get unique routes
+      const completeTracesRTL = longestRoutesRTL(positions[1])
 
       // No trip ID in STL data
       // To Do : find a way to match live trips to planned gtfs data
@@ -90,6 +82,9 @@ class Liveroutes extends Component {
         }
       })
 
+      // get unique routes
+      const completeTracesSTM = longestRoutesSTM(positions[3])
+
 
       this.setState({
         vehiclesSTM: positions ? vehSTM[0].data : '',
@@ -102,7 +97,9 @@ class Liveroutes extends Component {
         plannedTripsSTL: positions ? positions[2].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : '',
         plannedTripsSTM: positions ? positions[3] : '',
         plannedRoutesRTL: completeTracesRTL,
-        tracesRTL: tracesRTL.rows[0].jsonb_build_object
+        plannedRoutesSTM: completeTracesSTM,
+        tracesRTL: tracesRTL.rows[0].jsonb_build_object,
+        tracesSTM: tracesSTM.rows[0].jsonb_build_object
       })
 
       //plannedTripsRTL: positions ? positions[1].sort((a, b) => (a.timemin > b.timemin) ? 1 : -1) : ''
@@ -113,13 +110,17 @@ class Liveroutes extends Component {
       this.regenGraphRoutesRTL();
     }
 
+    if (this.state.selectSTM === 1 && this.state.plannedRoutesSTM) {
+      this.regenGraphRoutesSTM();
+    }
+
 
   }
 
 
   componentDidUpdate(prevProps, prevState) {
 
-    const { routeList, plannedRoutesRTL, selectRTL } = this.state;
+    const { routeList, plannedRoutesRTL, plannedRoutesSTM, selectRTL, selectSTM } = this.state;
 
     if (selectRTL === 1 && routeList.length !== prevState.routeList.length) {
       this.regenGraphRoutesRTL();
@@ -129,6 +130,13 @@ class Liveroutes extends Component {
       this.regenGraphRoutesRTL();
     }
 
+    if (selectSTM === 1 && routeList.length !== prevState.routeList.length) {
+      this.regenGraphRoutesSTM();
+    }
+
+    if (selectSTM === 1 && plannedRoutesSTM !== prevState.plannedRoutesSTM) {
+      this.regenGraphRoutesSTM();
+    }
 
   }
 
@@ -162,6 +170,12 @@ class Liveroutes extends Component {
     const stopsResponseRTL = await getStopsRTL(trip);
     const parseStopsRTL = stopsResponseRTL.rows[0].jsonb_build_object
     return parseStopsRTL
+  }
+
+  stopRequestSTM = async (trip) => {
+    const stopsResponseSTM = await getStopsSTM(trip);
+    const parseStopsSTM = stopsResponseSTM.rows[0].jsonb_build_object
+    return parseStopsSTM
   }
 
 
@@ -219,7 +233,68 @@ class Liveroutes extends Component {
     })
 
     this.setState({
-      plannedRoutesWithGraphsRTL: visibleChartRoutes,
+      plannedRoutesWithGraphs: visibleChartRoutes,
+      selectStops: stops
+    })
+
+  }
+
+  regenGraphRoutesSTM = async () => {
+
+    //TODO: autoremove that are not online and not in timewindow
+
+    let routeList = [...this.state.routeList];
+    let tripList = [...this.state.plannedTripsSTM];
+    let uniqueTrip = [];
+
+
+    // Trip utilise pour generer les arrets de la ligne-direction
+    routeList.forEach((e) => {
+      uniqueTrip.push(
+        tripList.filter((f) => {
+          return f.ligneDir === e
+        })[0].tripmin
+      )
+    })
+
+    let stops = [...this.state.selectStops];
+
+    // Get stops info --only if it has not been fetched yet
+    // async/await fetch can't be included in forEach
+    // has to be in for...of
+    for (const e of uniqueTrip) {
+      if (stops.filter((f) => { return f.tripID === e }).length === 0) {
+        let tripStops = await this.stopRequestSTM(e);
+        stops.push({
+          tripID: e,
+          tripStops: tripStops
+        });
+      }
+    }
+
+
+    let visibleChartRoutes = [...this.state.plannedRoutesSTM];
+
+    let tracesSTM = this.state.tracesSTM;
+    let vehiclesSTM = this.state.vehiclesSTM;
+
+    visibleChartRoutes = regenGraphRoutesSTM(
+      routeList,
+      tripList,
+      visibleChartRoutes,
+      stops,
+      vehiclesSTM,
+      tracesSTM);
+
+    //Affecter une cle unique correspondant a la position dans l'array
+    let keyID = 0;
+    visibleChartRoutes.forEach((e) => {
+      e.keyid = keyID;
+      keyID++;
+    })
+
+    this.setState({
+      plannedRoutesWithGraphs: visibleChartRoutes,
       selectStops: stops
     })
 
@@ -272,6 +347,23 @@ class Liveroutes extends Component {
   }
 
 
+  handleRouteClickSTM = async (e) => {
+
+    const showhide = this.state.plannedRoutesSTM.filter((f) => {
+      return f.ligneDir === e.target.innerHTML
+    })[0].online === 1 && this.state.routeList.filter((f) => {
+      return f === e.target.innerHTML
+    }).length === 0 ?
+      this.addToRouteList(e.target.innerHTML) :
+      this.state.routeList.filter((f) => {
+        return f === e.target.innerHTML
+      }).length > 0 ?
+        this.removeFromRouteList(e.target.innerHTML)
+        : ''
+
+  }
+
+
 
   render() {
 
@@ -301,8 +393,7 @@ class Liveroutes extends Component {
                 style={this.state.selectSTM === 1 ?
                   { backgroundColor: "#38B2A3", color: "#FFFFFF" } :
                   { backgroundColor: "#E9F1F3", color: "#000000" }}
-                onClick={(e) => this.handleClickSTM(e)}
-                disabled>
+                onClick={(e) => this.handleClickSTM(e)}>
                 STM
             </button>
             </div>
@@ -341,7 +432,7 @@ class Liveroutes extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphsRTL.length > 0 ? this.state.plannedRoutesWithGraphsRTL.map((e) => e.graph === undefined ? (
+                  {this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphs.length > 0 ? this.state.plannedRoutesWithGraphs.map((e) => e.graph === undefined ? (
                     <tr
                       key={e.keyid}
                       style={{
@@ -359,7 +450,7 @@ class Liveroutes extends Component {
                         colSpan="3">
                         {e.tripmin}
                       </td>
-                    </tr>) : this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphsRTL.length === 0 ?
+                    </tr>) : this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphs.length === 0 ?
                       <tr>
                         <td colSpan="3" style={{ textAlign: "center" }}>
                           <ReactLoading type={"bubbles"} color={"#277D98"} height={200} width={100} />
@@ -368,14 +459,16 @@ class Liveroutes extends Component {
                       this.state.selectSTM === 1 && this.state.plannedRoutesWithGraphs.length > 0 ? this.state.plannedRoutesWithGraphs.map((e) => e.graph === undefined ? (
                         <tr
                           key={e.keyid}
-                        >
+                          style={{
+                            backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
+                          }}>
                           <td>{e.route_id}</td>
                           <td>{e.direction_id}</td>
                           <td
                             style={{
-                              cursor: 'pointer'
+                              cursor: e.online === 1 ? 'pointer' : 'default'
                             }}
-                            onClick={(event) => this.handleTripClickSTM(event)}>{e.ligneDir}</td>
+                            onClick={(event) => this.handleRouteClickSTM(event)}>{e.ligneDir}</td>
                         </tr>
                       ) : <tr key={e.keyid}>
                           <td

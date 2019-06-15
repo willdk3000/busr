@@ -24,7 +24,11 @@ export function longestRoutesRTL(plannedTripsRTL) {
     })
   })
 
-  let uniqueRoutes = Array.from(new Set(ligneDir.map(e => e.ligneDir)))
+  let ligneDirOnline = ligneDir.filter((e) => {
+    return e.online === 1
+  })
+
+  let uniqueRoutes = Array.from(new Set(ligneDirOnline.map(e => e.ligneDir)))
     .map(f => {
       return {
         ligneDir: f,
