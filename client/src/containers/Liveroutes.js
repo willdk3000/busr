@@ -14,7 +14,6 @@ import { longestRoutesSTM, regenGraphRoutesSTM } from '../helpers/routesSTM.js';
 class Liveroutes extends Component {
 
   state = {
-    tripList: [],
     routeList: [],
     selectStops: [],
     plannedRoutesWithGraphs: [],
@@ -151,8 +150,9 @@ class Liveroutes extends Component {
       selectSTM: 1,
       selectSTL: 0,
       selectRTL: 0,
-      tripList: [],
       selectStops: [],
+      routeList: [],
+      plannedRoutesWithGraphs: []
     })
   }
 
@@ -161,8 +161,9 @@ class Liveroutes extends Component {
       selectSTM: 0,
       selectSTL: 0,
       selectRTL: 1,
-      tripList: [],
       selectStops: [],
+      routeList: [],
+      plannedRoutesWithGraphs: []
     })
   }
 
