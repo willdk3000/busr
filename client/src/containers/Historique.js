@@ -88,12 +88,11 @@ class Historique extends Component {
       <div className="container-fluid">
         <div className="row">
           <div className="col-sm">
-            <h2 id="title-card">Historique des 3 derniers jours de service</h2>
+            <h1 id="title-card" class="display-3">Historique : 3 derniers jours de service</h1>
           </div>
         </div>
-        <br />
 
-        <div id="chartCard">
+        <div id="chart-card">
           <h4 style={{ color: '#000000', textAlign: 'center' }}>Semaine</h4>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={730} height={250}
@@ -131,7 +130,7 @@ class Historique extends Component {
         </div >
 
 
-        <div id="chartCard">
+        <div id="chart-card">
           <h4 style={{ color: '#000000', textAlign: 'center' }}>Samedi</h4>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={730} height={250}
@@ -167,7 +166,7 @@ class Historique extends Component {
           </ResponsiveContainer>
         </div >
 
-        <div id="chartCard">
+        <div id="chart-card">
           <h4 style={{ color: '#000000', textAlign: 'center' }}>Dimanche</h4>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={500} height={250}
@@ -203,8 +202,6 @@ class Historique extends Component {
           </ResponsiveContainer>
         </div >
 
-
-        <br />
       </div>
     ) : <div className="container">
         <div className="row justify-content-center">Chargement en cours...</div>

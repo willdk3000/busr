@@ -374,7 +374,7 @@ class Liveroutes extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h2 id="title-card">Véhicule par ligne-direction</h2>
+              <h1 id="title-card" class="display-3">Vue linéaire : par ligne</h1>
             </div>
           </div>
           <div className="row justify-content-center">

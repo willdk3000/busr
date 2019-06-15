@@ -134,7 +134,7 @@ class Livetrips extends Component {
       this.regenGraphSTM();
     }
 
-    console.log(this.state)
+    //console.log(this.state)
 
   }
 
@@ -403,7 +403,7 @@ class Livetrips extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h2 id="title-card">Véhicule par départ</h2>
+              <h1 id="title-card" class="display-3">Vue linéaire : par départ</h1>
             </div>
           </div>
           <div className="row justify-content-center">
