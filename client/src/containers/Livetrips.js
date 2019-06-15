@@ -7,8 +7,8 @@ import {
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js';
 
-import { calcGraphsTripsRTL } from '../helpers/tripsRoutesRTL.js';
-import { calcGraphsTripsSTM } from '../helpers/tripsRoutesSTM.js';
+import { calcGraphsTripsRTL } from '../helpers/tripsRTL.js';
+import { calcGraphsTripsSTM } from '../helpers/tripsSTM.js';
 
 
 const moment = require('moment');
@@ -135,7 +135,7 @@ class Livetrips extends Component {
       this.regenGraphSTM();
     }
 
-    //console.log(this.state)
+    console.log(this.state)
 
   }
 

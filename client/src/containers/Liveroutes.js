@@ -14,8 +14,7 @@ import {
   getStopsSTM, getStopsRTL, getStopsSTL
 } from '../API.js';
 
-import { calcGraphsTripsRTL, longestRoutesRTL } from '../helpers/tripsRoutesRTL.js';
-import { calcGraphsTripsSTM, longestRoutesSTM } from '../helpers/tripsRoutesSTM.js';
+import { longestRoutesRTL, regenGraphRoutesRTL } from '../helpers/routesRTL.js';
 
 
 const moment = require('moment');
@@ -69,10 +68,10 @@ class Liveroutes extends Component {
         }
       })
 
-
-      const completeTracesRTL = longestRoutesRTL(positions[1]);
-
-      //const completeTracesSTM = longestRoutesSTM(positions[3]);
+      // keep plannedTrips that have at least 1 online trip
+      const completeTracesRTL = longestRoutesRTL(positions[1])//.filter((e) => {
+      //  return e.online === 1
+      //});
 
       // No trip ID in STL data
       // To Do : find a way to match live trips to planned gtfs data
@@ -122,7 +121,6 @@ class Liveroutes extends Component {
 
     const { routeList, plannedRoutesRTL, selectRTL } = this.state;
 
-
     if (selectRTL === 1 && routeList.length !== prevState.routeList.length) {
       this.regenGraphRoutesRTL();
     }
@@ -131,7 +129,6 @@ class Liveroutes extends Component {
       this.regenGraphRoutesRTL();
     }
 
-    console.log(this.state)
 
   }
 
@@ -170,7 +167,7 @@ class Liveroutes extends Component {
 
   regenGraphRoutesRTL = async () => {
 
-    // TODO: remove offline routes by assigning online property to trips...
+    //TODO: autoremove that are not online and not in timewindow
 
     let routeList = [...this.state.routeList];
     let tripList = [...this.state.plannedTripsRTL];
@@ -186,10 +183,11 @@ class Liveroutes extends Component {
       )
     })
 
-    //console.log(uniqueTrip)
-
     let stops = [...this.state.selectStops];
 
+    // Get stops info --only if it has not been fetched yet
+    // async/await fetch can't be included in forEach
+    // has to be in for...of
     for (const e of uniqueTrip) {
       if (stops.filter((f) => { return f.tripID === e }).length === 0) {
         let tripStops = await this.stopRequestRTL(e);
@@ -202,111 +200,16 @@ class Liveroutes extends Component {
 
     let visibleChartRoutes = [...this.state.plannedRoutesRTL];
 
-    let stopsCounter = 0;
+    let tracesRTL = this.state.tracesRTL;
+    let vehiclesRTL = this.state.vehiclesRTL;
 
-    routeList.forEach((e) => {
-
-      // Tous les trips de la ligne direction
-      let tripsLigneDir = tripList.filter((f) => {
-        return f.ligneDir === e
-      })
-
-      //console.log(tripsLigneDir)
-
-      // Trouver la position de la route dans l'array de routes pour lesquels on affiche un graph
-      let routeIDS = [];
-      visibleChartRoutes.map((f) => {
-        routeIDS.push(f.ligneDir)
-      })
-
-      let position = routeIDS.indexOf(e)
-
-      let stopsRTL = stops[stopsCounter].tripStops;
-      stopsCounter++;
-
-      // Creer l'array d'arrets selon la trace identifiee
-      let data = [];
-      stopsRTL.features.map((f) => {
-        data.push({
-          name: f.properties.name,
-          time: f.properties.departure_time,
-          x: f.properties.stop_sequence,
-          y: 0,
-          z: 15
-        })
-      })
-
-      // Preparation du calcul des positions des vehicules sur la ligne-direction
-      let distArray = [];
-      let tracesRTL = this.state.tracesRTL;
-      let vehiclesRTL = this.state.vehiclesRTL;
-
-      tripsLigneDir.forEach((k) => {
-        //Trouver les coordonnees actuelles du bus sur le trip
-
-        const currentPositionFeature = vehiclesRTL.features.filter((f) => {
-          return f.properties.trip_id === k.tripmin
-        })[0].geometry.coordinates;
-
-        //Trouver la trace correspondant au trip
-        const traceRTL = tracesRTL.features.filter((f) => {
-          return f.properties.trips.some((g) => {
-            return g === k.tripmin
-          })
-        })
-
-        //Trouver la distance parcourue par le bus sur le trip
-        const coordTrace = [];
-
-        traceRTL[0].geometry.coordinates.map((f) => {
-          coordTrace.push(f)
-        })
-
-        let turfLine = turf.lineString(coordTrace);
-        let pt = turf.point(currentPositionFeature);
-        let snapped = turf.nearestPointOnLine(turfLine, pt, { units: 'kilometers' });
-        let dist = { x: Math.round((snapped.properties.location) * 1000), y: 0, z: 60 }
-
-        distArray.push(dist);
-      })
-
-      const CustomTooltip = ({ active, payload }) => {
-        if (active) {
-          return (
-            <div className="custom-tooltip">
-              <p className="label">{payload[0].payload.name}<br />
-                Distance : {payload[0].payload.x}<br />
-              </p>
-            </div>
-          );
-        }
-        return null;
-      };
-
-      // si jamais le graph se regenere, c'est parce qu'on utilise pas la meme source entre le premier render
-      // et les suivants. Pour s'assurer qu'il ne se regenere pas plusieurs fois, utiliser la meme source dans
-      // le state initial et dans les setState suivants
-      visibleChartRoutes.splice(position + 1, 0, {
-        keyid: position + 1,
-        graph: 1,
-        ligneDir: 'graph',
-        tripmin:
-          <ResponsiveContainer width="98%" height={50} >
-            <ScatterChart>
-              <XAxis type="number" dataKey="x" hide />
-              <YAxis type="number" dataKey="y" hide />
-              <ZAxis type="number" dataKey="z" range={[10, 100]} domain={[15, 75]} />
-              <Tooltip
-                content={<CustomTooltip />}
-              />
-              <Scatter name="Arrets" data={data} fill="#000000" stroke="#5B5B5B" line shape="circle" />
-              <Scatter name="Bus" data={distArray} fill="#A93332" shape="circle" />
-            </ScatterChart>
-          </ResponsiveContainer>
-
-      })
-
-    })
+    visibleChartRoutes = regenGraphRoutesRTL(
+      routeList,
+      tripList,
+      visibleChartRoutes,
+      stops,
+      vehiclesRTL,
+      tracesRTL);
 
     //Affecter une cle unique correspondant a la position dans l'array
     let keyID = 0;
@@ -336,12 +239,12 @@ class Liveroutes extends Component {
     let routePosition = routeListRemove.indexOf(e);
     routeListRemove.splice(routePosition, 1)
 
-    // let stopListRemove = [...this.state.selectStops];
-    // stopListRemove.splice(tripPosition, 1)
+    let stopListRemove = [...this.state.selectStops];
+    stopListRemove.splice(routePosition, 1)
 
     this.setState({
       routeList: routeListRemove,
-      // selectStops: stopListRemove
+      selectStops: stopListRemove
     })
   }
 
@@ -354,7 +257,9 @@ class Liveroutes extends Component {
     //if trip is online and graph showing
     //remove trip from list
 
-    const showhide = this.state.routeList.filter((f) => {
+    const showhide = this.state.plannedRoutesRTL.filter((f) => {
+      return f.ligneDir === e.target.innerHTML
+    })[0].online === 1 && this.state.routeList.filter((f) => {
       return f === e.target.innerHTML
     }).length === 0 ?
       this.addToRouteList(e.target.innerHTML) :
@@ -379,14 +284,14 @@ class Liveroutes extends Component {
               <h2 id="title-card">Véhicule par ligne-direction</h2>
             </div>
           </div>
-          {/*<div className="row justify-content-center">
-            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
-              Ligne en service
+          <div className="row justify-content-center">
+            <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
+              Ligne planifiée en ligne
             </div>
-            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
-              Ligne hors-service
+            <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
+              Ligne planifiée hors-ligne
             </div>
-    </div>*/}
+          </div>
 
           <div className="row no-gutters">
             <div className="col">
@@ -427,10 +332,10 @@ class Liveroutes extends Component {
                     <th style={{ width: "10%" }}>
                       Ligne
                   </th>
-                    <th style={{ width: "10%" }}>
+                    <th style={{ width: "20%" }}>
                       Direction
                   </th>
-                    <th style={{ width: "80%" }}>
+                    <th style={{ width: "70%" }}>
                       Ligne-Dir
                   </th>
                   </tr>
@@ -439,11 +344,13 @@ class Liveroutes extends Component {
                   {this.state.selectRTL === 1 && this.state.plannedRoutesWithGraphsRTL.length > 0 ? this.state.plannedRoutesWithGraphsRTL.map((e) => e.graph === undefined ? (
                     <tr
                       key={e.keyid}
-                    >
+                      style={{
+                        backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
+                      }}>
                       <td>{e.route_id}</td>
-                      <td>{e.direction_id}</td>
+                      <td>{e.direction_id === 1 ? 'Centre-Ville' : 'Périphérie'}</td>
                       <td style={{
-                        cursor: 'pointer'
+                        cursor: e.online === 1 ? 'pointer' : 'default'
                       }}
                         onClick={(event) => this.handleRouteClickRTL(event)}>{e.ligneDir}</td>
                     </tr>
