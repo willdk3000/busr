@@ -403,14 +403,14 @@ class Livetrips extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h1 id="title-card" class="display-3">Vue linéaire : par départ</h1>
+              <h1 id="title-card" className="display-4">Vue linéaire : par départ</h1>
             </div>
           </div>
           <div className="row justify-content-center">
-            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
+            <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
               Voyage planifié actif
             </div>
-            <div className="col-sm-3 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
+            <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
               Voyage planifié inactif
             </div>
           </div>
@@ -475,7 +475,7 @@ class Livetrips extends Component {
                         backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
                       }}>
                       <td>{e.route_id}</td>
-                      <td>{e.direction_id}</td>
+                      <td>{e.direction_id === 1 ? 'Centre-Ville' : 'Périphérie'}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                       <td

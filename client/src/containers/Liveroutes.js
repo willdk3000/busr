@@ -137,6 +137,8 @@ class Liveroutes extends Component {
       this.regenGraphRoutesSTM();
     }
 
+    console.log(this.state)
+
   }
 
 
@@ -213,7 +215,9 @@ class Liveroutes extends Component {
       }
     }
 
+    // Recalcul des lignes qui sont online
     let visibleChartRoutes = [...this.state.plannedRoutesRTL];
+    //let visibleChartRoutesUpdate = longestRoutesSTM(visibleChartRoutes);
 
     let tracesRTL = this.state.tracesRTL;
     let vehiclesRTL = this.state.vehiclesRTL;
@@ -374,7 +378,7 @@ class Liveroutes extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h1 id="title-card" class="display-3">Vue linéaire : par ligne</h1>
+              <h1 id="title-card" className="display-4">Vue linéaire : par ligne</h1>
             </div>
           </div>
           <div className="row justify-content-center">

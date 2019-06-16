@@ -12,6 +12,9 @@ const turf = require('@turf/turf');
 
 export function longestRoutesSTM(plannedTripsSTM) {
 
+  //TODO: une ligne qui a des trips online et des trips offline devrait
+  // automatiquement eliminer les trips offline pour le choix du trip pour les arrets
+
   let ligneDir = [];
   plannedTripsSTM.map((e) => {
     ligneDir.push({
@@ -28,7 +31,6 @@ export function longestRoutesSTM(plannedTripsSTM) {
   let ligneDirOnline = ligneDir.filter((e) => {
     return e.online === 1
   })
-
 
   let uniqueRoutes = Array.from(new Set(ligneDirOnline.map(e => e.ligneDir)))
     .map(f => {

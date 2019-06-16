@@ -88,7 +88,7 @@ class Historique extends Component {
       <div className="container-fluid">
         <div className="row">
           <div className="col-sm">
-            <h1 id="title-card" class="display-3">Historique : 3 derniers jours de service</h1>
+            <h1 id="title-card" className="display-4">Historique des 3 derniers jours de service</h1>
           </div>
         </div>
 

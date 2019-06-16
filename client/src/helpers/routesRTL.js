@@ -12,6 +12,9 @@ const turf = require('@turf/turf');
 
 export function longestRoutesRTL(plannedTripsRTL) {
 
+  //TODO: une ligne qui a des trips online et des trips offline devrait
+  // automatiquement eliminer les trips offline pour le choix du trip pour les arrets
+
   let ligneDir = [];
   plannedTripsRTL.map((e) => {
     ligneDir.push({
