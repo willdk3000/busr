@@ -8,6 +8,8 @@ module.exports = {
         const time = moment(new Date()).format('HH:mm:ss');
 
         let timeNow = new Date();
+
+        // Avec getDay, dimanche = 0 et samedi = 6
         let dayNow = timeNow.getDay();
 
         return knex.raw(

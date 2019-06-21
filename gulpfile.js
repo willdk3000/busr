@@ -2,9 +2,9 @@
 
 const gulp = require('gulp'),
     knex = require('./config/knex'),
-    path_stm = __dirname + '/gtfs/' + 'stm_mars2019',
-    path_stl = __dirname + '/gtfs/' + 'stl_mars2019',
-    path_rtl = __dirname + '/gtfs/' + 'rtl_avril2019'
+    path_stm = __dirname + '/gtfs/STM/' + 'juin2019',
+    path_stl = __dirname + '/gtfs/STL/' + 'mars2019',
+    path_rtl = __dirname + '/gtfs/RTL/' + 'avril2019'
 
 //Initialisation
 //gulp.task('default', function() {
