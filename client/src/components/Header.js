@@ -33,6 +33,9 @@ const Header = () => (
                 </Link>
               </div>
             </li>
+            <Link className="nav-item nav-link text-white" to="/howto" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+              Aide
+            </Link>
           </div>
         </div>
       </nav>

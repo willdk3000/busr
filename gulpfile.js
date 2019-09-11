@@ -2,9 +2,9 @@
 
 const gulp = require('gulp'),
     knex = require('./config/knex'),
-    path_stm = __dirname + '/gtfs/STM/' + 'juin2019',
-    path_stl = __dirname + '/gtfs/STL/' + 'mars2019',
-    path_rtl = __dirname + '/gtfs/RTL/' + 'avril2019'
+    path_stm = __dirname + '/gtfs/STM/' + 'aout2019',
+    path_stl = __dirname + '/gtfs/STL/' + 'aout2019',
+    path_rtl = __dirname + '/gtfs/RTL/' + 'aout2019'
 
 //Initialisation
 //gulp.task('default', function() {
@@ -66,7 +66,7 @@ gulp.task('import_tables_STM', function (done) {
         )
         UPDATE "public".calendar set rundays = tripdays.rundays
         FROM tripdays
-        WHERE calendar.service_id = tripdays.service_id
+        WHERE calendar.service_id = tripdays.service_id;
         `
     ).then(done());
 })
@@ -127,7 +127,7 @@ gulp.task('import_tables_STL', function (done) {
         )
         UPDATE "STL".calendar set rundays = tripdays.rundays
         FROM tripdays
-        WHERE "STL".calendar.service_id = tripdays.service_id`
+        WHERE "STL".calendar.service_id = tripdays.service_id;`
     ).then(done());
 })
 
