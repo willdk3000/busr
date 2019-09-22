@@ -177,12 +177,9 @@ module.exports = {
 
       console.log('Nombre de bus en ligne RTL :', vehArrayRTL.length);
 
-
-
       // Insérer les données dans la BD
       const insertALL = await insertData();
       console.log('Mise a jour complétée');
-
 
       return 'done'
 
@@ -198,7 +195,7 @@ module.exports = {
       const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
       const setPositionsRTL = await controllers.dataHandler.insertRTL(JSON.stringify([vehFeatRTL]));
 
-      console.log('Nouvelles données inserées');
+      console.log('Nouvelles données insérées');
       return 'done'
     }
 

@@ -21,5 +21,5 @@ exports.up = function (knex, Promise) {
 };
 
 exports.down = function (knex, Promise) {
-  return knex.raw(`DROP TABLE vehicles`)
+  return knex.raw(`DROP TABLE "public".vehicles`)
 };

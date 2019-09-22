@@ -8,7 +8,7 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
     return knex.raw(
-        `ALTER TABLE "RTL".trips DROP COLUMN stopcount integer;`
+        `ALTER TABLE "RTL".trips DROP COLUMN stopcount;`
     );
 };
 

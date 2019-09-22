@@ -8,6 +8,6 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
     return knex.raw(
-        `ALTER TABLE "STL".calendar DROP COLUMN rundays TEXT [];`
+        `ALTER TABLE "STL".calendar DROP COLUMN rundays;`
     );
 };
