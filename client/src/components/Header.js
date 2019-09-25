@@ -33,9 +33,9 @@ const Header = () => (
                 </Link>
               </div>
             </li>
-            <Link className="nav-item nav-link text-white" to="/howto" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+            {/*<Link className="nav-item nav-link text-white" to="/howto" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Aide
-            </Link>
+</Link>*/}
           </div>
         </div>
       </nav>
