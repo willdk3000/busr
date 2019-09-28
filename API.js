@@ -70,6 +70,19 @@ module.exports = {
 
 
     // Requete vers le serveur de la STM
+
+
+    // request(requestSettings, function (error, response, body) {
+    //   if (!error && response.statusCode == 200) {
+    //     var feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(body);
+    //     feed.entity.forEach(function(entity) {
+    //       if (entity.trip_update) {
+    //         console.log(entity.trip_update);
+    //       }
+    //     });
+    //   }
+    // });
+
     function requestDataSTM() {
       return new Promise(function (resolve, reject) {
         request(requestSettingsSTM, function (error, response, body) {
@@ -109,17 +122,17 @@ module.exports = {
 
       let newData = await requestDataSTM();
 
-      let feed = GtfsRealtimeBindings.FeedMessage.decode(newData);
+      let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(newData);
       const vehicles = Object.values(feed.entity);
 
       vehicles.forEach((e) => {
         let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
           vehicle_id: e.id,
-          route_id: e.vehicle.trip.route_id,
-          trip_id: e.vehicle.trip.trip_id,
-          start_time: e.vehicle.trip.start_time,
-          start_date: e.vehicle.trip.start_date,
-          current_stop_sequence: e.vehicle.current_stop_sequence,
+          route_id: e.vehicle.trip.routeId,
+          trip_id: e.vehicle.trip.tripId,
+          start_time: e.vehicle.trip.startTime,
+          start_date: e.vehicle.trip.startDate,
+          current_stop_sequence: e.vehicle.currentStopSequence,
           timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
           server_request: new Date()
         });
@@ -157,18 +170,18 @@ module.exports = {
       vehArrayRTL = [];
 
       let dataRTL = await requestDataRTL();
-      let feedRTL = GtfsRealtimeBindings.FeedMessage.decode(dataRTL);
+      let feedRTL = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(dataRTL);
 
       const vehiclesRTL = Object.values(feedRTL.entity);
 
       vehiclesRTL.forEach((e) => {
         let vehPosRTL = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
           vehicle_id: e.id,
-          route_id: e.vehicle.trip.route_id,
-          trip_id: e.vehicle.trip.trip_id,
-          start_time: e.vehicle.trip.start_time,
-          start_date: e.vehicle.trip.start_date,
-          current_stop_sequence: e.vehicle.current_stop_sequence,
+          route_id: e.vehicle.trip.routeId,
+          trip_id: e.vehicle.trip.tripId,
+          //start_time: e.vehicle.trip.startTime,
+          //start_date: e.vehicle.trip.startDate,
+          //current_stop_sequence: e.vehicle.currentStopSequence,
           timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
           server_request: new Date()
         });
