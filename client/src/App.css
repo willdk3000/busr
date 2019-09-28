@@ -51,6 +51,10 @@
   font-weight: bold;
 }
 
+#footer-name {
+  color:#000000;
+}
+
 .mapToolTip {
   position: absolute;
   margin: 8px;
