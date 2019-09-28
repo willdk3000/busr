@@ -27,8 +27,8 @@ class Historique extends Component {
 
     const parseAll = [];
 
-    // Modifier le format de hh:mm:ss à unix milliseconds
-    // C'est le format privilégié par Recharts pour les unités de temps
+    // Convert hh:mm:ss to unix milliseconds
+    // Format required by recharts for time series
 
     const parsing = allVehicles ?
       allVehicles.forEach((e) => {
@@ -41,7 +41,7 @@ class Historique extends Component {
         })
       }) : ''
 
-    // Séparation des données de semaine, samedi, dimanche
+    // Split weekdays, saturdays, sundays
 
     const week = parseAll.filter((e) => {
       return parseInt(e.weekday) > 0 && parseInt(e.weekday) < 6
@@ -61,9 +61,6 @@ class Historique extends Component {
       sunday: sunday
     })
 
-    //console.log(this.state)
-
-
   }
 
 
@@ -73,10 +70,10 @@ class Historique extends Component {
       if (active) {
         return (
           <div className="custom-tooltip">
-            <p className="label">Réseau : {payload[0].payload.reseau}<br />
+            <p className="label">Agency : {payload[0].payload.reseau}<br />
               Date : {payload[0].payload.date} <br />
-              Heure : {moment(payload[0].payload.time).format('HH:mm:ss')}<br />
-              Véhicules : {payload[0].payload.vehlen}</p>
+              Time : {moment(payload[0].payload.time).format('HH:mm:ss')}<br />
+              Active vehicles : {payload[0].payload.vehlen}</p>
           </div>
         );
       }
@@ -88,12 +85,12 @@ class Historique extends Component {
       <div className="container-fluid">
         <div className="row">
           <div className="col-sm">
-            <h1 id="title-card" className="display-4">Historique des 3 derniers jours de service</h1>
+            <h1 id="title-card" className="display-4">Active vehicles : last 3 days of service</h1>
           </div>
         </div>
 
         <div id="chart-card">
-          <h4 style={{ color: '#000000', textAlign: 'center' }}>Semaine</h4>
+          <h4 style={{ color: '#000000', textAlign: 'center' }}>Weekday</h4>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={730} height={250}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -131,7 +128,7 @@ class Historique extends Component {
 
 
         <div id="chart-card">
-          <h4 style={{ color: '#000000', textAlign: 'center' }}>Samedi</h4>
+          <h4 style={{ color: '#000000', textAlign: 'center' }}>Saturday</h4>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={730} height={250}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -167,7 +164,7 @@ class Historique extends Component {
         </div >
 
         <div id="chart-card">
-          <h4 style={{ color: '#000000', textAlign: 'center' }}>Dimanche</h4>
+          <h4 style={{ color: '#000000', textAlign: 'center' }}>Sunday</h4>
           <ResponsiveContainer width="100%" height={350}>
             <ScatterChart width={500} height={250}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -204,7 +201,7 @@ class Historique extends Component {
 
       </div>
     ) : <div className="container">
-        <div className="row justify-content-center">Chargement en cours...</div>
+        <div className="row justify-content-center">Loading...</div>
         <div className="row justify-content-center">
           <div><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></div>
         </div>

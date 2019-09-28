@@ -54,7 +54,7 @@ class Livemap extends Component {
 
     const map = this.reactMap.getMap();
 
-    //initialisation de la carte
+    //Initialize map
     this.handleOnLoad(map)
 
     const tracesSTM = await getTracesSTM();
@@ -87,93 +87,88 @@ class Livemap extends Component {
 
     map.on('load', () => {
 
-      //mettre un geojson valide (mais vide) sur la carte a l'initialisation pour eviter que mapbox 
-      //genere une erreur. comment c'est monte ici, la source 'vehicules' est chargee au moment
-      //ou la carte finit de charger. pour que la source soit valide, elle doit contenir au 
-      //un geojson valide.
+      // Add empty geojson to map on initialization to prevent mapbox error. 
+      // Map has to contain valid geojson on load
 
-      // Sources Vehicules
+      // Sources - vehicles
       map.addSource(
         "vehiculesSTM", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       map.addSource(
         "vehiculesSTL", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       map.addSource(
         "vehiculesRTL", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
-      // Sources Traces
+      // Sources - traces
       map.addSource(
         "tracesSTM", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       map.addSource(
         "tracesSTL", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       map.addSource(
         "tracesRTL", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
-      // Sources Stops
+      // Sources - stops
       map.addSource(
         "stopsSTM", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       map.addSource(
         "stopsRTL", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       map.addSource(
         "stopsSTL", {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        }
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
       );
 
       // Sources shapes ANIM
-      map.addSource(
-        'routeAnimRTL', {
-          "type": "geojson",
-          "data": emptyGeoJSON
-        });
+      // map.addSource(
+      //   'routeAnimRTL', {
+      //   "type": "geojson",
+      //   "data": emptyGeoJSON
+      // });
 
-      //ajout de la couche de vehicules (basee sur la source vehicules)
-      //pour les icones de bus, s'assurer de mettre le type symbol
-      //le code 0xF207 s'explique comme suit :
-      //0x caracteres a ajouter pour tous les icones
-      //F207 identifiant de l'icone bus de fontawesome
-      //la police FontAwesome doit avoir ete chargee dans une des couches du style de carte utilise
-      //voir mapboxstudio
+      // For bus icons, use following symbol 0xF207 
+      // 0x characters to add to each icon
+      // F207 identifier of bus icon in fontawesome
+      // FontAwesome has to be loaded as one of the fonts in the map style (see mapbox studio)
 
-      // Couches vehicules
+      // Vehicles layers
       map.addLayer(
         {
           "id": "position-vehicules-stm",
@@ -222,7 +217,7 @@ class Livemap extends Component {
         }
       );
 
-      // Couches traces
+      // Traces layers
       map.addLayer({
         "id": "tracesSTM",
         "type": "line",
@@ -268,7 +263,7 @@ class Livemap extends Component {
         }
       });
 
-      // Couches Stops
+      // Stops layers
       map.addLayer(
         {
           "id": "stopsSTM",
@@ -307,15 +302,15 @@ class Livemap extends Component {
 
       // Couches route ANIM
 
-      map.addLayer({
-        "id": "routeAnimRTL",
-        "source": "routeAnimRTL",
-        "type": "line",
-        "paint": {
-          "line-width": 0,
-          "line-color": "#007cbf"
-        }
-      });
+      // map.addLayer({
+      //   "id": "routeAnimRTL",
+      //   "source": "routeAnimRTL",
+      //   "type": "line",
+      //   "paint": {
+      //     "line-width": 0,
+      //     "line-color": "#007cbf"
+      //   }
+      // });
 
       this.setState({ mapIsLoaded: true });
 
@@ -571,29 +566,29 @@ class Livemap extends Component {
         //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
         //avec un autre tooltip...
         <div className="mapToolTip" style={{ left: x, top: y }}>
-          <div>No de véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
-          <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
+          <div>Vehicle no: {hoveredFeatureSTM.properties.vehicle_id}</div>
+          <div>Route: {hoveredFeatureSTM.properties.route_id}</div>
           {/*<div>Axe: {nomLigneSTM[0].properties.route_name ? nomLigneSTM[0].properties.route_name : ''}</div>*/}
           <div>Trip: {hoveredFeatureSTM.properties.trip_id}</div>
-          <div>MAJ: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''} s</div>
+          <div>Last update: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''} s</div>
         </div>
       ) :
       hoveredFeatureSTL ?
         hoveredFeatureSTL && (
           <div className="mapToolTip" style={{ left: x, top: y }}>
-            <div>No de véhicule: {hoveredFeatureSTL.properties.vehicle_id}</div>
-            <div>Ligne: {hoveredFeatureSTL.properties.route_id}</div>
-            <div>MAJ : {hoveredFeatureSTL.properties.last_connection} s</div>
+            <div>Vehicle no: {hoveredFeatureSTL.properties.vehicle_id}</div>
+            <div>Route: {hoveredFeatureSTL.properties.route_id}</div>
+            <div>Last update: {hoveredFeatureSTL.properties.last_connection} s</div>
           </div>
         ) :
         hoveredFeatureRTL ?
           hoveredFeatureRTL && (
             <div className="mapToolTip" style={{ left: x, top: y }}>
-              <div>No de véhicule: {hoveredFeatureRTL.properties.vehicle_id}</div>
-              <div>Ligne: {hoveredFeatureRTL.properties.route_id}</div>
+              <div>Vehicle no: {hoveredFeatureRTL.properties.vehicle_id}</div>
+              <div>Route: {hoveredFeatureRTL.properties.route_id}</div>
               {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
               <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
-              <div>MAJ: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
+              <div>Last update: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
           ) : ''
     /*hoveredStopSTM ?

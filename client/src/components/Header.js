@@ -14,22 +14,22 @@ const Header = () => (
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav">
             <Link className="nav-item nav-link text-white" to="/" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-              Carte
+              Live Map
             </Link>
             <Link className="nav-item nav-link text-white" to="/historique" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-              Historique
+              History
             </Link>
             <li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                 style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-                Vue linéaire
+                Linear view
               </a>
               <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                 <Link className="dropdown-item" to="/livetrips" style={{ textDecoration: 'none' }}>
-                  Par départ
+                  Trip
                 </Link>
                 <Link className="dropdown-item" to="/liveroutes" style={{ textDecoration: 'none' }}>
-                  Par ligne
+                  Route
                 </Link>
               </div>
             </li>

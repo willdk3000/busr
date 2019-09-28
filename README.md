@@ -1,81 +1,87 @@
 # busr
 
-Application qui permet de localiser les bus de la STM de la STL et du RTL en temps réel.
+Web app for geolocation of public transit vehicles of the STM, STL and RTL in realtime.
 
-## Avant de débuter
+## Before you begin
 
-Le guide suivant permet d'installer une copie locale du projet et de l'exécuter pour utilisation.
+This guide is designed to help you install and run a local copy of this project.
 
-### Prérequis
+### Prerequisites
 
 ```
-Node
+Node.js
 PostgreSQL
-Un compte STM développeur avec une clé API
-Une clé API pour les données ouvertes EXO
-Un compte Mapbox avec une clé API
+STM developer portal account with API key
+API key for EXO realtime data
+Mapbox account with API key
 ```
 
 
-### Installation
-
-Installation étape par étape :
+### Installation and setup
 
 
 ```
-Copier le repo sur la machine locale
+Copy repo to local machine
 ```
 
 ```
->npm install // installation des dépendances du serveur
+>npm install // instal server dependencies
 >knex-migrate up
+
+```
+
+```
+Create /gtfs folder and download gtfs files, then
 >gulp import_tables_STM
 >gulp import_tables_STL
 >gulp import_tables_RTL
->cd client
->npm install // installation des dépendances du client
 ```
 
 ```
-Configurer le fichier .env du côté serveur (Accès BD, CLÉ STM, CLÉ EXO) 
-et du côté client (CLÉ MAPBOX)
+>cd client
+>npm install // install clien dependencies
+```
+
+```
+Create backend .env file with DB credentials, STM API key, EXO API key
+Create frontend .env file with Mapbox API key
 ```
 
 
 ```
 cd ..
-npm run start:dev // démarrage de l'app, devrait rouler sur localhost:3000
+npm run start:dev // startup app on localhost:3000
 ```
+When running, server requests data from STM, STL and EXO servers every 30 seconds.
 
-Le serveur fait une requête POST vers les serveurs de la STM, de la STL et de EXO, à toutes les 30 secondes.
+Data received is stored to PostgreSQL database.
 
-Les données reçues sont stockées dans la base de données.
-
-Quand un client se connecte au serveur, il démarre une boucle qui envoie les données
-de la BD vers le client aux 15 secondes.
+Loop starts when client connects sending him updated data every 5 seconds until
+he disconnects.
 
 ## Tech-Stack
 
 * [Express](https://expressjs.com/) - Framework
-* [SocketIO](https://socket.io/) - Communication bidirectionnelle
+* [SocketIO](https://socket.io/) - Server-client communication
 * [React](https://reactjs.org/) - Frontend
-* [ReactMapGL](https://uber.github.io/react-map-gl/#/) - Cartographie
-* [Recharts](http://recharts.org/en-US/) - Graphiques
+* [ReactMapGL](https://uber.github.io/react-map-gl/#/) - Maps
+* [Recharts](http://recharts.org/en-US/) - Graphs
 * [Bootstrap](https://getbootstrap.com/) - Styles
-* [Fontawesome](https://fontawesome.com/?from=io) - Icones
-* [PostgreSQL](https://www.postgresql.org/) - Base de données
+* [Fontawesome](https://fontawesome.com/?from=io) - Icons
+* [PostgreSQL](https://www.postgresql.org/) - Database
 
-## Auteur
+## Author
 
 * **William Doucet-Koussaya**
 
 ## License
 
-Ce projet est assujetti à la licence MIT - voir [LICENSE.md](LICENSE.md)
+This project is subject to MIT licence - see [LICENSE.md](LICENSE.md)
 
-## Autres librairies
+## Other libraries
 
 * create-react-app
 * momentjs
 * knex
 * gulp
+* protobufjs

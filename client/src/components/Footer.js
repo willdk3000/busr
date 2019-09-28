@@ -3,9 +3,9 @@ import React from 'react';
 const Footer = () => (
   <div className="container-fluid">
     <nav className="navbar sticky-bottom navbar-light bg-light">
-      <span className="navbar-brand"><a style={{ textDecoration: 'none' }} href="https://www.github.com/willdk3000/busr">&copy; busr 2019</a></span>
+      <span className="navbar-brand">&copy; busr 2019</span>
     </nav>
-  </div>
+  </div >
 );
 
 export default Footer;

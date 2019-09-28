@@ -403,15 +403,15 @@ class Livetrips extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h1 id="title-card" className="display-4">Vue linéaire : par départ</h1>
+              <h1 id="title-card" className="display-4">Linear view : by trip</h1>
             </div>
           </div>
           <div className="row justify-content-center">
             <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
-              Voyage planifié actif
+              Active planned trip
             </div>
             <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
-              Voyage planifié inactif
+              Inactive planned trip
             </div>
           </div>
 
@@ -451,16 +451,16 @@ class Livetrips extends Component {
                 <thead>
                   <tr>
                     <th style={{ width: "7.5%" }}>
-                      Ligne
+                      Route
                   </th>
                     <th style={{ width: "7.5%" }}>
                       Direction
                   </th>
                     <th style={{ width: "7.5%" }}>
-                      Heure de départ
+                      Start time
                   </th>
                     <th style={{ width: "7.5%" }}>
-                      Heure de fin
+                      End time
                   </th>
                     <th style={{ width: "70%" }}>
                       Trip ID
@@ -475,7 +475,7 @@ class Livetrips extends Component {
                         backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
                       }}>
                       <td>{e.route_id}</td>
-                      <td>{e.direction_id === 1 ? 'Centre-Ville' : 'Périphérie'}</td>
+                      <td>{e.direction_id === 1 ? 'Inbound' : 'Outbound'}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemin).format('H:mm:ss')}</td>
                       <td>{moment("2019-05-10").startOf('day').seconds(e.timemax).format('H:mm:ss')}</td>
                       <td
@@ -532,7 +532,7 @@ class Livetrips extends Component {
                             </td>
                           </tr> :
                           <tr>
-                            <td colSpan="5" style={{ textAlign: "center" }}> Sélectionner une agence</td>
+                            <td colSpan="5" style={{ textAlign: "center" }}> Select agency</td>
                           </tr>}
                 </tbody>
               </table>
@@ -540,7 +540,7 @@ class Livetrips extends Component {
           </div>
         </div >
         : <div className="container">
-          <div className="row justify-content-center">Chargement en cours...</div>
+          <div className="row justify-content-center">Loading...</div>
           <div className="row justify-content-center">
             <div><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></div>
           </div>
