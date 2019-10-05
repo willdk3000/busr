@@ -38,13 +38,24 @@ class Livemap extends Component {
         return e.reseau === 'RTL'
       }) : ''
 
+      const vehCITLA = positions ? positions[0].filter((e) => {
+        return e.reseau === 'CITLA'
+      }) : ''
+
+      const vehCITVR = positions ? positions[0].filter((e) => {
+        return e.reseau === 'CITVR'
+      }) : ''
+
       this.setState({
         vehiclesSTM: vehSTM[0].data,
         vehiclesSTL: vehSTL[0].data,
         vehiclesRTL: vehRTL[0].data,
+        vehiclesCITLA: vehCITLA[0].data,
+        vehiclesCITVR: vehCITVR[0].data,
         timestampSTM: vehSTM[0].timestr,
         timestampSTL: vehSTL[0].timestr,
         timestampRTL: vehRTL[0].timestr,
+        timestampCITLA: vehCITLA[0].timestr,
         plannedTripsRTL: positions ? positions[1] : '',
         plannedTripsSTL: positions ? positions[2] : '',
         plannedTripsSTM: positions ? positions[3] : ''
@@ -107,6 +118,20 @@ class Livemap extends Component {
 
       map.addSource(
         "vehiculesRTL", {
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
+      );
+
+      map.addSource(
+        "vehiculesCITLA", {
+        "type": "geojson",
+        "data": emptyGeoJSON
+      }
+      );
+
+      map.addSource(
+        "vehiculesCITVR", {
         "type": "geojson",
         "data": emptyGeoJSON
       }
@@ -217,6 +242,38 @@ class Livemap extends Component {
         }
       );
 
+      map.addLayer(
+        {
+          "id": "position-vehicules-citla",
+          "type": "symbol",
+          "source": "vehiculesCITLA",
+          "layout": {
+            'text-field': String.fromCharCode("0xF207"),
+            'text-font': ['Font Awesome 5 Free Solid'],
+            'text-size': 12
+          },
+          "paint": {
+            "text-color": "#000000"
+          }
+        }
+      );
+
+      map.addLayer(
+        {
+          "id": "position-vehicules-citvr",
+          "type": "symbol",
+          "source": "vehiculesCITVR",
+          "layout": {
+            'text-field': String.fromCharCode("0xF207"),
+            'text-font': ['Font Awesome 5 Free Solid'],
+            'text-size': 12
+          },
+          "paint": {
+            "text-color": "#000000"
+          }
+        }
+      );
+
       // Traces layers
       map.addLayer({
         "id": "tracesSTM",
@@ -323,7 +380,7 @@ class Livemap extends Component {
   //rafraichir les donnees avec les nouvelles donnees recues de socketio
   //au moment du update du component
   componentDidUpdate = async (prevProps, prevState) => {
-    const { vehiclesSTM, vehiclesSTL, vehiclesRTL } = this.state;
+    const { vehiclesSTM, vehiclesSTL, vehiclesRTL, vehiclesCITLA, vehiclesCITVR } = this.state;
     const { mapIsLoaded } = this.state;
 
     if (!mapIsLoaded) {
@@ -386,6 +443,32 @@ class Livemap extends Component {
 
     }
 
+    if (vehiclesCITLA !== prevState.vehiclesCITLA) {
+      this.map.getSource("vehiculesCITLA").setData(vehiclesCITLA);
+
+      const vehRoutesCITLA = this.state.vehiclesCITLA ? this.state.vehiclesCITLA.features.map((e) => {
+        return e.properties.route_id
+      }) : ''
+
+      const uniqueRoutesCITLA = [...new Set(vehRoutesCITLA)]
+
+      this.setState({ routesRTL: uniqueRoutesCITLA })
+
+    }
+
+    if (vehiclesCITVR !== prevState.vehiclesCITVR) {
+      this.map.getSource("vehiculesCITVR").setData(vehiclesCITVR);
+
+      const vehRoutesCITVR = this.state.vehiclesCITVR ? this.state.vehiclesCITVR.features.map((e) => {
+        return e.properties.route_id
+      }) : ''
+
+      const uniqueRoutesCITVR = [...new Set(vehRoutesCITVR)]
+
+      this.setState({ routesRTL: uniqueRoutesCITVR })
+
+    }
+
     //console.log(this.state)
 
   }
@@ -405,11 +488,17 @@ class Livemap extends Component {
 
     const hoveredFeatureRTL = features && features.find(f => f.layer.id === 'position-vehicules-rtl');
 
+    const hoveredFeatureCITLA = features && features.find(f => f.layer.id === 'position-vehicules-citla');
+
+    const hoveredFeatureCITVR = features && features.find(f => f.layer.id === 'position-vehicules-citvr');
+
     this.setState({
       hoveredFeatureSTM,
       hoveredStopSTM,
       hoveredFeatureSTL,
       hoveredFeatureRTL,
+      hoveredFeatureCITLA,
+      hoveredFeatureCITVR,
       x: offsetX,
       y: offsetY
     });
@@ -530,6 +619,8 @@ class Livemap extends Component {
       hoveredStopSTM,
       hoveredFeatureSTL,
       hoveredFeatureRTL,
+      hoveredFeatureCITLA,
+      hoveredFeatureCITVR,
       x, y, mapIsLoaded } = this.state;
 
 
@@ -538,6 +629,8 @@ class Livemap extends Component {
     const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
     const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
     const tripHoverRTL = hoveredFeatureRTL ? hoveredFeatureRTL.properties.trip_id : '';
+    const tripHoverCITLA = hoveredFeatureCITLA ? hoveredFeatureCITLA.properties.trip_id : '';
+    const tripHoverCITVR = hoveredFeatureCITVR ? hoveredFeatureCITVR.properties.trip_id : '';
 
 
     //Affectation du nom du trip ou de la ligne à une variable 
@@ -554,6 +647,18 @@ class Livemap extends Component {
     const nomLigneRTL = this.state.tracesRTL ? this.state.tracesRTL.features.filter((e) => {
       return e.properties.trips.some((f) => {
         return f === tripHoverRTL
+      })
+    }) : ''
+
+    const nomLigneCITLA = this.state.tracesCITLA ? this.state.tracesCITLA.features.filter((e) => {
+      return e.properties.trips.some((f) => {
+        return f === tripHoverCITLA
+      })
+    }) : ''
+
+    const nomLigneCITVR = this.state.tracesCITVR ? this.state.tracesCITVR.features.filter((e) => {
+      return e.properties.trips.some((f) => {
+        return f === tripHoverCITVR
       })
     }) : ''
 
@@ -590,7 +695,27 @@ class Livemap extends Component {
               <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
               <div>Last update: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
-          ) : ''
+          ) :
+          hoveredFeatureCITLA ?
+            hoveredFeatureCITLA && (
+              <div className="mapToolTip" style={{ left: x, top: y }}>
+                <div>Vehicle no: {hoveredFeatureCITLA.properties.vehicle_id}</div>
+                <div>Route: {hoveredFeatureCITLA.properties.route_id}</div>
+                {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
+                <div>Trip: {hoveredFeatureCITLA.properties.trip_id}</div>
+                <div>Last update: {hoveredFeatureCITLA.properties.timestamp ? hoveredFeatureCITLA.properties.timestamp : ''} s</div>
+              </div>
+            ) :
+            hoveredFeatureCITVR ?
+              hoveredFeatureCITVR && (
+                <div className="mapToolTip" style={{ left: x, top: y }}>
+                  <div>Vehicle no: {hoveredFeatureCITVR.properties.vehicle_id}</div>
+                  <div>Route: {hoveredFeatureCITVR.properties.route_id}</div>
+                  {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
+                  <div>Trip: {hoveredFeatureCITVR.properties.trip_id}</div>
+                  <div>Last update: {hoveredFeatureCITVR.properties.timestamp ? hoveredFeatureCITVR.properties.timestamp : ''} s</div>
+                </div>
+              ) : ''
     /*hoveredStopSTM ?
       hoveredStopSTM && (
         <div className="mapToolTip" style={{ left: x, top: y }}>
@@ -623,6 +748,10 @@ class Livemap extends Component {
           onlineVehiclesRTL={this.state.vehiclesRTL ? this.state.vehiclesRTL.features.length : 0}
           plannedVehiclesRTL={this.state.plannedTripsRTL ? this.state.plannedTripsRTL.length : 0}
           routesRTL={this.state.routesRTL ? this.state.routesRTL.length : 0}
+          lastRefreshEXO={this.state.timestampCITLA ? this.state.timestampCITLA : '-'}
+          onlineVehiclesEXO={this.state.vehiclesCITLA ? this.state.vehiclesCITLA.features.length + this.state.vehiclesCITVR.features.length : 0}
+          plannedVehiclesEXO={this.state.plannedTripsCITLA ? this.state.plannedTripsCITLA.length : 0}
+          routesEXO={this.state.routesCITLA ? this.state.routesCITLA.length : 0}
         />
         <MapGL
           {...viewport}

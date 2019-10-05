@@ -3,24 +3,17 @@
 // BUS-R
 
 // API gtfs realtime de la STM
-
-// Quota de requêtes
-// 1000 / day
-// Taux maximal
-// 10 / sec
-
-// Endpoints STM
-// POST /tripUpdates
-// POST /vehiclePositions
+// Max requete = 5 requêtes / seconde
+// 13 000 requêtes / jour
 
 // API 'nextbus' realtime de la STL
 // https://gist.github.com/grantland/7cf4097dd9cdf0dfed14
-
 // Max requete = 1 requête / 10sec
 
 // API gtfs realtime d'exo (RTL)
 // Max requête = 1 requête / 30 sec
 
+// Autres agences CITVR, CITLA, 
 //********************************************* */
 
 const request = require('request');
@@ -33,6 +26,9 @@ const controllers = require('./controllers')
 
 const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
 const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
+const API_URL_CITVR = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITVR`
+const API_URL_CITLA = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITLA`
+const API_URL_OMITSJU = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=OMITSJU`
 
 
 const requestSettingsSTM = {
@@ -45,9 +41,27 @@ const requestSettingsSTM = {
 };
 
 
-var requestSettingsRTL = {
+const requestSettingsRTL = {
   method: 'GET',
   url: API_URL_RTL,
+  encoding: null
+};
+
+const requestSettingsCITVR = {
+  method: 'GET',
+  url: API_URL_CITVR,
+  encoding: null
+};
+
+const requestSettingsCITLA = {
+  method: 'GET',
+  url: API_URL_CITLA,
+  encoding: null
+};
+
+const requestSettingsOMITSJU = {
+  method: 'GET',
+  url: API_URL_OMITSJU,
   encoding: null
 };
 
@@ -57,6 +71,9 @@ var requestSettingsRTL = {
 let vehArraySTM = [];
 let vehArraySTL = [];
 let vehArrayRTL = [];
+let vehArrayCITVR = [];
+let vehArrayCITLA = [];
+let vehArrayOMITSJU = [];
 
 module.exports = {
 
@@ -70,19 +87,6 @@ module.exports = {
 
 
     // Requete vers le serveur de la STM
-
-
-    // request(requestSettings, function (error, response, body) {
-    //   if (!error && response.statusCode == 200) {
-    //     var feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(body);
-    //     feed.entity.forEach(function(entity) {
-    //       if (entity.trip_update) {
-    //         console.log(entity.trip_update);
-    //       }
-    //     });
-    //   }
-    // });
-
     function requestDataSTM() {
       return new Promise(function (resolve, reject) {
         request(requestSettingsSTM, function (error, response, body) {
@@ -114,6 +118,33 @@ module.exports = {
         })
       });
     }
+
+    function requestDataCITLA() {
+      return new Promise(function (resolve, reject) {
+        request(requestSettingsCITLA, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            resolve(body);
+          }
+          else {
+            console.log(response.statusCode, error)
+          }
+        })
+      });
+    }
+
+    function requestDataCITVR() {
+      return new Promise(function (resolve, reject) {
+        request(requestSettingsCITVR, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            resolve(body);
+          }
+          else {
+            console.log(response.statusCode, error)
+          }
+        })
+      });
+    }
+
 
     async function main() {
 
@@ -179,9 +210,6 @@ module.exports = {
           vehicle_id: e.id,
           route_id: e.vehicle.trip.routeId,
           trip_id: e.vehicle.trip.tripId,
-          //start_time: e.vehicle.trip.startTime,
-          //start_date: e.vehicle.trip.startDate,
-          //current_stop_sequence: e.vehicle.currentStopSequence,
           timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
           server_request: new Date()
         });
@@ -189,6 +217,46 @@ module.exports = {
       })
 
       console.log('Nombre de bus en ligne RTL :', vehArrayRTL.length);
+
+
+      // GESTION VEHICULES CITLA
+      vehArrayCITLA = [];
+      let dataCITLA = await requestDataCITLA();
+      let feedCITLA = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(dataCITLA);
+      const vehiclesCITLA = Object.values(feedCITLA.entity);
+
+      vehiclesCITLA.forEach((e) => {
+        let vehPosCITLA = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+          vehicle_id: e.id,
+          route_id: e.vehicle.trip.routeId,
+          trip_id: e.vehicle.trip.tripId,
+          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
+          server_request: new Date()
+        });
+        vehArrayCITLA.push(vehPosCITLA);
+      })
+
+      console.log('Nombre de bus en ligne CITLA :', vehArrayCITLA.length);
+
+      // GESTION VEHICULES CITVR
+      vehArrayCITVR = [];
+      let dataCITVR = await requestDataCITVR();
+      let feedCITVR = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(dataCITVR);
+      const vehiclesCITVR = Object.values(feedCITVR.entity);
+
+      vehiclesCITVR.forEach((e) => {
+        let vehPosCITVR = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+          vehicle_id: e.id,
+          route_id: e.vehicle.trip.routeId,
+          trip_id: e.vehicle.trip.tripId,
+          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
+          server_request: new Date()
+        });
+        vehArrayCITVR.push(vehPosCITVR);
+      })
+
+      console.log('Nombre de bus en ligne CITVR :', vehArrayCITVR.length);
+
 
       // Insérer les données dans la BD
       const insertALL = await insertData();
@@ -203,10 +271,15 @@ module.exports = {
       let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
       let vehFeatRTL = turf.featureCollection(vehArrayRTL);
+      let vehFeatCITLA = turf.featureCollection(vehArrayCITLA);
+      let vehFeatCITVR = turf.featureCollection(vehArrayCITVR);
 
       const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
       const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
       const setPositionsRTL = await controllers.dataHandler.insertRTL(JSON.stringify([vehFeatRTL]));
+      const setPositionsCITLA = await controllers.dataHandler.insertCITLA(JSON.stringify([vehFeatCITLA]));
+      const setPositionsCITVR = await controllers.dataHandler.insertCITVR(JSON.stringify([vehFeatCITVR]));
+
 
       console.log('Nouvelles données insérées');
       return 'done'

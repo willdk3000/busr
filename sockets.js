@@ -57,12 +57,6 @@ function init(server) {
 
 }
 
-// async function emitPosition(io) {
-//     let data = await controllers.dataHandler.list();
-//     io.emit('refresh data', data[0])
-//     console.log('emitted!');
-// }
-
 module.exports = {
     init
 };

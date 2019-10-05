@@ -89,6 +89,62 @@ module.exports = {
             })
     },
 
+    insertCITLA(req, res) {
+        const veh_len = JSON.parse(req)[0].features.length;
+        const time = moment(new Date()).format('HH:mm:ss');
+
+        let timeNow = new Date();
+        let dayNow = timeNow.getDay();
+
+        return knex.raw(
+            `
+            WITH data_array AS (
+                SELECT 
+                NOW() AS timestamp,
+                LOCALTIME AS time,
+                jsonb_array_elements('${req}'::jsonb) AS data,
+                ${veh_len} AS vehlen,
+                '${dayNow}' as weekday ,
+                'CITLA' AS reseau,
+                '${time}' AS timestr
+            )
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
+            SELECT * FROM data_array
+            `
+        )
+            .then((result) => {
+                return 'done'
+            })
+    },
+
+    insertCITVR(req, res) {
+        const veh_len = JSON.parse(req)[0].features.length;
+        const time = moment(new Date()).format('HH:mm:ss');
+
+        let timeNow = new Date();
+        let dayNow = timeNow.getDay();
+
+        return knex.raw(
+            `
+            WITH data_array AS (
+                SELECT 
+                NOW() AS timestamp,
+                LOCALTIME AS time,
+                jsonb_array_elements('${req}'::jsonb) AS data,
+                ${veh_len} AS vehlen,
+                '${dayNow}' as weekday ,
+                'CITVR' AS reseau,
+                '${time}' AS timestr
+            )
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
+            SELECT * FROM data_array
+            `
+        )
+            .then((result) => {
+                return 'done'
+            })
+    },
+
     delete(req, res) {
         return knex.raw(
             `
