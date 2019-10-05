@@ -14,25 +14,28 @@ const Header = () => (
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav">
             <Link className="nav-item nav-link text-white" to="/" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-              Live Map
+              Carte
             </Link>
             <Link className="nav-item nav-link text-white" to="/historique" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-              History
+              Courbe de service
             </Link>
-            <li className="nav-item dropdown">
+            <Link className="nav-item nav-link text-white" to="/liveroutes" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+              Vue linéaire
+            </Link>
+            {/*<li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                 style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-                Linear view
+                Vue linéaire
               </a>
               <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                 <Link className="dropdown-item" to="/livetrips" style={{ textDecoration: 'none' }}>
-                  Trip
+                  Par voyage
                 </Link>
                 <Link className="dropdown-item" to="/liveroutes" style={{ textDecoration: 'none' }}>
-                  Route
+                  Par ligne
                 </Link>
               </div>
-            </li>
+</li>*/}
             {/*<Link className="nav-item nav-link text-white" to="/howto" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Aide
 </Link>*/}

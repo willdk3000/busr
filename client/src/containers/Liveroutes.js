@@ -378,15 +378,15 @@ class Liveroutes extends Component {
 
           <div className="row">
             <div className="col-sm">
-              <h1 id="title-card" className="display-4">Linear view : by route</h1>
+              <h1 id="title-card" className="display-4">Vue linéaire par ligne</h1>
             </div>
           </div>
           <div className="row justify-content-center">
             <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#E1FFE1" }}>
-              Active planned route
+              Voyage planifié actif
             </div>
             <div className="col-sm-4 mt-2 mb-2" style={{ textAlign: "center", backgroundColor: "#FFE2E2" }}>
-              Inactive planned route
+              Voyage planifié inactif
             </div>
           </div>
 
@@ -426,13 +426,13 @@ class Liveroutes extends Component {
                 <thead>
                   <tr>
                     <th style={{ width: "10%" }}>
-                      Route
+                      Ligne
                   </th>
                     <th style={{ width: "20%" }}>
                       Direction
                   </th>
                     <th style={{ width: "70%" }}>
-                      Route-dir
+                      Ligne-dir
                   </th>
                   </tr>
                 </thead>
@@ -444,7 +444,7 @@ class Liveroutes extends Component {
                         backgroundColor: e.online === 1 ? "#E1FFE1" : "#FFE2E2"
                       }}>
                       <td>{e.route_id}</td>
-                      <td>{e.direction_id === 1 ? 'Inbound' : 'Outbound'}</td>
+                      <td>{e.direction_id === 1 ? '1' : '0'}</td>
                       <td style={{
                         cursor: e.online === 1 ? 'pointer' : 'default'
                       }}
@@ -489,7 +489,7 @@ class Liveroutes extends Component {
                             </td>
                           </tr> :
                           <tr>
-                            <td colSpan="3" style={{ textAlign: "center" }}> Select agency</td>
+                            <td colSpan="3" style={{ textAlign: "center" }}> Sélectionner une agence</td>
                           </tr>}
                 </tbody>
               </table>
@@ -497,7 +497,7 @@ class Liveroutes extends Component {
           </div>
         </div >
         : <div className="container">
-          <div className="row justify-content-center">Loading...</div>
+          <div className="row justify-content-center">Chargement en cours...</div>
           <div className="row justify-content-center">
             <div><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></div>
           </div>
