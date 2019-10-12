@@ -156,6 +156,8 @@ module.exports = {
       let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(newData);
       const vehicles = Object.values(feed.entity);
 
+      console.log(vehicles);
+
       vehicles.forEach((e) => {
         let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
           vehicle_id: e.id,

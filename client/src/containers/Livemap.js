@@ -452,7 +452,7 @@ class Livemap extends Component {
 
       const uniqueRoutesCITLA = [...new Set(vehRoutesCITLA)]
 
-      this.setState({ routesRTL: uniqueRoutesCITLA })
+      this.setState({ routesCITLA: uniqueRoutesCITLA })
 
     }
 
@@ -465,7 +465,7 @@ class Livemap extends Component {
 
       const uniqueRoutesCITVR = [...new Set(vehRoutesCITVR)]
 
-      this.setState({ routesRTL: uniqueRoutesCITVR })
+      this.setState({ routesCITVR: uniqueRoutesCITVR })
 
     }
 
@@ -671,49 +671,49 @@ class Livemap extends Component {
         //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
         //avec un autre tooltip...
         <div className="mapToolTip" style={{ left: x, top: y }}>
-          <div>Vehicle no: {hoveredFeatureSTM.properties.vehicle_id}</div>
-          <div>Route: {hoveredFeatureSTM.properties.route_id}</div>
+          <div>Véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
+          <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
           {/*<div>Axe: {nomLigneSTM[0].properties.route_name ? nomLigneSTM[0].properties.route_name : ''}</div>*/}
-          <div>Trip: {hoveredFeatureSTM.properties.trip_id}</div>
-          <div>Last update: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''} s</div>
+          <div>Trip ID: {hoveredFeatureSTM.properties.trip_id}</div>
+          <div>Mise à jour: {hoveredFeatureSTM.properties.timestamp ? hoveredFeatureSTM.properties.timestamp : ''} s</div>
         </div>
       ) :
       hoveredFeatureSTL ?
         hoveredFeatureSTL && (
           <div className="mapToolTip" style={{ left: x, top: y }}>
-            <div>Vehicle no: {hoveredFeatureSTL.properties.vehicle_id}</div>
-            <div>Route: {hoveredFeatureSTL.properties.route_id}</div>
-            <div>Last update: {hoveredFeatureSTL.properties.last_connection} s</div>
+            <div>Véhicule: {hoveredFeatureSTL.properties.vehicle_id}</div>
+            <div>Ligne: {hoveredFeatureSTL.properties.route_id}</div>
+            <div>Mise à jour: {hoveredFeatureSTL.properties.last_connection} s</div>
           </div>
         ) :
         hoveredFeatureRTL ?
           hoveredFeatureRTL && (
             <div className="mapToolTip" style={{ left: x, top: y }}>
-              <div>Vehicle no: {hoveredFeatureRTL.properties.vehicle_id}</div>
-              <div>Route: {hoveredFeatureRTL.properties.route_id}</div>
+              <div>Véhicule: {hoveredFeatureRTL.properties.vehicle_id}</div>
+              <div>Ligne: {hoveredFeatureRTL.properties.route_id}</div>
               {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
-              <div>Trip: {hoveredFeatureRTL.properties.trip_id}</div>
-              <div>Last update: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
+              <div>Trip ID: {hoveredFeatureRTL.properties.trip_id}</div>
+              <div>Mise à jour: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
           ) :
           hoveredFeatureCITLA ?
             hoveredFeatureCITLA && (
               <div className="mapToolTip" style={{ left: x, top: y }}>
-                <div>Vehicle no: {hoveredFeatureCITLA.properties.vehicle_id}</div>
-                <div>Route: {hoveredFeatureCITLA.properties.route_id}</div>
+                <div>Véhicule: {hoveredFeatureCITLA.properties.vehicle_id}</div>
+                <div>Ligne: {hoveredFeatureCITLA.properties.route_id}</div>
                 {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
-                <div>Trip: {hoveredFeatureCITLA.properties.trip_id}</div>
-                <div>Last update: {hoveredFeatureCITLA.properties.timestamp ? hoveredFeatureCITLA.properties.timestamp : ''} s</div>
+                <div>Trip ID: {hoveredFeatureCITLA.properties.trip_id}</div>
+                <div>Mise à jour: {hoveredFeatureCITLA.properties.timestamp ? hoveredFeatureCITLA.properties.timestamp : ''} s</div>
               </div>
             ) :
             hoveredFeatureCITVR ?
               hoveredFeatureCITVR && (
                 <div className="mapToolTip" style={{ left: x, top: y }}>
-                  <div>Vehicle no: {hoveredFeatureCITVR.properties.vehicle_id}</div>
-                  <div>Route: {hoveredFeatureCITVR.properties.route_id}</div>
+                  <div>Véhicule: {hoveredFeatureCITVR.properties.vehicle_id}</div>
+                  <div>Ligne: {hoveredFeatureCITVR.properties.route_id}</div>
                   {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
-                  <div>Trip: {hoveredFeatureCITVR.properties.trip_id}</div>
-                  <div>Last update: {hoveredFeatureCITVR.properties.timestamp ? hoveredFeatureCITVR.properties.timestamp : ''} s</div>
+                  <div>Trip ID: {hoveredFeatureCITVR.properties.trip_id}</div>
+                  <div>Mise à jour: {hoveredFeatureCITVR.properties.timestamp ? hoveredFeatureCITVR.properties.timestamp : ''} s</div>
                 </div>
               ) : ''
     /*hoveredStopSTM ?
@@ -751,7 +751,7 @@ class Livemap extends Component {
           lastRefreshEXO={this.state.timestampCITLA ? this.state.timestampCITLA : '-'}
           onlineVehiclesEXO={this.state.vehiclesCITLA ? this.state.vehiclesCITLA.features.length + this.state.vehiclesCITVR.features.length : 0}
           plannedVehiclesEXO={this.state.plannedTripsCITLA ? this.state.plannedTripsCITLA.length : 0}
-          routesEXO={this.state.routesCITLA ? this.state.routesCITLA.length : 0}
+          routesEXO={this.state.routesCITLA ? this.state.routesCITLA.length + this.state.routesCITVR.length : 0}
         />
         <MapGL
           {...viewport}
