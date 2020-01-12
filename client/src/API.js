@@ -3,8 +3,8 @@ import io from "socket.io-client";
 //const API_URL = 'http://192.168.0.146:5000'
 
 const socket = process.env.NODE_ENV === 'production' ?
-  io.connect('busr-mtl.herokuapp.com', { transports: ['websocket'] }) :
-  io.connect('http://localhost:5000', { transports: ['websocket'] })
+  io.connect('busr.ngrok.io', { transports: ['websocket'] }) :
+  io.connect('http://192.168.0.174:5000', { transports: ['websocket'] })
 
 
 // Fonctions realtime
