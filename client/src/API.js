@@ -6,7 +6,7 @@ import io from "socket.io-client";
 //   io.connect('busr-mtl.herokuapp.com', { transports: ['websocket'] }) :
 //   io.connect('http://localhost:5000', { transports: ['websocket'] })
 
-const socket = io.connect('http://localhost:5000', { transports: ['websocket'] })
+const socket = io.connect('http://192.168.0.174:5000', { transports: ['websocket'] })
 
 // Fonctions realtime
 
