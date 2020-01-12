@@ -6,7 +6,6 @@ const api = require('./API.js')
 
 let socketCount = 0;
 let timers = 0;
-//const removeData = controllers.dataHandler.delete();
 
 function init(server) {
     const io = socketIO(server, { transports: ['websocket'] });
@@ -36,7 +35,7 @@ function init(server) {
                 let plannedTripsSTL = await controllers.gtfsHandler.getPlannedTripsSTL();
                 let plannedTripsSTM = await controllers.gtfsHandler.getPlannedTripsSTM();
                 io.emit('refresh data', [newData, plannedTripsRTL, plannedTripsSTL, plannedTripsSTM]);
-                console.log('emitted!')
+                console.log('emitted!');
             }, interval);
 
         });

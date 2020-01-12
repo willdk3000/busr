@@ -26,9 +26,20 @@ const controllers = require('./controllers')
 
 const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
 const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
+
+//exo
 const API_URL_CITVR = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITVR`
 const API_URL_CITLA = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITLA`
 const API_URL_OMITSJU = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=OMITSJU`
+const API_URL_MRCLASSO = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=MRCLASSO`
+const API_URL_MRCLM = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=MRCLM`
+const API_URL_CITCRC = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITCRC`
+const API_URL_CITHSL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITHSL`
+const API_URL_CITPI = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITPI`
+const API_URL_CITLR = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITLR`
+const API_URL_CITROUS = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITROUS`
+const API_URL_CITSV = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITSV`
+const API_URL_CITSO = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITSO`
 
 
 const requestSettingsSTM = {
@@ -145,6 +156,19 @@ module.exports = {
       });
     }
 
+    function requestDataOMITSJU() {
+      return new Promise(function (resolve, reject) {
+        request(requestSettingsOMITSJU, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            resolve(body);
+          }
+          else {
+            console.log(response.statusCode, error)
+          }
+        })
+      });
+    }
+
 
     async function main() {
 
@@ -156,7 +180,7 @@ module.exports = {
       let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(newData);
       const vehicles = Object.values(feed.entity);
 
-      console.log(vehicles);
+      //console.log(vehicles);
 
       vehicles.forEach((e) => {
         let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
@@ -260,9 +284,28 @@ module.exports = {
       console.log('Nombre de bus en ligne CITVR :', vehArrayCITVR.length);
 
 
+      // GESTION VEHICULES OMITSJU
+      vehArrayOMITSJU = [];
+      let dataOMITSJU = await requestDataOMITSJU();
+      let feedOMITSJU = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(dataOMITSJU);
+      const vehiclesOMITSJU = Object.values(feedOMITSJU.entity);
+
+      vehiclesOMITSJU.forEach((e) => {
+        let vehPosOMITSJU = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+          vehicle_id: e.id,
+          route_id: e.vehicle.trip.routeId,
+          trip_id: e.vehicle.trip.tripId,
+          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
+          server_request: new Date()
+        });
+        vehArrayOMITSJU.push(vehPosOMITSJU);
+      })
+
+      console.log('Nombre de bus en ligne OMITSJU :', vehArrayOMITSJU.length);
+
       // Insérer les données dans la BD
       const insertALL = await insertData();
-      console.log('Mise a jour complétée');
+      console.log('Update complete');
 
       return 'done'
 
@@ -270,20 +313,30 @@ module.exports = {
 
     // Insertion des données dans la BD
     async function insertData() {
+
+      // Deleting data history everytime data is fetched can cause problems if
+      // 2 users are connected at the same time. If a user is getting the data
+      // and a second user connects, the data will delete and render an error
+      // for the first user.
+
+      //const removeData = await deleteAll();
+
       let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
       let vehFeatRTL = turf.featureCollection(vehArrayRTL);
       let vehFeatCITLA = turf.featureCollection(vehArrayCITLA);
       let vehFeatCITVR = turf.featureCollection(vehArrayCITVR);
+      let vehFeatOMITSJU = turf.featureCollection(vehArrayOMITSJU);
 
       const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
       const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
       const setPositionsRTL = await controllers.dataHandler.insertRTL(JSON.stringify([vehFeatRTL]));
       const setPositionsCITLA = await controllers.dataHandler.insertCITLA(JSON.stringify([vehFeatCITLA]));
       const setPositionsCITVR = await controllers.dataHandler.insertCITVR(JSON.stringify([vehFeatCITVR]));
+      const setPositionsOMITSJU = await controllers.dataHandler.insertOMITSJU(JSON.stringify([vehFeatOMITSJU]));
 
 
-      console.log('Nouvelles données insérées');
+      console.log('New data inserted');
       return 'done'
     }
 

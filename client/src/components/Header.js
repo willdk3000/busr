@@ -18,10 +18,11 @@ const Header = () => (
             </Link>
             <Link className="nav-item nav-link text-white" to="/historique" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Courbe de service
-            </Link>
+              </Link>
             <Link className="nav-item nav-link text-white" to="/liveroutes" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Vue linéaire
             </Link>
+
             {/*<li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                 style={{ textDecoration: 'none', color: '#FFFFFF' }}>
