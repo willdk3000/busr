@@ -23,7 +23,7 @@ const app = express();
 //
 //////////////////////////
 
-//app.use(helmet());
+app.use(helmet());
 
 //CORS pour socketio
 // app.use(function (req, res, next) {
