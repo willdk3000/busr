@@ -6,7 +6,10 @@ import io from "socket.io-client";
 //   io.connect('busr.ngrok.io', { transports: ['websocket'] }) :
 //   io.connect('http://192.168.0.174:5000', { transports: ['websocket'] })
 
-const socket = io.connect('http://busr.ngrok.io:5000', { transports: ['websocket'] })
+//const socket = io.connect('http://192.168.0.174:5000', { transports: ['websocket'] })
+
+const socket = io.connect({ transports: ['websocket'] })
+
 
 // Fonctions realtime
 
