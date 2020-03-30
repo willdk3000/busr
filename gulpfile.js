@@ -1,10 +1,10 @@
 /* gulpfile */
 
 const gulp = require('gulp'),
-    knex = require('./config/knex'),
-    path_stm = __dirname + '/gtfs/STM/' + '202001',
-    path_stl = __dirname + '/gtfs/STL/' + '202001',
-    path_rtl = __dirname + '/gtfs/RTL/' + '202001'
+  knex = require('./config/knex'),
+  path_stm = __dirname + '/gtfs/STM/' + '202001',
+  path_stl = __dirname + '/gtfs/STL/' + '202001',
+  path_rtl = __dirname + '/gtfs/RTL/' + '202003'
 
 //Initialisation
 //gulp.task('default', function() {
@@ -13,8 +13,8 @@ const gulp = require('gulp'),
 
 //Importer tables STM
 gulp.task('import_tables_STM', function (done) {
-    return knex.raw(
-        `\COPY "public".routes FROM '${path_stm}/routes.txt' DELIMITER ',' CSV HEADER;
+  return knex.raw(
+    `\COPY "public".routes FROM '${path_stm}/routes.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stm}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence) FROM '${path_stm}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".trips (route_id,service_id,trip_id,trip_headsign,direction_id,shape_id,wheelchair_accessible,note_fr,note_en) FROM '${path_stm}/trips.txt' DELIMITER ',' CSV HEADER;
@@ -68,13 +68,13 @@ gulp.task('import_tables_STM', function (done) {
         FROM tripdays
         WHERE calendar.service_id = tripdays.service_id;
         `
-    ).then(done());
+  ).then(done());
 })
 
 //Importer tables STL
 gulp.task('import_tables_STL', function (done) {
-    return knex.raw(
-        `\COPY "STL".routes FROM '${path_stl}/routes.txt' DELIMITER ',' CSV HEADER;
+  return knex.raw(
+    `\COPY "STL".routes FROM '${path_stl}/routes.txt' DELIMITER ',' CSV HEADER;
         \COPY "STL".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stl}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY "STL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) FROM '${path_stl}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY "STL".trips (route_id,service_id,trip_id,block_id,shape_id,trip_headsign) FROM '${path_stl}/trips.txt' DELIMITER ',' CSV HEADER;
@@ -128,13 +128,13 @@ gulp.task('import_tables_STL', function (done) {
         UPDATE "STL".calendar set rundays = tripdays.rundays
         FROM tripdays
         WHERE "STL".calendar.service_id = tripdays.service_id;`
-    ).then(done());
+  ).then(done());
 })
 
 //Importer tables RTL
 gulp.task('import_tables_RTL', function (done) {
-    return knex.raw(
-        `\COPY "RTL".routes FROM '${path_rtl}/routes.txt' DELIMITER ',' CSV HEADER;
+  return knex.raw(
+    `\COPY "RTL".routes FROM '${path_rtl}/routes.txt' DELIMITER ',' CSV HEADER;
         \COPY "RTL".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled) FROM '${path_rtl}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY "RTL".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint) FROM '${path_rtl}/stop_times.txt' DELIMITER ',' CSV HEADER;
         \COPY "RTL".stops (stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,wheelchair_boarding) FROM '${path_rtl}/stops.txt' DELIMITER ',' CSV HEADER;
@@ -187,7 +187,7 @@ gulp.task('import_tables_RTL', function (done) {
         UPDATE "RTL".calendar set rundays = tripdays.rundays
         FROM tripdays
         WHERE "RTL".calendar.service_id = tripdays.service_id;  `
-    ).then(done());
+  ).then(done());
 })
 
 
