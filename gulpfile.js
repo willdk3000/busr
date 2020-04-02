@@ -3,7 +3,7 @@
 const gulp = require('gulp'),
   knex = require('./config/knex'),
   path_stm = __dirname + '/gtfs/STM/' + '202003',
-  path_stl = __dirname + '/gtfs/STL/' + '202001',
+  path_stl = __dirname + '/gtfs/STL/' + '202003',
   path_rtl = __dirname + '/gtfs/RTL/' + '202003'
 
 //Initialisation
