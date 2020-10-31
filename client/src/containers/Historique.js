@@ -204,7 +204,7 @@ class Historique extends Component {
 
       </div>
     ) : <div className="container">
-        <div className="row justify-content-center">Loading...</div>
+        <div className="row justify-content-center">Chargement en cours...</div>
         <div className="row justify-content-center">
           <div><ReactLoading type={"bars"} color={"#277D98"} height={300} width={175} /></div>
         </div>

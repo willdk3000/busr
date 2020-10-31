@@ -5,9 +5,11 @@ const controllers = require('./controllers')
 const api = require('./API.js')
 
 let socketCount = 0;
-let timers = 0;
+
 
 function init(server) {
+    let timers = 0;
+    
     const io = socketIO(server, { transports: ['websocket'] });
     console.log('sockets server listening...')
 
@@ -22,8 +24,8 @@ function init(server) {
         //     `Client with id ${socket.id} connected. Total connections : ${socketCount}`);
         let intervalId;
 
-        socket.on('subscribeToTimer', (interval) => {
-            timers++;
+        socket.on('subscribeToTimer', async (interval) => {
+            await timers++;
 
             console.log('Client is subscribing to timer with interval ', interval);
             console.log('Active timers : ' + timers)
@@ -40,15 +42,17 @@ function init(server) {
 
         });
 
-        socket.on('leave', () => {
-            timers--;
+        socket.on('leave', async () => {
+            await timers--;
             console.log('Client changed page. ' + timers + ' timers left.')
             clearInterval(intervalId);
         });
 
         socket.on('disconnect', () => {
             socketCount--
+            timers--;
             console.log('User disconnected : ' + socketCount + ' connections left.');
+            console.log('Active timers : ' + timers)
             clearInterval(intervalId);
         })
 

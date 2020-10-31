@@ -536,12 +536,14 @@ class Livemap extends Component {
     const clickedFeatureSTL = features && features.find(f => f.layer.id === 'position-vehicules-stl');
     const clickedFeatureRTL = features && features.find(f => f.layer.id === 'position-vehicules-rtl');
 
+    console.log(clickedFeatureSTM);
 
     // Identification du trip (stm, rtl) ou de la ligne (stl) cliqué
     const tripClickSTM = clickedFeatureSTM ? clickedFeatureSTM.properties.trip_id : '';
     const routeClickSTL = clickedFeatureSTL ? clickedFeatureSTL.properties.route_id : '';
     const tripClickRTL = clickedFeatureRTL ? clickedFeatureRTL.properties.trip_id : '';
 
+    console.log(tripClickSTM);
 
     // Détermination du shape à faire apparaître en fonction du trip ou de la ligne cliqué.
     const traceSTM = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
@@ -549,6 +551,9 @@ class Livemap extends Component {
         return f === tripClickSTM
       })
     }) : ''
+
+    console.log(traceSTM);
+
 
     const traceSTL = this.state.tracesSTL ? this.state.tracesSTL.features.filter((e) => {
       return e.properties.route_short_name === routeClickSTL

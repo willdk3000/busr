@@ -2,9 +2,9 @@
 
 const gulp = require('gulp'),
   knex = require('./config/knex'),
-  path_stm = __dirname + '/gtfs/STM/' + '202003',
-  path_stl = __dirname + '/gtfs/STL/' + '202003',
-  path_rtl = __dirname + '/gtfs/RTL/' + '202003'
+  path_stm = __dirname + '/gtfs/STM/' + '202008',
+  path_stl = __dirname + '/gtfs/STL/' + '202008',
+  path_rtl = __dirname + '/gtfs/RTL/' + '202008'
 
 //Initialisation
 //gulp.task('default', function() {
@@ -68,7 +68,7 @@ gulp.task('import_tables_STM', function (done) {
         FROM tripdays
         WHERE calendar.service_id = tripdays.service_id;
         `
-  ).then(done());
+  ).then(()=>done());
 })
 
 //Importer tables STL
@@ -128,7 +128,7 @@ gulp.task('import_tables_STL', function (done) {
         UPDATE "STL".calendar set rundays = tripdays.rundays
         FROM tripdays
         WHERE "STL".calendar.service_id = tripdays.service_id;`
-  ).then(done());
+  ).then(()=>done());
 })
 
 //Importer tables RTL
@@ -187,7 +187,7 @@ gulp.task('import_tables_RTL', function (done) {
         UPDATE "RTL".calendar set rundays = tripdays.rundays
         FROM tripdays
         WHERE "RTL".calendar.service_id = tripdays.service_id;  `
-  ).then(done());
+  ).then(()=>done());
 })
 
 
