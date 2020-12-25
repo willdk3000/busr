@@ -1,5 +1,5 @@
 
-exports.up = function (knex, Promise) {
+exports.up = function (knex) {
   return knex.raw(
     `
     CREATE TABLE "public".vehicles
@@ -20,6 +20,6 @@ exports.up = function (knex, Promise) {
   )
 };
 
-exports.down = function (knex, Promise) {
+exports.down = function (knex) {
   return knex.raw(`DROP TABLE "public".vehicles`)
 };

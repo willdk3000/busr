@@ -13,7 +13,8 @@ exports.up = function (knex, Promise) {
                     shapes.shape_id
                 FROM public.shapes
                 ORDER BY shape_id, shapes.shape_pt_sequence) bp
-                GROUP BY bp.shape_id,
+                GROUP BY bp.shape_id
+            ),
         routeshape AS (
             SELECT DISTINCT ON (trips.trip_id) routes_geom,
                 tableroutes.shape_id,

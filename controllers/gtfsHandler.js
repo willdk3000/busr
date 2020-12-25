@@ -65,6 +65,7 @@ module.exports = {
       seconds28 = seconds + 86400
     }
 
+    //Sunday = 0
     let dayNow = timeNow.getDay();
 
     let service = 0;
@@ -311,6 +312,8 @@ module.exports = {
       plantrips.service_id,
       plantrips.route_id,
       plantrips.stopcount,
+      plantrips.timemin,
+      plantrips.timemax,
       weekdayrun.active,
 	    rundates.start_date,
 	    rundates.end_date

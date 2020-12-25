@@ -1,19 +1,28 @@
+/* gtfs files */
+/* 
+STL : wget http://www.stl.laval.qc.ca/opendata/GTF_STL.zip
+RTL : wget https://www.rtl-longueuil.qc.ca/transit/latestfeed/RTL.zip
+STM : wget http://www.stm.info/sites/default/files/gtfs/gtfs_stm.zip
+*/
+
 /* gulpfile */
 
 const gulp = require('gulp'),
   knex = require('./config/knex'),
   path_stm = __dirname + '/gtfs/STM/' + '202008',
   path_stl = __dirname + '/gtfs/STL/' + '202008',
-  path_rtl = __dirname + '/gtfs/RTL/' + '202008'
+  path_rtl = __dirname + '/gtfs/RTL/' + '202010'
 
 //Initialisation
 //gulp.task('default', function() {
 //    return gutil.log('Gulp is running!')
 //});
 
+//202008-GTFS pris de transitfeed pendant que site STM en panne avait une lettre dans le shape_id donc bogue
+
 //Importer tables STM
 gulp.task('import_tables_STM', function (done) {
-  return knex.raw(
+    return knex.raw(
     `\COPY "public".routes FROM '${path_stm}/routes.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".shapes (shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence) FROM '${path_stm}/shapes.txt' DELIMITER ',' CSV HEADER;
         \COPY "public".stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence) FROM '${path_stm}/stop_times.txt' DELIMITER ',' CSV HEADER;
@@ -66,8 +75,7 @@ gulp.task('import_tables_STM', function (done) {
         )
         UPDATE "public".calendar set rundays = tripdays.rundays
         FROM tripdays
-        WHERE calendar.service_id = tripdays.service_id;
-        `
+        WHERE calendar.service_id = tripdays.service_id;`
   ).then(()=>done());
 })
 

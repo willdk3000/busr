@@ -24,7 +24,7 @@ const moment = require('moment')
 
 const controllers = require('./controllers')
 
-const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
+const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1/vehiclePositions`;
 const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
 
 //exo
@@ -173,31 +173,31 @@ module.exports = {
     async function main() {
 
       // // GESTION VEHICULES STM
-      // vehArraySTM = [];
+      vehArraySTM = [];
 
-      // console.log('requesting STM data...');
-      // let newData = await requestDataSTM();
+      //console.log('requesting STM data...');
+      let newData = await requestDataSTM();
 
-      // let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(newData);
-      // const vehicles = Object.values(feed.entity);
+      let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(newData);
+      const vehicles = Object.values(feed.entity);
 
-      // //console.log(vehicles);
+      //console.log(vehicles);
 
-      // vehicles.forEach((e) => {
-      //   let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
-      //     vehicle_id: e.id,
-      //     route_id: e.vehicle.trip.routeId,
-      //     trip_id: e.vehicle.trip.tripId,
-      //     start_time: e.vehicle.trip.startTime,
-      //     start_date: e.vehicle.trip.startDate,
-      //     current_stop_sequence: e.vehicle.currentStopSequence,
-      //     timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
-      //     server_request: new Date()
-      //   });
-      //   vehArraySTM.push(vehPos);
-      // })
+      vehicles.forEach((e) => {
+        let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+          vehicle_id: e.id,
+          route_id: e.vehicle.trip.routeId,
+          trip_id: e.vehicle.trip.tripId,
+          start_time: e.vehicle.trip.startTime,
+          start_date: e.vehicle.trip.startDate,
+          current_stop_sequence: e.vehicle.currentStopSequence,
+          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
+          server_request: new Date()
+        });
+        vehArraySTM.push(vehPos);
+      })
 
-      // console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
+      console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
 
       // GESTION VEHICULES STL
       // L'API nextbus ne donne pas les mêmes infos que gtfs-r
@@ -322,14 +322,14 @@ module.exports = {
 
       //const removeData = await deleteAll();
 
-      //let vehFeatSTM = turf.featureCollection(vehArraySTM);
+      let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
       let vehFeatRTL = turf.featureCollection(vehArrayRTL);
       let vehFeatCITLA = turf.featureCollection(vehArrayCITLA);
       let vehFeatCITVR = turf.featureCollection(vehArrayCITVR);
       let vehFeatOMITSJU = turf.featureCollection(vehArrayOMITSJU);
 
-      //const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
+      const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
       const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
       const setPositionsRTL = await controllers.dataHandler.insertRTL(JSON.stringify([vehFeatRTL]));
       const setPositionsCITLA = await controllers.dataHandler.insertCITLA(JSON.stringify([vehFeatCITLA]));
