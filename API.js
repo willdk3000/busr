@@ -16,15 +16,17 @@
 // Autres agences CITVR, CITLA, 
 //********************************************* */
 
+require('dotenv').config()
 const request = require('request');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
-const fetch = require('node-fetch');
 const turf = require('@turf/turf');
-const moment = require('moment')
+const moment = require('moment');
+const fetch = require('node-fetch');
+
 
 const controllers = require('./controllers')
 
-const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1/vehiclePositions`;
+const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
 const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
 
 //exo
@@ -40,16 +42,6 @@ const API_URL_CITLR = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosit
 const API_URL_CITROUS = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITROUS`
 const API_URL_CITSV = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITSV`
 const API_URL_CITSO = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=CITSO`
-
-
-const requestSettingsSTM = {
-  method: 'POST',
-  headers: {
-    'apikey': process.env.API_KEY_STM
-  },
-  url: `${API_URL_STM}/vehiclePositions`,
-  encoding: null
-};
 
 
 const requestSettingsRTL = {
@@ -96,20 +88,7 @@ module.exports = {
       return 'done'
     }
 
-
-    // Requete vers le serveur de la STM
-    function requestDataSTM() {
-      return new Promise(function (resolve, reject) {
-        request(requestSettingsSTM, function (error, response, body) {
-          if (!error && response.statusCode == 200) {
-            resolve(body);
-          } else {
-            console.log(response.statusCode, error)
-          }
-        });
-      })
-    }
-
+    
     // Requete vers le serveur de nextbus (STL)
     async function requestDataSTL(epochTime) {
       const response = await fetch(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=stl&t=${epochTime}`)
@@ -170,32 +149,63 @@ module.exports = {
     }
 
 
+    function handleSTM() {
+
+      const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
+      
+      const requestSettingsSTM = {
+          method: 'POST',
+          headers: {
+            'apikey': process.env.API_KEY_STM
+          },
+          url: `${API_URL_STM}/vehiclePositions`,
+          encoding: null
+        };
+      
+        const myPromiseSTM = new Promise((resolve, reject) => {  
+          request(requestSettingsSTM, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+              resolve(body);
+            }
+            else {
+              console.log(response.statusCode, error)
+            }
+          })
+        });
+      
+          
+        myPromiseSTM.then((message) => { 
+          let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(message);
+          //console.log('feed', feed);
+          const vehicles = Object.values(feed.entity);
+          //console.log('vehicles', vehicles)
+          vehicles.forEach((e) => {
+            let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+              vehicle_id: e.id,
+              route_id: e.vehicle.trip.routeId,
+              trip_id: e.vehicle.trip.tripId,
+              start_time: e.vehicle.trip.startTime,
+              start_date: e.vehicle.trip.startDate,
+              current_stop_sequence: e.vehicle.currentStopSequence,
+              timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
+              server_request: new Date()
+            });
+            vehArraySTM.push(vehPos);
+          })
+          //console.log(vehArraySTM);
+        }).catch((message) => { 
+          console.log(message);
+        })
+      
+      };
+
+
+
+
     async function main() {
 
-      // // GESTION VEHICULES STM
       vehArraySTM = [];
-
-      //console.log('requesting STM data...');
-      let newData = await requestDataSTM();
-
-      let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(newData);
-      const vehicles = Object.values(feed.entity);
-
-      //console.log(vehicles);
-
-      vehicles.forEach((e) => {
-        let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
-          vehicle_id: e.id,
-          route_id: e.vehicle.trip.routeId,
-          trip_id: e.vehicle.trip.tripId,
-          start_time: e.vehicle.trip.startTime,
-          start_date: e.vehicle.trip.startDate,
-          current_stop_sequence: e.vehicle.currentStopSequence,
-          timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
-          server_request: new Date()
-        });
-        vehArraySTM.push(vehPos);
-      })
+      handleSTM();
 
       console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
 
@@ -231,6 +241,8 @@ module.exports = {
       let feedRTL = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(dataRTL);
 
       const vehiclesRTL = Object.values(feedRTL.entity);
+
+      console.log(vehiclesRTL);
 
       vehiclesRTL.forEach((e) => {
         let vehPosRTL = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {

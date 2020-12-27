@@ -36,6 +36,7 @@ function init(server) {
                 let plannedTripsRTL = await controllers.gtfsHandler.getPlannedTripsRTL();
                 let plannedTripsSTL = await controllers.gtfsHandler.getPlannedTripsSTL();
                 let plannedTripsSTM = await controllers.gtfsHandler.getPlannedTripsSTM();
+
                 io.emit('refresh data', [newData, plannedTripsRTL, plannedTripsSTL, plannedTripsSTM]);
                 console.log('emitted!');
             }, interval);
