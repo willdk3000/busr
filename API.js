@@ -242,7 +242,7 @@ module.exports = {
 
       const vehiclesRTL = Object.values(feedRTL.entity);
 
-      console.log(vehiclesRTL);
+      //console.log(vehiclesRTL);
 
       vehiclesRTL.forEach((e) => {
         let vehPosRTL = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {

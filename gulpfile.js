@@ -9,7 +9,7 @@ STM : wget http://www.stm.info/sites/default/files/gtfs/gtfs_stm.zip
 
 const gulp = require('gulp'),
   knex = require('./config/knex'),
-  path_stm = __dirname + '/gtfs/STM/' + '202008',
+  path_stm = __dirname + '/gtfs/STM/' + '202012',
   path_stl = __dirname + '/gtfs/STL/' + '202008',
   path_rtl = __dirname + '/gtfs/RTL/' + '202010'
 
