@@ -26,7 +26,6 @@ const fetch = require('node-fetch');
 
 const controllers = require('./controllers')
 
-const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
 const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
 
 //exo
@@ -71,7 +70,6 @@ const requestSettingsOMITSJU = {
 //À valider : pourquoi avec node-fetch je n'arrive pas à passer le body de la response dans
 //GtfsRealtimeBindings.FeedMessage...mais avec request ça marche?
 
-let vehArraySTM = [];
 let vehArraySTL = [];
 let vehArrayRTL = [];
 let vehArrayCITVR = [];
@@ -151,6 +149,8 @@ module.exports = {
 
     function handleSTM() {
 
+      vehArraySTM = [];
+
       const API_URL_STM = `https://api.stm.info/pub/od/gtfs-rt/ic/v1`;
       
       const requestSettingsSTM = {
@@ -192,11 +192,12 @@ module.exports = {
             });
             vehArraySTM.push(vehPos);
           })
-          //console.log(vehArraySTM);
+          console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
+
         }).catch((message) => { 
           console.log(message);
         })
-      
+
       };
 
 
@@ -204,10 +205,7 @@ module.exports = {
 
     async function main() {
 
-      vehArraySTM = [];
-      handleSTM();
-
-      console.log('Nombre de bus en ligne STM :', vehArraySTM.length);
+      await handleSTM();
 
       // GESTION VEHICULES STL
       // L'API nextbus ne donne pas les mêmes infos que gtfs-r
@@ -333,6 +331,7 @@ module.exports = {
       // for the first user.
 
       //const removeData = await deleteAll();
+
 
       let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
