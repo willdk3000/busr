@@ -2,7 +2,7 @@ const socketIO = require('socket.io')
 //const knex = require('./config/knex')
 
 const controllers = require('./controllers')
-const api = require('./API.js')
+const api = require('./API/API.js')
 
 let socketCount = 0;
 

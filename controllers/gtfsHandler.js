@@ -60,10 +60,15 @@ module.exports = {
     // Hours are worth 60 minutes, minutes are worth 60 seconds. 
     let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
     let seconds28 = seconds;
+    
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
+    // TODO: VALIDER SI NECESSAIRE DE FAIRE DATEPARSE -= 1 POUR RTL ET STL
     if (seconds <= 14340) {
-      seconds28 = seconds + 86400
+      seconds28 = seconds + 86400;
+      dateParse -= 1
     }
+
+  
 
     //Sunday = 0
     let dayNow = timeNow.getDay();
@@ -78,8 +83,16 @@ module.exports = {
       service = 6
     } else if (dayNow == 0 && seconds <= 14340) {
       service = 6
-    } else {
+    } else if (dayNow == 1 && seconds > 14340) {
       service = 1
+    } else if (dayNow == 2 && seconds > 14340) {
+      service = 2
+    } else if (dayNow == 3 && seconds > 14340) {
+      service = 3
+    } else if (dayNow == 4 && seconds > 14340) {
+      service = 4
+    } else if (dayNow == 5 && seconds > 14340) {
+      service = 5
     }
 
  
@@ -224,7 +237,7 @@ module.exports = {
     let seconds28 = seconds;
     //FORMAT 28h donc si entre minuit et 3h59, ajouter 86400 secondes...
     if (seconds <= 14340) {
-      seconds28 = seconds + 86400
+      seconds28 = seconds + 86400;
     }
 
     let dayNow = timeNow.getDay();
