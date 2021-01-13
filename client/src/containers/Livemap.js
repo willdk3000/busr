@@ -43,11 +43,19 @@ class Livemap extends Component {
         return e.groupe === 'exo'
       }) : ''
 
+      const vehFeatEXO={type: 'FeatureCollection', features: []};
+
+      vehEXO.forEach((e)=>{
+        e.data.features.forEach((f=>{
+          vehFeatEXO.features.push(f)
+        }))
+      })
+
       this.setState({
         vehiclesSTM: vehSTM[0].data,
         vehiclesSTL: vehSTL[0].data,
         vehiclesRTL: vehRTL[0].data,
-        vehiclesEXO: vehEXO[0].data,
+        vehiclesEXO: vehFeatEXO,
         timestampSTM: vehSTM[0].timestr,
         timestampSTL: vehSTL[0].timestr,
         timestampRTL: vehRTL[0].timestr,
@@ -78,7 +86,6 @@ class Livemap extends Component {
     this.setState({
       tracesRTL: tracesRTL.rows[0].jsonb_build_object
     })
-
 
   }
 
