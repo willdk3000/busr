@@ -22,6 +22,7 @@ class Livemap extends Component {
     }
   };
 
+
   componentDidMount = async () => {
 
     const getData = getNewData((err, positions) => {
@@ -38,24 +39,19 @@ class Livemap extends Component {
         return e.reseau === 'RTL'
       }) : ''
 
-      const vehCITLA = positions ? positions[0].filter((e) => {
-        return e.reseau === 'CITLA'
-      }) : ''
-
-      const vehCITVR = positions ? positions[0].filter((e) => {
-        return e.reseau === 'CITVR'
+      const vehEXO = positions ? positions[0].filter((e) => {
+        return e.groupe === 'exo'
       }) : ''
 
       this.setState({
         vehiclesSTM: vehSTM[0].data,
         vehiclesSTL: vehSTL[0].data,
         vehiclesRTL: vehRTL[0].data,
-        vehiclesCITLA: vehCITLA[0].data,
-        vehiclesCITVR: vehCITVR[0].data,
+        vehiclesEXO: vehEXO[0].data,
         timestampSTM: vehSTM[0].timestr,
         timestampSTL: vehSTL[0].timestr,
         timestampRTL: vehRTL[0].timestr,
-        timestampCITLA: vehCITLA[0].timestr,
+        timestampEXO: vehEXO[0].timestr,
         plannedTripsRTL: positions ? positions[1] : '',
         plannedTripsSTL: positions ? positions[2] : '',
         plannedTripsSTM: positions ? positions[3] : ''
@@ -123,15 +119,9 @@ class Livemap extends Component {
       }
       );
 
-      map.addSource(
-        "vehiculesCITLA", {
-        "type": "geojson",
-        "data": emptyGeoJSON
-      }
-      );
 
       map.addSource(
-        "vehiculesCITVR", {
+        "vehiculesEXO", {
         "type": "geojson",
         "data": emptyGeoJSON
       }
@@ -242,27 +232,12 @@ class Livemap extends Component {
         }
       );
 
-      map.addLayer(
-        {
-          "id": "position-vehicules-citla",
-          "type": "symbol",
-          "source": "vehiculesCITLA",
-          "layout": {
-            'text-field': String.fromCharCode("0xF207"),
-            'text-font': ['Font Awesome 5 Free Solid'],
-            'text-size': 12
-          },
-          "paint": {
-            "text-color": "#000000"
-          }
-        }
-      );
 
       map.addLayer(
         {
-          "id": "position-vehicules-citvr",
+          "id": "position-vehicules-exo",
           "type": "symbol",
-          "source": "vehiculesCITVR",
+          "source": "vehiculesEXO",
           "layout": {
             'text-field': String.fromCharCode("0xF207"),
             'text-font': ['Font Awesome 5 Free Solid'],
@@ -380,7 +355,7 @@ class Livemap extends Component {
   //rafraichir les donnees avec les nouvelles donnees recues de socketio
   //au moment du update du component
   componentDidUpdate = async (prevProps, prevState) => {
-    const { vehiclesSTM, vehiclesSTL, vehiclesRTL, vehiclesCITLA, vehiclesCITVR } = this.state;
+    const { vehiclesSTM, vehiclesSTL, vehiclesRTL, vehiclesEXO } = this.state;
     const { mapIsLoaded } = this.state;
 
     if (!mapIsLoaded) {
@@ -443,29 +418,17 @@ class Livemap extends Component {
 
     }
 
-    if (vehiclesCITLA !== prevState.vehiclesCITLA) {
-      this.map.getSource("vehiculesCITLA").setData(vehiclesCITLA);
+  
+    if (vehiclesEXO !== prevState.vehiclesEXO) {
+      this.map.getSource("vehiculesEXO").setData(vehiclesEXO);
 
-      const vehRoutesCITLA = this.state.vehiclesCITLA ? this.state.vehiclesCITLA.features.map((e) => {
+      const vehRoutesEXO = this.state.vehiclesEXO ? this.state.vehiclesEXO.features.map((e) => {
         return e.properties.route_id
       }) : ''
 
-      const uniqueRoutesCITLA = [...new Set(vehRoutesCITLA)]
+      const uniqueRoutesEXO = [...new Set(vehRoutesEXO)]
 
-      this.setState({ routesCITLA: uniqueRoutesCITLA })
-
-    }
-
-    if (vehiclesCITVR !== prevState.vehiclesCITVR) {
-      this.map.getSource("vehiculesCITVR").setData(vehiclesCITVR);
-
-      const vehRoutesCITVR = this.state.vehiclesCITVR ? this.state.vehiclesCITVR.features.map((e) => {
-        return e.properties.route_id
-      }) : ''
-
-      const uniqueRoutesCITVR = [...new Set(vehRoutesCITVR)]
-
-      this.setState({ routesCITVR: uniqueRoutesCITVR })
+      this.setState({ routesEXO: uniqueRoutesEXO })
 
     }
 
@@ -488,17 +451,14 @@ class Livemap extends Component {
 
     const hoveredFeatureRTL = features && features.find(f => f.layer.id === 'position-vehicules-rtl');
 
-    const hoveredFeatureCITLA = features && features.find(f => f.layer.id === 'position-vehicules-citla');
-
-    const hoveredFeatureCITVR = features && features.find(f => f.layer.id === 'position-vehicules-citvr');
+    const hoveredFeatureEXO = features && features.find(f => f.layer.id === 'position-vehicules-exo');
 
     this.setState({
       hoveredFeatureSTM,
       hoveredStopSTM,
       hoveredFeatureSTL,
       hoveredFeatureRTL,
-      hoveredFeatureCITLA,
-      hoveredFeatureCITVR,
+      hoveredFeatureEXO,
       x: offsetX,
       y: offsetY
     });
@@ -624,8 +584,7 @@ class Livemap extends Component {
       hoveredStopSTM,
       hoveredFeatureSTL,
       hoveredFeatureRTL,
-      hoveredFeatureCITLA,
-      hoveredFeatureCITVR,
+      hoveredFeatureEXO,
       x, y, mapIsLoaded } = this.state;
 
 
@@ -634,9 +593,7 @@ class Livemap extends Component {
     const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
     const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
     const tripHoverRTL = hoveredFeatureRTL ? hoveredFeatureRTL.properties.trip_id : '';
-    const tripHoverCITLA = hoveredFeatureCITLA ? hoveredFeatureCITLA.properties.trip_id : '';
-    const tripHoverCITVR = hoveredFeatureCITVR ? hoveredFeatureCITVR.properties.trip_id : '';
-
+    const tripHoverEXO = hoveredFeatureEXO ? hoveredFeatureEXO.properties.trip_id : '';
 
     //Affectation du nom du trip ou de la ligne à une variable 
     const nomLigneSTM = this.state.tracesSTM ? this.state.tracesSTM.features.filter((e) => {
@@ -655,15 +612,9 @@ class Livemap extends Component {
       })
     }) : ''
 
-    const nomLigneCITLA = this.state.tracesCITLA ? this.state.tracesCITLA.features.filter((e) => {
+    const nomLigneEXO = this.state.tracesEXO ? this.state.tracesEXO.features.filter((e) => {
       return e.properties.trips.some((f) => {
-        return f === tripHoverCITLA
-      })
-    }) : ''
-
-    const nomLigneCITVR = this.state.tracesCITVR ? this.state.tracesCITVR.features.filter((e) => {
-      return e.properties.trips.some((f) => {
-        return f === tripHoverCITVR
+        return f === tripHoverEXO
       })
     }) : ''
 
@@ -701,24 +652,14 @@ class Livemap extends Component {
               <div>Mise à jour: {hoveredFeatureRTL.properties.timestamp ? hoveredFeatureRTL.properties.timestamp : ''} s</div>
             </div>
           ) :
-          hoveredFeatureCITLA ?
-            hoveredFeatureCITLA && (
-              <div className="mapToolTip" style={{ left: x, top: y }}>
-                <div>Véhicule: {hoveredFeatureCITLA.properties.vehicle_id}</div>
-                <div>Ligne: {hoveredFeatureCITLA.properties.route_id}</div>
-                {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
-                <div>Trip ID: {hoveredFeatureCITLA.properties.trip_id}</div>
-                <div>Mise à jour: {hoveredFeatureCITLA.properties.timestamp ? hoveredFeatureCITLA.properties.timestamp : ''} s</div>
-              </div>
-            ) :
-            hoveredFeatureCITVR ?
-              hoveredFeatureCITVR && (
+            hoveredFeatureEXO ?
+              hoveredFeatureEXO && (
                 <div className="mapToolTip" style={{ left: x, top: y }}>
-                  <div>Véhicule: {hoveredFeatureCITVR.properties.vehicle_id}</div>
-                  <div>Ligne: {hoveredFeatureCITVR.properties.route_id}</div>
+                  <div>Véhicule: {hoveredFeatureEXO.properties.vehicle_id}</div>
+                  <div>Ligne: {hoveredFeatureEXO.properties.route_id}</div>
                   {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
-                  <div>Trip ID: {hoveredFeatureCITVR.properties.trip_id}</div>
-                  <div>Mise à jour: {hoveredFeatureCITVR.properties.timestamp ? hoveredFeatureCITVR.properties.timestamp : ''} s</div>
+                  <div>Trip ID: {hoveredFeatureEXO.properties.trip_id}</div>
+                  <div>Mise à jour: {hoveredFeatureEXO.properties.timestamp ? hoveredFeatureEXO.properties.timestamp : ''} s</div>
                 </div>
               ) : ''
     /*hoveredStopSTM ?
@@ -753,10 +694,10 @@ class Livemap extends Component {
           onlineVehiclesRTL={this.state.vehiclesRTL ? this.state.vehiclesRTL.features.length : 0}
           plannedVehiclesRTL={this.state.plannedTripsRTL ? this.state.plannedTripsRTL.length : 0}
           routesRTL={this.state.routesRTL ? this.state.routesRTL.length : 0}
-          lastRefreshEXO={this.state.timestampCITLA ? this.state.timestampCITLA : '-'}
-          onlineVehiclesEXO={this.state.vehiclesCITLA ? this.state.vehiclesCITLA.features.length + this.state.vehiclesCITVR.features.length : 0}
-          plannedVehiclesEXO={this.state.plannedTripsCITLA ? this.state.plannedTripsCITLA.length : 0}
-          routesEXO={this.state.routesCITLA ? this.state.routesCITLA.length + this.state.routesCITVR.length : 0}
+          lastRefreshEXO={this.state.timestampEXO ? this.state.timestampEXO : '-'}
+          onlineVehiclesEXO={this.state.vehiclesEXO ? this.state.vehiclesEXO.features.length : 0}
+          plannedVehiclesEXO={this.state.plannedTripsEXO ? this.state.plannedTripsEXO : 0}
+          routesEXO={this.state.routesEXO ? this.state.routesEXO.length + this.state.routesEXO.length : 0}
         />
         <MapGL
           {...viewport}

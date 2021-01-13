@@ -89,8 +89,13 @@ module.exports = {
             })
     },
 
-    insertCITLA(req, res) {
-        const veh_len = JSON.parse(req)[0].features.length;
+    insertEXO(req, res) {
+
+        let CIT = req.CIT
+        //const veh = JSON.parse(req.VEH).features.length;
+        const veh = JSON.parse(req.VEH);
+        const veh_len = veh[0].features.length;
+        //console.log(veh);
         const time = moment(new Date()).format('HH:mm:ss');
 
         let timeNow = new Date();
@@ -102,69 +107,14 @@ module.exports = {
                 SELECT 
                 NOW() AS timestamp,
                 LOCALTIME AS time,
-                jsonb_array_elements('${req}'::jsonb) AS data,
+                jsonb_array_elements('${req.VEH}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
                 '${dayNow}' as weekday ,
-                'CITLA' AS reseau,
-                '${time}' AS timestr
+                '${CIT}' AS reseau,
+                '${time}' AS timestr,
+                'exo' AS groupe
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
-            SELECT * FROM data_array
-            `
-        )
-            .then((result) => {
-                return 'done'
-            })
-    },
-
-    insertCITVR(req, res) {
-        const veh_len = JSON.parse(req)[0].features.length;
-        const time = moment(new Date()).format('HH:mm:ss');
-
-        let timeNow = new Date();
-        let dayNow = timeNow.getDay();
-
-        return knex.raw(
-            `
-            WITH data_array AS (
-                SELECT 
-                NOW() AS timestamp,
-                LOCALTIME AS time,
-                jsonb_array_elements('${req}'::jsonb) AS data,
-                ${veh_len} AS vehlen,
-                '${dayNow}' as weekday ,
-                'CITVR' AS reseau,
-                '${time}' AS timestr
-            )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
-            SELECT * FROM data_array
-            `
-        )
-            .then((result) => {
-                return 'done'
-            })
-    },
-
-    insertOMITSJU(req, res) {
-        const veh_len = JSON.parse(req)[0].features.length;
-        const time = moment(new Date()).format('HH:mm:ss');
-
-        let timeNow = new Date();
-        let dayNow = timeNow.getDay();
-
-        return knex.raw(
-            `
-            WITH data_array AS (
-                SELECT 
-                NOW() AS timestamp,
-                LOCALTIME AS time,
-                jsonb_array_elements('${req}'::jsonb) AS data,
-                ${veh_len} AS vehlen,
-                '${dayNow}' as weekday ,
-                'OMITSJU' AS reseau,
-                '${time}' AS timestr
-            )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr, groupe)
             SELECT * FROM data_array
             `
         )
