@@ -161,7 +161,7 @@ module.exports = {
         //requete pour 3 jours de donnees pour les 3 agences
 
         return knex('vehicles')
-            .select('timestamp', 'timestr', 'vehlen', 'weekday', 'reseau')
+            .select('timestamp', 'timestr', 'vehlen', 'weekday', 'reseau', 'groupe')
             .where({}).orderBy('timestamp', 'desc').limit(25920)
             .then(result => {
                 res.json(result)

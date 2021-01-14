@@ -78,12 +78,13 @@ module.exports = {
             let feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(data);
             const vehicles = Object.values(feed.entity);
 
-            vehicles.forEach((e) => {
-                let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
-                vehicle_id: e.id,
-                route_id: e.vehicle.trip.routeId,
-                trip_id: e.vehicle.trip.tripId,
-                timestamp: moment.duration(new moment().format('x') - moment.unix(e.vehicle.timestamp.low)).as('seconds'),
+            vehicles.forEach((f) => {
+                let vehPos = turf.point([f.vehicle.position.longitude, f.vehicle.position.latitude], {
+                cit: cit_array[e].CIT,
+                vehicle_id: f.id,
+                route_id: f.vehicle.trip.routeId,
+                trip_id: f.vehicle.trip.tripId,
+                timestamp: moment.duration(new moment().format('x') - moment.unix(f.vehicle.timestamp.low)).as('seconds'),
                 server_request: new Date()
                 });
                 vehArray.push(vehPos);

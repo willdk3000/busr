@@ -19,8 +19,6 @@ const request = require('request');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const turf = require('@turf/turf');
 const moment = require('moment');
-const fetch = require('node-fetch');
-
 
 const controllers = require('../controllers')
 const stm = require('./stm.js');
@@ -28,12 +26,13 @@ const exo = require('./exo.js');
 
 const API_URL_RTL = `http://opendata.rtm.quebec:2539/ServiceGTFSR/VehiclePosition.pb?token=${process.env.API_KEY_EXO}&agency=RTL`
 
-
 const requestSettingsRTL = {
   method: 'GET',
   url: API_URL_RTL,
   encoding: null
 };
+
+
 
 //À valider : pourquoi avec node-fetch je n'arrive pas à passer le body de la response dans
 //GtfsRealtimeBindings.FeedMessage...mais avec request ça marche?
@@ -53,9 +52,27 @@ module.exports = {
 
     
     // Requete vers le serveur de nextbus (STL)
-    async function requestDataSTL(epochTime) {
-      const response = await fetch(`http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=stl&t=${epochTime}`)
-      return response.json()
+    function requestDataSTL(epochTime) {
+      
+      const API_URL_STL = `http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=stl&t=${epochTime}`
+
+      const requestSettingsSTL = {
+        method: 'GET',
+        url: API_URL_STL
+      }
+
+      return new Promise(function (resolve, reject) {
+        request(requestSettingsSTL, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            resolve(body);
+          }
+          else {
+            console.log(response, error)
+          }
+        })
+      });
+
+
     }
 
     // Requete vers le serveur d'exo (RTL)
@@ -84,6 +101,7 @@ module.exports = {
       // L'API nextbus ne donne pas les mêmes infos que gtfs-r
       let epochTime = (new Date).getTime() / 1000;
       let dataSTL = await requestDataSTL(epochTime);
+      dataSTLparsed = JSON.parse(dataSTL);
       vehArraySTL = [];
 
       //Les donnnées sont reçues même si la dernière coordonnée GPS a été
@@ -91,7 +109,7 @@ module.exports = {
       //appliquer un seuil pour éviter d'avoir des données en trop. Mon choix,
       //conserver les vehicules qui ont fait une mise a jour il y a moins de 90s.
 
-      dataSTL.vehicle.forEach((e) => {
+      dataSTLparsed.vehicle.forEach((e) => {
         if (e.secsSinceReport <= 90) {
           vehArraySTL.push(turf.point([parseFloat(e.lon), parseFloat(e.lat)], {
             route_id: e.routeTag,

@@ -45,9 +45,11 @@ class Livemap extends Component {
 
       const vehFeatEXO={type: 'FeatureCollection', features: []};
 
+      // Merge de tous les features des CIT dans un seul objet pour EXO (moins complique pour l'affichage)
+      // Ajout du nom du CIT dans les proprietes de chaque feature pour les distinguer
       vehEXO.forEach((e)=>{
-        e.data.features.forEach((f=>{
-          vehFeatEXO.features.push(f)
+        e.data.features.forEach(((f, i)=>{
+          vehFeatEXO.features.push(f);
         }))
       })
 
@@ -65,6 +67,8 @@ class Livemap extends Component {
         plannedTripsSTM: positions ? positions[3] : ''
       })
 
+
+      
     })
 
     const map = this.reactMap.getMap();
@@ -406,7 +410,26 @@ class Livemap extends Component {
 
       const uniqueRoutesRTL = [...new Set(vehRoutesRTL)]
 
-      // Animation
+      this.setState({ routesRTL: uniqueRoutesRTL })
+
+    }
+
+  
+    if (vehiclesEXO !== prevState.vehiclesEXO) {
+
+      this.map.getSource("vehiculesEXO").setData(vehiclesEXO);
+
+      const vehRoutesEXO = this.state.vehiclesEXO ? this.state.vehiclesEXO.features.map((e) => {
+        return e.properties.route_id
+      }) : ''
+
+      const uniqueRoutesEXO = [...new Set(vehRoutesEXO)]
+
+      this.setState({ routesEXO: uniqueRoutesEXO })
+
+    }
+
+          // Animation
       // if (prevState.vehiclesRTL && this.state.vehiclesRTL) {
       //   const arcsRTL = await tripsToArcsRTL(prevState.vehiclesRTL, this.state.vehiclesRTL, this.state.tracesRTL);
 
@@ -421,23 +444,6 @@ class Livemap extends Component {
 
       // }
 
-      this.setState({ routesRTL: uniqueRoutesRTL })
-
-    }
-
-  
-    if (vehiclesEXO !== prevState.vehiclesEXO) {
-      this.map.getSource("vehiculesEXO").setData(vehiclesEXO);
-
-      const vehRoutesEXO = this.state.vehiclesEXO ? this.state.vehiclesEXO.features.map((e) => {
-        return e.properties.route_id
-      }) : ''
-
-      const uniqueRoutesEXO = [...new Set(vehRoutesEXO)]
-
-      this.setState({ routesEXO: uniqueRoutesEXO })
-
-    }
 
     //console.log(this.state)
 
@@ -594,8 +600,6 @@ class Livemap extends Component {
       hoveredFeatureEXO,
       x, y, mapIsLoaded } = this.state;
 
-
-
     // Identification du trip (stm, rtl) ou de la ligne (stl) hovered
     const tripHoverSTM = hoveredFeatureSTM ? hoveredFeatureSTM.properties.trip_id : '';
     const routeHoverSTL = hoveredFeatureSTL ? hoveredFeatureSTL.properties.route_id : '';
@@ -662,6 +666,7 @@ class Livemap extends Component {
             hoveredFeatureEXO ?
               hoveredFeatureEXO && (
                 <div className="mapToolTip" style={{ left: x, top: y }}>
+                  <div>CIT: {hoveredFeatureEXO.properties.cit}</div>
                   <div>Véhicule: {hoveredFeatureEXO.properties.vehicle_id}</div>
                   <div>Ligne: {hoveredFeatureEXO.properties.route_id}</div>
                   {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}

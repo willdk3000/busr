@@ -122,7 +122,7 @@ class Historique extends Component {
               <Scatter yAxisId="left" name="STM" data={this.state.week.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
               <Scatter yAxisId="right" name="STL" data={this.state.week.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
               <Scatter yAxisId="right" name="RTL" data={this.state.week.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
-              <Scatter yAxisId="right" name="exo" data={this.state.week.filter((e) => { return e.reseau === 'CITVR' || e.reseau === 'CITLA' })} fill="#000000" />
+              <Scatter yAxisId="right" name="exo" data={this.state.week.filter((e) => { return e.groupe === 'exo' || e.groupe === 'exo' })} fill="#000000" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
@@ -160,7 +160,7 @@ class Historique extends Component {
               <Scatter yAxisId="left" name="STM" data={this.state.saturday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
               <Scatter yAxisId="right" name="STL" data={this.state.saturday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
               <Scatter yAxisId="right" name="RTL" data={this.state.saturday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
-              <Scatter yAxisId="right" name="exo" data={this.state.saturday.filter((e) => { return e.reseau === 'CITVR' || e.reseau === 'CITLA' })} fill="#000000" />
+              <Scatter yAxisId="right" name="exo" data={this.state.saturday.filter((e) => { return e.groupe === 'exo' || e.groupe === 'exo' })} fill="#000000" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
@@ -197,7 +197,7 @@ class Historique extends Component {
               <Scatter yAxisId="left" name="STM" data={this.state.sunday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
               <Scatter yAxisId="right" name="STL" data={this.state.sunday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
               <Scatter yAxisId="right" name="RTL" data={this.state.sunday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
-              <Scatter yAxisId="right" name="exo" data={this.state.sunday.filter((e) => { return e.reseau === 'CITVR' || e.reseau === 'CITLA' })} fill="#000000" />
+              <Scatter yAxisId="right" name="exo" data={this.state.sunday.filter((e) => { return e.groupe === 'exo' || e.groupe === 'exo' })} fill="#000000" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
