@@ -39,6 +39,7 @@ module.exports = {
         //console.log('vehicles', vehicles)
         vehicles.forEach((e) => {
           let vehPos = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+            reseau: 'STM',
             vehicle_id: e.id,
             route_id: e.vehicle.trip.routeId,
             trip_id: e.vehicle.trip.tripId,

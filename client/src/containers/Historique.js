@@ -29,15 +29,17 @@ class Historique extends Component {
 
     // Convert hh:mm:ss to unix milliseconds
     // Format required by recharts for time series
+    // Voir si c'est possible d'utiliser autre chose que moment pour la conversion (trop long)
 
     const parsing = allVehicles ?
       allVehicles.forEach((e) => {
         parseAll.push({
-          reseau: e.reseau,
           time: parseInt(moment("2019-04-28 " + e.timestr).format('x')),
-          vehlen: e.vehlen,
+          vehlen: e.sum,
           weekday: e.weekday,
-          date: moment(e.timestamp).format('YYYY-MM-DD')
+          date: e.rid.substr(0, 4)+'-'+e.rid.substr(4,2)+'-'+e.rid.substr(6,2),
+          groupe: e.groupe,
+          rid: e.rid
         })
       }) : ''
 
@@ -70,7 +72,7 @@ class Historique extends Component {
       if (active) {
         return (
           <div className="custom-tooltip">
-            <p className="label">Agence : {payload[0].payload.reseau}<br />
+            <p className="label">Agence : {payload[0].payload.groupe}<br />
               Date : {payload[0].payload.date} <br />
               Heure : {moment(payload[0].payload.time).format('HH:mm:ss')}<br />
               Véhicules actifs : {payload[0].payload.vehlen}</p>
@@ -119,10 +121,10 @@ class Historique extends Component {
                 content={<CustomTooltip />}
               />
               <Legend />
-              <Scatter yAxisId="left" name="STM" data={this.state.week.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
-              <Scatter yAxisId="right" name="STL" data={this.state.week.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
-              <Scatter yAxisId="right" name="RTL" data={this.state.week.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
-              <Scatter yAxisId="right" name="exo" data={this.state.week.filter((e) => { return e.groupe === 'exo' || e.groupe === 'exo' })} fill="#000000" />
+              <Scatter yAxisId="left" name="STM" data={this.state.week.filter((e) => { return e.groupe === 'STM' })} fill="#009DE0" />
+              <Scatter yAxisId="right" name="STL" data={this.state.week.filter((e) => { return e.groupe === 'STL' })} fill="#82C341" />
+              <Scatter yAxisId="right" name="RTL" data={this.state.week.filter((e) => { return e.groupe === 'RTL' })} fill="#A93332" />
+              <Scatter yAxisId="right" name="exo" data={this.state.week.filter((e) => { return e.groupe === 'exo' })} fill="#000000" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
@@ -157,10 +159,10 @@ class Historique extends Component {
                 content={<CustomTooltip />}
               />
               <Legend />
-              <Scatter yAxisId="left" name="STM" data={this.state.saturday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
-              <Scatter yAxisId="right" name="STL" data={this.state.saturday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
-              <Scatter yAxisId="right" name="RTL" data={this.state.saturday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
-              <Scatter yAxisId="right" name="exo" data={this.state.saturday.filter((e) => { return e.groupe === 'exo' || e.groupe === 'exo' })} fill="#000000" />
+              <Scatter yAxisId="left" name="STM" data={this.state.saturday.filter((e) => { return e.groupe === 'STM' })} fill="#009DE0" />
+              <Scatter yAxisId="right" name="STL" data={this.state.saturday.filter((e) => { return e.groupe === 'STL' })} fill="#82C341" />
+              <Scatter yAxisId="right" name="RTL" data={this.state.saturday.filter((e) => { return e.groupe === 'RTL' })} fill="#A93332" />
+              <Scatter yAxisId="right" name="exo" data={this.state.saturday.filter((e) => { return e.groupe === 'exo' })} fill="#000000" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >
@@ -194,10 +196,10 @@ class Historique extends Component {
                 content={<CustomTooltip />}
               />
               <Legend />
-              <Scatter yAxisId="left" name="STM" data={this.state.sunday.filter((e) => { return e.reseau === 'STM' })} fill="#009DE0" />
-              <Scatter yAxisId="right" name="STL" data={this.state.sunday.filter((e) => { return e.reseau === 'STL' })} fill="#82C341" />
-              <Scatter yAxisId="right" name="RTL" data={this.state.sunday.filter((e) => { return e.reseau === 'RTL' })} fill="#A93332" />
-              <Scatter yAxisId="right" name="exo" data={this.state.sunday.filter((e) => { return e.groupe === 'exo' || e.groupe === 'exo' })} fill="#000000" />
+              <Scatter yAxisId="left" name="STM" data={this.state.sunday.filter((e) => { return e.groupe === 'STM' })} fill="#009DE0" />
+              <Scatter yAxisId="right" name="STL" data={this.state.sunday.filter((e) => { return e.groupe === 'STL' })} fill="#82C341" />
+              <Scatter yAxisId="right" name="RTL" data={this.state.sunday.filter((e) => { return e.groupe === 'RTL' })} fill="#A93332" />
+              <Scatter yAxisId="right" name="exo" data={this.state.sunday.filter((e) => { return e.groupe === 'exo' })} fill="#000000" />
             </ScatterChart>
           </ResponsiveContainer>
         </div >

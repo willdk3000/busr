@@ -10,7 +10,9 @@ exports.up = function (knex) {
         vehlen integer,
         weekday text COLLATE pg_catalog."default",
         reseau text COLLATE pg_catalog."default",
-        timestr text COLLATE pg_catalog."default"
+        timestr text COLLATE pg_catalog."default",
+        groupe text COLLATE pg_catalog."default",
+        rid text COLLATE pg_catalog."default"
     )
     WITH (
         OIDS = FALSE

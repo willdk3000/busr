@@ -18,7 +18,7 @@ class Livemap extends Component {
     viewport: {
       latitude: 45.556827,
       longitude: -73.662362,
-      zoom: 10
+      zoom: 9
     }
   };
 
@@ -638,6 +638,7 @@ class Livemap extends Component {
         //ne pas appeler la class 'tooltip' car il semble que ce nom soit en conflit
         //avec un autre tooltip...
         <div className="mapToolTip" style={{ left: x, top: y }}>
+          <div>Réseau: {hoveredFeatureSTM.properties.reseau}</div>
           <div>Véhicule: {hoveredFeatureSTM.properties.vehicle_id}</div>
           <div>Ligne: {hoveredFeatureSTM.properties.route_id}</div>
           {/*<div>Axe: {nomLigneSTM[0].properties.route_name ? nomLigneSTM[0].properties.route_name : ''}</div>*/}
@@ -648,6 +649,7 @@ class Livemap extends Component {
       hoveredFeatureSTL ?
         hoveredFeatureSTL && (
           <div className="mapToolTip" style={{ left: x, top: y }}>
+            <div>Réseau: {hoveredFeatureSTL.properties.reseau}</div>
             <div>Véhicule: {hoveredFeatureSTL.properties.vehicle_id}</div>
             <div>Ligne: {hoveredFeatureSTL.properties.route_id}</div>
             <div>Mise à jour: {hoveredFeatureSTL.properties.last_connection} s</div>
@@ -656,6 +658,7 @@ class Livemap extends Component {
         hoveredFeatureRTL ?
           hoveredFeatureRTL && (
             <div className="mapToolTip" style={{ left: x, top: y }}>
+              <div>Réseau: {hoveredFeatureRTL.properties.reseau}</div>
               <div>Véhicule: {hoveredFeatureRTL.properties.vehicle_id}</div>
               <div>Ligne: {hoveredFeatureRTL.properties.route_id}</div>
               {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}
@@ -666,7 +669,7 @@ class Livemap extends Component {
             hoveredFeatureEXO ?
               hoveredFeatureEXO && (
                 <div className="mapToolTip" style={{ left: x, top: y }}>
-                  <div>CIT: {hoveredFeatureEXO.properties.cit}</div>
+                  <div>Réseau: {hoveredFeatureEXO.properties.cit}</div>
                   <div>Véhicule: {hoveredFeatureEXO.properties.vehicle_id}</div>
                   <div>Ligne: {hoveredFeatureEXO.properties.route_id}</div>
                   {/*<div>Axe: {nomLigneRTL ? nomLigneRTL[0].properties.route_name : ''}</div>*/}

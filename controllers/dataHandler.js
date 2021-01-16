@@ -4,7 +4,9 @@ const moment = require('moment');
 module.exports = {
 
     insertSTM(req, res) {
-        const veh_len = JSON.parse(req)[0].features.length
+
+        const veh = JSON.parse(req.VEH);
+        const veh_len = veh[0].features.length;
         const time = moment(new Date()).format('HH:mm:ss');
 
         let timeNow = new Date();
@@ -18,13 +20,15 @@ module.exports = {
                 SELECT 
                 NOW() AS timestamp,
                 LOCALTIME AS time,
-                jsonb_array_elements('${req}'::jsonb) AS data,
+                jsonb_array_elements('${req.VEH}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
                 '${dayNow}' as weekday,
                 'STM' AS reseau,
-                '${time}' AS timestr
+                '${time}' AS timestr,
+                'STM' AS groupe,
+                '${req.ID}' AS rid
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr, groupe, rid)
             SELECT * FROM data_array
             `
         )
@@ -34,7 +38,9 @@ module.exports = {
     },
 
     insertSTL(req, res) {
-        const veh_len = JSON.parse(req)[0].features.length;
+
+        const veh = JSON.parse(req.VEH);
+        const veh_len = veh[0].features.length;
         const time = moment(new Date()).format('HH:mm:ss');
 
         let timeNow = new Date();
@@ -46,13 +52,15 @@ module.exports = {
                 SELECT 
                 NOW() AS timestamp,
                 LOCALTIME AS time,
-                jsonb_array_elements('${req}'::jsonb) AS data,
+                jsonb_array_elements('${req.VEH}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
                 '${dayNow}' as weekday,
                 'STL' AS reseau,
-                '${time}' AS timestr
+                '${time}' AS timestr,
+                'STL' AS groupe,
+                '${req.ID}' AS rid
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr, groupe, rid)
             SELECT * FROM data_array
             `
         )
@@ -62,7 +70,9 @@ module.exports = {
     },
 
     insertRTL(req, res) {
-        const veh_len = JSON.parse(req)[0].features.length;
+
+        const veh = JSON.parse(req.VEH);
+        const veh_len = veh[0].features.length;
         const time = moment(new Date()).format('HH:mm:ss');
 
         let timeNow = new Date();
@@ -74,13 +84,15 @@ module.exports = {
                 SELECT 
                 NOW() AS timestamp,
                 LOCALTIME AS time,
-                jsonb_array_elements('${req}'::jsonb) AS data,
+                jsonb_array_elements('${req.VEH}'::jsonb) AS data,
                 ${veh_len} AS vehlen,
                 '${dayNow}' as weekday ,
                 'RTL' AS reseau,
-                '${time}' AS timestr
+                '${time}' AS timestr,
+                'RTL' AS groupe,
+                '${req.ID}' AS rid
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr, groupe, rid)
             SELECT * FROM data_array
             `
         )
@@ -112,9 +124,10 @@ module.exports = {
                 '${dayNow}' as weekday ,
                 '${CIT}' AS reseau,
                 '${time}' AS timestr,
-                'exo' AS groupe
+                'exo' AS groupe,
+                '${req.ID}' AS rid
             )
-            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr, groupe)
+            INSERT INTO vehicles (timestamp, time, data, vehlen, weekday, reseau, timestr, groupe, rid)
             SELECT * FROM data_array
             `
         )
@@ -161,8 +174,10 @@ module.exports = {
         //requete pour 3 jours de donnees pour les 3 agences
 
         return knex('vehicles')
-            .select('timestamp', 'timestr', 'vehlen', 'weekday', 'reseau', 'groupe')
-            .where({}).orderBy('timestamp', 'desc').limit(25920)
+            .select('timestr', 'weekday','groupe', 'rid').sum('vehlen')
+            .where({})
+            .groupBy('groupe', 'rid', 'timestr', 'weekday')
+            .orderBy('rid', 'desc').limit(25920)
             .then(result => {
                 res.json(result)
             })

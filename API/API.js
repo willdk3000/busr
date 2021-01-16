@@ -112,6 +112,7 @@ module.exports = {
       dataSTLparsed.vehicle.forEach((e) => {
         if (e.secsSinceReport <= 90) {
           vehArraySTL.push(turf.point([parseFloat(e.lon), parseFloat(e.lat)], {
+            reseau:'STL',
             route_id: e.routeTag,
             vehicle_id: e.id,
             speedKmHr: e.speedKmHr,
@@ -135,6 +136,7 @@ module.exports = {
 
       vehiclesRTL.forEach((e) => {
         let vehPosRTL = turf.point([e.vehicle.position.longitude, e.vehicle.position.latitude], {
+          reseau: 'RTL',
           vehicle_id: e.id,
           route_id: e.vehicle.trip.routeId,
           trip_id: e.vehicle.trip.tripId,
@@ -167,22 +169,33 @@ module.exports = {
       // and a second user connects, the data will delete and render an error
       // for the first user.
 
-      //const removeData = await deleteAll();
+      // const removeData = await deleteAll();
+      
+      // code pour rid (identifiant de la requete en batch)
+      let timeNow = new Date();
+      let timeParse = moment(timeNow).format("HH:mm:ss");
 
+      let dateParse = moment(timeNow).format('YYYYMMDD');
+      let split = timeParse.split(':');
+      // Hours are worth 60 minutes, minutes are worth 60 seconds. 
+      let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
+      let rid = ""+dateParse+seconds;
+
+      console.log(rid);
 
       let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
       let vehFeatRTL = turf.featureCollection(vehArrayRTL);
 
-      const setPositionsSTM = await controllers.dataHandler.insertSTM(JSON.stringify([vehFeatSTM]));
-      const setPositionsSTL = await controllers.dataHandler.insertSTL(JSON.stringify([vehFeatSTL]));
-      const setPositionsRTL = await controllers.dataHandler.insertRTL(JSON.stringify([vehFeatRTL]));
+      const setPositionsSTM = await controllers.dataHandler.insertSTM({VEH: JSON.stringify([vehFeatSTM]), ID:rid});
+      const setPositionsSTL = await controllers.dataHandler.insertSTL({VEH: JSON.stringify([vehFeatSTL]), ID: rid});
+      const setPositionsRTL = await controllers.dataHandler.insertRTL({VEH: JSON.stringify([vehFeatRTL]), ID: rid});
 
 
       for (let e=0; e<=11; e++) {
 
         let vehFeat = turf.featureCollection(cit_array[e].vehArray);
-        const setPositions= await controllers.dataHandler.insertEXO({CIT: cit_array[e].CIT, VEH: JSON.stringify([vehFeat])});
+        const setPositions= await controllers.dataHandler.insertEXO({CIT: cit_array[e].CIT, VEH: JSON.stringify([vehFeat]), ID: rid});
         
       }
 
