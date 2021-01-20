@@ -92,3 +92,9 @@ export async function getHistory() {
 };
 
 
+// Données pour Stats GTFS
+
+export async function getStatsGtfs() {
+  const response = await fetch('/api/statsgtfs')
+  return response.json()
+};

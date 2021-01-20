@@ -19,8 +19,12 @@ const Header = () => (
             <Link className="nav-item nav-link text-white" to="/historique" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
               Courbe de service
               </Link>
-            <Link className="nav-item nav-link text-white" to="/liveroutes" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
-              Vue linéaire
+            {//<Link className="nav-item nav-link text-white" to="/liveroutes" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+              //Vue linéaire
+            //</Link>
+          }
+            <Link className="nav-item nav-link text-white" to="/statsgtfs" style={{ textDecoration: 'none', color: '#FFFFFF' }}>
+              Stats GTFS
             </Link>
 
             {/*<li className="nav-item dropdown">

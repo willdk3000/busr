@@ -3,7 +3,7 @@
 /*#b0f2bc,#89e8ac,#67dba5,#4cc8a3,#38b2a3,#2c98a0,#257d98*/
 
 .navbar {
-  background-color:#257d98
+  background-color: #257d98;
 }
 
 .navbar-nav .nav-link {
@@ -13,31 +13,32 @@
 
 #stat-card {
   text-align: center;
-  background-color:rgb(233, 241, 243);
+  background-color: rgb(233, 241, 243);
   border-style: solid;
   border-width: 1px;
+  align-items: center;
 }
 
 #title-card {
   text-align: center;
-  color:#257d98;
+  color: #257d98;
 }
 
 #chart-card {
-  padding-top : 1%;
-  padding-bottom : 1%
+  padding-top: 1%;
+  padding-bottom: 1%;
 }
 
 #agency-card {
   text-align: center;
-  background-color:rgb(233, 241, 243);
+  background-color: rgb(233, 241, 243);
   border-style: solid;
   border-width: 1px;
 }
 
 #agency-card:hover {
   text-align: center;
-  background-color:"#38b2a3";
+  background-color: "#38b2a3";
   border-style: solid;
   border-width: 1px;
 }
@@ -52,7 +53,7 @@
 }
 
 #footer-name {
-  color:#000000;
+  color: #000000;
 }
 
 .mapToolTip {
@@ -67,14 +68,15 @@
   pointer-events: none;
 }
 
-.custom-tooltip{
+.custom-tooltip {
   background-color: rgba(230, 230, 230, 0.85);
   padding-left: 15px;
-  padding-right:15px;
+  padding-right: 15px;
   padding-top: 5px;
   padding-bottom: 1px;
 }
 
-#tableOnline th, td {
-  text-align: center;   
+#tableOnline th,
+td {
+  text-align: center;
 }

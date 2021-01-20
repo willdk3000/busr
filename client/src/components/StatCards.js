@@ -75,8 +75,9 @@ class StatCards extends Component {
             <div className="col-sm" id="stat-card">
               <div id='nom-stat'>Agence :</div>
               <div id='stat'>exo</div>
+              <div id ='nom-stat'>Tracés à venir</div>
             </div>
-            <div className="col-sm" id="stat-card">
+            <div className="col-sm align-middle" id="stat-card">
               <div id='nom-stat'>API :</div>
               <div id='stat'>gtfs-r</div>
             </div>

@@ -417,6 +417,7 @@ module.exports = {
       service = 'SE'
     }
 
+
     return knex.raw(`
     WITH unnested AS (
       SELECT trip_id, service_id, route_id, direction_id, stopcount, a.time, a.minmax

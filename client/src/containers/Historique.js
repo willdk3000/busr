@@ -35,7 +35,7 @@ class Historique extends Component {
       allVehicles.forEach((e) => {
         parseAll.push({
           time: parseInt(moment("2019-04-28 " + e.timestr).format('x')),
-          vehlen: e.sum,
+          vehlen: Number(e.sum),
           weekday: e.weekday,
           date: e.rid.substr(0, 4)+'-'+e.rid.substr(4,2)+'-'+e.rid.substr(6,2),
           groupe: e.groupe,
@@ -57,6 +57,7 @@ class Historique extends Component {
       return parseInt(e.weekday) === 0
     })
 
+
     this.setState({
       week: week,
       saturday: saturday,
@@ -64,6 +65,7 @@ class Historique extends Component {
     })
 
   }
+
 
 
   render() {

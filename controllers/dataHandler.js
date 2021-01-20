@@ -170,14 +170,14 @@ module.exports = {
 
     allvehicles(req, res) {
 
-        //25920 = (24h * 60min * 60sec / 30sec) * 3 jours * 3 agences
-        //requete pour 3 jours de donnees pour les 3 agences
+        //34560 = (24h * 60min * 60sec / 30sec) * 3 jours * 4 agences
+        //requete pour 3 jours de donnees pour les 4 agences
 
         return knex('vehicles')
             .select('timestr', 'weekday','groupe', 'rid').sum('vehlen')
             .where({})
             .groupBy('groupe', 'rid', 'timestr', 'weekday')
-            .orderBy('rid', 'desc').limit(25920)
+            .orderBy('rid', 'desc').limit(34560)
             .then(result => {
                 res.json(result)
             })

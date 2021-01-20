@@ -712,7 +712,7 @@ class Livemap extends Component {
           lastRefreshEXO={this.state.timestampEXO ? this.state.timestampEXO : '-'}
           onlineVehiclesEXO={this.state.vehiclesEXO ? this.state.vehiclesEXO.features.length : 0}
           plannedVehiclesEXO={this.state.plannedTripsEXO ? this.state.plannedTripsEXO : 0}
-          routesEXO={this.state.routesEXO ? this.state.routesEXO.length + this.state.routesEXO.length : 0}
+          routesEXO={this.state.routesEXO ? this.state.routesEXO.length : 0}
         />
         <MapGL
           {...viewport}

@@ -181,8 +181,6 @@ module.exports = {
       let seconds = (+split[0]) * 60 * 60 + (+split[1]) * 60 + (+split[2]);
       let rid = ""+dateParse+seconds;
 
-      console.log(rid);
-
       let vehFeatSTM = turf.featureCollection(vehArraySTM);
       let vehFeatSTL = turf.featureCollection(vehArraySTL);
       let vehFeatRTL = turf.featureCollection(vehArrayRTL);
