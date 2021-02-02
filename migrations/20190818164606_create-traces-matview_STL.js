@@ -27,7 +27,8 @@ exports.up = function (knex, Promise) {
             routeshape.shape_id,
             routeshape.route_id,
             routes.route_long_name,
-            routes.route_short_name
+            routes.route_short_name,
+            ST_LENGTH(routeshape.routes_geom::geography) AS dist
         FROM routeshape
         LEFT JOIN "STL".routes ON routeshape.route_id = "STL".routes.route_id
         GROUP BY routes_geom, shape_id, routeshape.route_id, route_long_name, route_short_name

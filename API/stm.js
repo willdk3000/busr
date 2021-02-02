@@ -26,7 +26,7 @@ module.exports = {
             resolve(body);
           }
           else {
-            console.log(response.statusCode, error)
+            console.log(error)
           }
         })
       });

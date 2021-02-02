@@ -29,6 +29,7 @@ exports.up = function (knex, Promise) {
             routeshape.route_id,
             routeshape.direction_id,
             routes.route_long_name,
+            ST_LENGTH(routeshape.routes_geom::geography) AS dist,
             (array_agg(routeshape.trip_id ORDER BY trip_id)) AS trips
         FROM routeshape
         LEFT JOIN public.routes ON routeshape.route_id = public.routes.route_id
